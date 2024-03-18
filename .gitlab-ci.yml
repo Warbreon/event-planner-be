@@ -32,7 +32,7 @@ clone:
 
 build:
   stage: build
-  image: $ACR_URL/gitlab/packages:latest
+  image: harbor.devbridge.net/sourcery-academy/gitlab-packages:latest
   script:
     - /kaniko/executor
       --context "git-clone"
@@ -41,7 +41,7 @@ build:
 
 deploy:
   stage: deploy
-  image: $ACR_URL/gitlab/packages:latest
+  image: harbor.devbridge.net/sourcery-academy/gitlab-packages:latest
   script:
     - cd git-clone/helm
     - helm upgrade
