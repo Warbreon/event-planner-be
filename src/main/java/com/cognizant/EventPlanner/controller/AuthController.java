@@ -37,9 +37,19 @@ public class AuthController {
         final String token = jwtTokenUtil.generateToken(userDetails.getUsername());
 
         Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
-        Role role = authorities.isEmpty() ? null : Role.valueOf(authorities.iterator().next().getAuthority());
+        Role role = authorities.isEmpty() ? null : convertStringToRole(authorities.iterator().next().getAuthority());
         
         return ResponseEntity.ok(new JwtResponse(token, userDetails.getUsername(), role));
+    }
+
+    private Role convertStringToRole(String authority) {
+        String roleWithoutPrefix = authority.replace("ROLE_", "");
+
+        try {
+            return Role.valueOf(roleWithoutPrefix);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Unexpected role value: " + roleWithoutPrefix);
+        }
     }
     
     private void authenticate(String username, String password) {
