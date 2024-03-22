@@ -33,6 +33,9 @@ public class User {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
     // we might implement spring security for hashing the pass
     @Column(name = "password", nullable = false)
     private String password;

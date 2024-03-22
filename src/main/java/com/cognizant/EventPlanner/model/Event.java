@@ -22,10 +22,11 @@ public class Event {
 
     private String description;
 
+    @Column(name = "image_url")
+    private String imageUrl;
+
     @Column(name = "is_open", nullable = false)
     private boolean isOpen;
-
-    //private LocalDate date; // ?
 
     @Column(name = "created_date")
     private LocalDateTime createdDate;
