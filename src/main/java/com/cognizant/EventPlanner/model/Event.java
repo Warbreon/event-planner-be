@@ -1,16 +1,18 @@
 package com.cognizant.EventPlanner.model;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.Set;
 
 @Getter
 @Setter
+@Builder
 @Entity
 @Table(name = "events")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Event {
 
     @Id

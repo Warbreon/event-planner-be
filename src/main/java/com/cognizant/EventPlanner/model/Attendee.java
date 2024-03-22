@@ -1,15 +1,15 @@
 package com.cognizant.EventPlanner.model;
 
 import jakarta.persistence.*;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @Builder
 @Entity
 @Table(name = "attendees")
+@AllArgsConstructor
+@NoArgsConstructor
 public class Attendee {
 
     @Id
