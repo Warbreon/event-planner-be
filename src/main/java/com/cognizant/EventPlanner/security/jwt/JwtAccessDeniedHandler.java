@@ -15,10 +15,14 @@ import jakarta.servlet.http.HttpServletResponse;
 @Component
 public class JwtAccessDeniedHandler implements AccessDeniedHandler {
 
+    private static final Logger logger = LoggerFactory.getLogger(JwtAccessDeniedHandler.class);
+
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response,
             AccessDeniedException accessDeniedException) throws IOException, ServletException {
+        logger.info("CALLED ACCESS DENIED");
         response.sendError(HttpServletResponse.SC_FORBIDDEN, "Forbidden");
+        response.getWriter().write("Access Denied!");
     }
     
 }

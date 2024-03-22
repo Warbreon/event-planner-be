@@ -21,21 +21,21 @@ public class JwtTokenUtil {
     @Value("${jwt.expiration}")
     private long expiration;
 
-    public String generateToken(String username) {
+    public String generateToken(String email) {
         return Jwts.builder()
-            .subject(username)
+            .subject(email)
             .issuedAt(new Date(System.currentTimeMillis()))
             .expiration(new Date(System.currentTimeMillis() + expiration * 1000))
             .signWith(getKey())
             .compact();
     }
 
-    public boolean validateToken(String token, String username) {
-        final String tokenUsername = getUsernameFromToken(token);
-        return username.equals(tokenUsername) && !isTokenExpired(token);
+    public boolean validateToken(String token, String email) {
+        final String tokenEmail = getEmailFromToken(token);
+        return email.equals(tokenEmail) && !isTokenExpired(token);
     }
 
-    public String getUsernameFromToken(String token) {
+    public String getEmailFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
     }
 

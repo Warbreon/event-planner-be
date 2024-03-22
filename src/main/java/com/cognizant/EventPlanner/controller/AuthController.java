@@ -8,6 +8,7 @@ import com.cognizant.EventPlanner.model.Role;
 import com.cognizant.EventPlanner.security.jwt.JwtTokenUtil;
 import com.cognizant.EventPlanner.services.UserDetailsServiceImpl;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Collection;
@@ -19,7 +20,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-
+import org.springframework.web.bind.annotation.GetMapping;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,9 +32,9 @@ public class AuthController {
 
     @PostMapping("/authenticate")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest request) {
-        authenticate(request.getUsername(), request.getPassword());
+        authenticate(request.getEmail(), request.getPassword());
 
-        final UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(request.getUsername());
+        final UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(request.getEmail());
         final String token = jwtTokenUtil.generateToken(userDetails.getUsername());
 
         Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
@@ -42,13 +43,16 @@ public class AuthController {
         return ResponseEntity.ok(new JwtResponse(token, userDetails.getUsername(), role));
     }
 
-    private Role convertStringToRole(String authority) {
-        String roleWithoutPrefix = authority.replace("ROLE_", "");
+    @GetMapping("/lol")
+    public ResponseEntity<String> lol() {
+        return ResponseEntity.ok("sVVAVAVAVAVAVV");
+    }
 
+    private Role convertStringToRole(String authority) {
         try {
-            return Role.valueOf(roleWithoutPrefix);
+            return Role.valueOf(authority);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Unexpected role value: " + roleWithoutPrefix);
+            throw new IllegalArgumentException("Unexpected role value: " + authority);
         }
     }
     

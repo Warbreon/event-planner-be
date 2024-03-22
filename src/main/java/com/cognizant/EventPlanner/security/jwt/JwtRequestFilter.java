@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -30,7 +31,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     private final JwtTokenUtil jwtTokenUtil;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
         final String requestTokenHeader = request.getHeader("Authorization");
@@ -40,23 +41,24 @@ public class JwtRequestFilter extends OncePerRequestFilter {
             return;
         }
 
-        String username = null;
+        String email = null;
         String jwtToken = requestTokenHeader.substring(BEARER_PREFIX_LENGTH);
 
         try {
-            username = jwtTokenUtil.getUsernameFromToken(jwtToken);
+            email = jwtTokenUtil.getEmailFromToken(jwtToken);
         } catch (IllegalArgumentException e) {
             logger.error("Unable to get JWT Token", e);
         }
 
-        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
-    
+        if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(email);
             if (jwtTokenUtil.validateToken(jwtToken, userDetails.getUsername())) {
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                logger.info(authenticationToken.toString());
                 SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                logger.info("FILTERING" + SecurityContextHolder.getContext().getAuthentication().isAuthenticated());
             }
         }
     
