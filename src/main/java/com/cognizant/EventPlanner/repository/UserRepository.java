@@ -1,11 +1,10 @@
 package com.cognizant.EventPlanner.repository;
 
-import java.util.Optional;
-
+import com.cognizant.EventPlanner.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.cognizant.EventPlanner.model.User;
+import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {

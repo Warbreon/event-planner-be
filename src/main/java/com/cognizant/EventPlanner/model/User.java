@@ -1,7 +1,9 @@
 package com.cognizant.EventPlanner.model;
 
-import jakarta.validation.constraints.*;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.*;
 
 @Getter

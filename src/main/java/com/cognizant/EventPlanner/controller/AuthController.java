@@ -1,26 +1,22 @@
 package com.cognizant.EventPlanner.controller;
 
-import org.springframework.web.bind.annotation.RestController;
-
-import com.cognizant.EventPlanner.dto.request.JwtRequest;
-import com.cognizant.EventPlanner.dto.response.JwtResponse;
+import com.cognizant.EventPlanner.dto.request.AuthenticationRequest;
+import com.cognizant.EventPlanner.dto.request.TokenRefreshRequest;
+import com.cognizant.EventPlanner.dto.response.AuthenticationResponse;
 import com.cognizant.EventPlanner.model.Role;
 import com.cognizant.EventPlanner.security.jwt.JwtTokenUtil;
 import com.cognizant.EventPlanner.services.UserDetailsServiceImpl;
-
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-
-import java.util.Collection;
-
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -31,29 +27,43 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
 
     @PostMapping("/authenticate")
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest request) {
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest request) {
         authenticate(request.getEmail(), request.getPassword());
 
         final UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(request.getEmail());
-        final String token = jwtTokenUtil.generateToken(userDetails.getUsername());
+        final String accessToken = jwtTokenUtil.generateAccessToken(userDetails.getUsername());
+        final String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails.getUsername());
 
-        Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
-        Role role = authorities.isEmpty() ? null : convertStringToRole(authorities.iterator().next().getAuthority());
+        Role role = jwtTokenUtil.convertAuthoritiesToRole(userDetails.getAuthorities());
         
-        return ResponseEntity.ok(new JwtResponse(token, userDetails.getUsername(), role));
+        return ResponseEntity.ok(new AuthenticationResponse(accessToken, refreshToken, userDetails.getUsername(), role));
     }
 
-    @GetMapping("/lol")
-    public ResponseEntity<String> lol() {
-        return ResponseEntity.ok("sVVAVAVAVAVAVV");
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshAccessToken(@RequestBody TokenRefreshRequest refreshTokenRequest) {
+        String refreshToken = refreshTokenRequest.getRefreshToken();
+        jwtTokenUtil.validateToken(refreshToken);
+
+        String email = jwtTokenUtil.getEmailFromToken(refreshToken);
+        UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(email);
+        String newAccessToken = jwtTokenUtil.generateAccessToken(userDetails.getUsername());
+
+        Role role = jwtTokenUtil.convertAuthoritiesToRole(userDetails.getAuthorities());
+
+        return ResponseEntity.ok(new AuthenticationResponse(newAccessToken, refreshToken, userDetails.getUsername(), role));
     }
 
-    private Role convertStringToRole(String authority) {
-        try {
-            return Role.valueOf(authority);
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Unexpected role value: " + authority);
-        }
+    /**
+     * {
+     *     "email": "mockuser@gmail.com",
+     *     "password": "password"
+     * }
+     */
+    @GetMapping("/test-response")
+    @Profile("dev")
+    @PreAuthorize("hasAnyAuthority('EVENT_ADMINISTRATOR', 'SYSTEM_ADMINISTRATOR')")
+    public ResponseEntity<String> testResponse() {
+        return ResponseEntity.ok("Some text returned");
     }
     
     private void authenticate(String username, String password) {
