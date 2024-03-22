@@ -36,7 +36,6 @@ public class User {
     @Column(name = "image_url")
     private String imageUrl;
 
-    // we might implement spring security for hashing the pass
     @Column(name = "password_hash", nullable = false)
     private String passwordHash;
 
@@ -44,11 +43,9 @@ public class User {
     @Column(name = "role", nullable = false)
     private Role role;
 
-    // reference to Event: one user can create many events
     @OneToMany(mappedBy = "creator", fetch = FetchType.LAZY)
     private Set<Event> createdEvents;
 
-    // reference to Attendee: one user can attend many events
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Attendee> attendees;
 }

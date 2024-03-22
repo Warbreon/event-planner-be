@@ -22,12 +22,10 @@ public class Attendee {
     @Column(name = "payment_status")
     private boolean paymentStatus;
 
-    // one user can register to many events at the same time
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    // many attendees can go to one event
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id")
     private Event event;

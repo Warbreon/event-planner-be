@@ -16,12 +16,10 @@ public class EventTag {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // many tags are related to one event
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id")
     private Event event;
 
-    // many event tags are related to one tag
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tag_id")
     private Tag tag;

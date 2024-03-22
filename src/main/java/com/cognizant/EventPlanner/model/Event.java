@@ -44,7 +44,6 @@ public class Event {
     @Column(name = "registration_end")
     private LocalDateTime registrationEnd;
 
-    // agenda as array of strings
     @Column(name = "agenda", columnDefinition = "text[]")
     private String[] agenda;
 
@@ -54,16 +53,13 @@ public class Event {
     @Column(name = "invite_url")
     private String inviteUrl;
 
-    // event creator: many events can be created by one user
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id")
     private User creator;
 
-    // reference to Attendee: one event can have many attendees
     @OneToMany(mappedBy = "event", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Attendee> attendees;
 
-    // as we decided by now: one place - one event
     @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id", referencedColumnName = "id")
     private Address address;
