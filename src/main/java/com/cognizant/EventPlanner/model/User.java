@@ -37,8 +37,8 @@ public class User {
     private String imageUrl;
 
     // we might implement spring security for hashing the pass
-    @Column(name = "password", nullable = false)
-    private String password;
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
