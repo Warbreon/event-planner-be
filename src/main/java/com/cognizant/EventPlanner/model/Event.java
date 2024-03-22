@@ -17,9 +17,10 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
+    @Column(name = "description")
     private String description;
 
     @Column(name = "image_url")
@@ -47,6 +48,7 @@ public class Event {
     @Column(name = "agenda", columnDefinition = "text[]")
     private String[] agenda;
 
+    @Column(name = "price")
     private Double price;
 
     @Column(name = "invite_url")
