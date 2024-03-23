@@ -1,6 +1,7 @@
 package com.cognizant.EventPlanner.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ public class Event {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Event name cannot be empty")
     @Column(name = "name", nullable = false)
     private String name;
 
