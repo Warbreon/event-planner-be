@@ -16,11 +16,13 @@ public class Attendee {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "acceptance_status")
-    private boolean acceptanceStatus;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "acceptance_status", nullable = false)
+    private AcceptanceStatus acceptanceStatus;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "payment_status")
-    private boolean paymentStatus;
+    private PaymentStatus paymentStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
