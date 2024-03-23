@@ -3,6 +3,8 @@ package com.cognizant.EventPlanner.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Set;
+
 @Getter
 @Setter
 @Builder
@@ -27,4 +29,7 @@ public class Address {
 
     @Column(name = "zip")
     private String zip;
+
+    @OneToMany(mappedBy = "address", fetch = FetchType.LAZY)
+    private Set<Event> events;
 }
