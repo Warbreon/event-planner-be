@@ -17,8 +17,8 @@ public class Attendee {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "acceptance_status", nullable = false)
-    private AcceptanceStatus acceptanceStatus;
+    @Column(name = "registration_status")
+    private RegistrationStatus registrationStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_status")
