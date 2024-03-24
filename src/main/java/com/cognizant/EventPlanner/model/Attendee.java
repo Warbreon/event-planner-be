@@ -17,11 +17,11 @@ public class Attendee {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "registration_status")
+    @Column(name = "registration_status", nullable = true)
     private RegistrationStatus registrationStatus;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "payment_status")
+    @Column(name = "payment_status", nullable = true)
     private PaymentStatus paymentStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
