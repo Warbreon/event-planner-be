@@ -48,6 +48,9 @@ public class Event {
     @Column(name = "registration_end")
     private LocalDateTime registrationEnd;
 
+    @Column(name = "agenda", columnDefinition = "text[]")
+    private String[] agenda;
+
     @Column(name = "price")
     private Double price;
 
@@ -64,7 +67,4 @@ public class Event {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "address_id")
     private Address address;
-
-    @OneToMany(mappedBy = "event", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<AgendaItem> agendaItems;
 }
