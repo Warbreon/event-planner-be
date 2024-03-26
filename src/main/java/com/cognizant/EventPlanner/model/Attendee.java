@@ -3,6 +3,8 @@ package com.cognizant.EventPlanner.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Builder
@@ -23,6 +25,12 @@ public class Attendee {
     @Enumerated(EnumType.STRING)
     @Column(name = "payment_status", nullable = true)
     private PaymentStatus paymentStatus;
+
+    @Column(name = "registration_time")
+    private LocalDateTime registrationTime;
+
+    @Column(name = "is_new_notification")
+    private boolean isNewNotification;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
