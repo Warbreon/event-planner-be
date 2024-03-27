@@ -6,6 +6,7 @@ import com.cognizant.EventPlanner.dto.response.AuthenticationResponse;
 import com.cognizant.EventPlanner.model.Role;
 import com.cognizant.EventPlanner.security.jwt.JwtTokenUtil;
 import com.cognizant.EventPlanner.services.UserDetailsServiceImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
 
     @PostMapping("/authenticate")
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest request) {
+    public ResponseEntity<?> createAuthenticationToken(@Valid @RequestBody AuthenticationRequest request) {
         authenticate(request.getEmail(), request.getPassword());
 
         final UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(request.getEmail());
@@ -40,7 +41,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<?> refreshAccessToken(@RequestBody TokenRefreshRequest refreshTokenRequest) {
+    public ResponseEntity<?> refreshAccessToken(@Valid @RequestBody TokenRefreshRequest refreshTokenRequest) {
         String refreshToken = refreshTokenRequest.getRefreshToken();
         jwtTokenUtil.validateToken(refreshToken);
 
@@ -54,14 +55,16 @@ public class AuthController {
     }
 
     /**
+     * For Users check data-test.sql
      * {
-     *     "email": "mockuser@gmail.com",
+     *     "email": "admin@example.com",
      *     "password": "password"
      * }
+     * @PreAuthorize to check roles. If role is not in authority, then it will throw 403
      */
     @GetMapping("/test-response")
     @Profile("dev")
-    @PreAuthorize("hasAnyAuthority('EVENT_ADMINISTRATOR', 'SYSTEM_ADMINISTRATOR')")
+    @PreAuthorize("hasAnyAuthority('EVENT_ADMIN', 'SYSTEM_ADMIN')")
     public ResponseEntity<String> testResponse() {
         return ResponseEntity.ok("Some text returned");
     }

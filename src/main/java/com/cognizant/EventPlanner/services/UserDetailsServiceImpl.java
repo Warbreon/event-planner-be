@@ -26,7 +26,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
         return new org.springframework.security.core.userdetails.User(user.getEmail(),
-                user.getPassword(), true, true, true, true, getAuthorities(user.getRole()));
+                user.getPasswordHash(), true, true, true, true, getAuthorities(user.getRole()));
     }
 
     private Set<GrantedAuthority> getAuthorities(Role role) {
