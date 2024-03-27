@@ -3,8 +3,10 @@ package com.cognizant.EventPlanner.model;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Pattern;
 import lombok.*;
+
+import java.util.Set;
 
 @Getter
 @Setter
@@ -19,28 +21,40 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Username is required")
-    private String name;
+    @NotBlank(message = "First name cannot be empty")
+    @Column(name = "first_name", nullable = false)
+    private String firstName;
 
+    @NotBlank(message = "Last name cannot be empty")
+    @Column(name = "last_name", nullable = false)
     private String lastName;
 
-    @Size(max = 15, message = "Phone number cannot be longer than 15 digits")
+    @Column(name = "job_title")
+    private String jobTitle;
+
+    @Pattern(regexp = "^(?:\\+\\d{1,3} ?\\d{1,14}|[1-9]\\d{1,14})$", message = "Invalid phone number")
+    @Column(name = "phone_number")
     private String phoneNumber;
 
+    @NotBlank(message = "Email cannot be empty")
     @Email(message = "Email should be valid")
-    @NotBlank(message = "Email is required")
-    @Column(unique = true, nullable = false)
+    @Column(name = "email", nullable = false, unique = true)
     private String email;
 
-    @NotBlank(message = "Password is required")
-    private String password;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Role role;
-
+    @Column(name = "image_url")
     private String imageUrl;
 
-    // TODO: Create Event association + Job title later on.
-    
+    @NotBlank(message = "Password cannot be empty")
+    @Column(name = "password_hash", nullable = false)
+    private String passwordHash;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
+    private Role role;
+
+    @OneToMany(mappedBy = "creator", fetch = FetchType.LAZY)
+    private Set<Event> createdEvents;
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<Attendee> attendees;
 }
