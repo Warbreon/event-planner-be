@@ -9,30 +9,24 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 public class CorsConfig {
 
-    @Value("${cors.allowedOrigins:*}")
-    private String[] allowedOrigins;
-
-    @Value("${cors.allowedMethods:*}")
-    private String[] allowedMethods;
-
-    @Value("${cors.allowedHeaders:*}")
-    private String[] allowedHeaders;
-
-    @Value("${cors.exposedHeaders:*}")
-    private String[] exposedHeaders;
+    private static final List<String> ALLOWED_ORIGINS = List.of("http://localhost:3000");
+    private static final List<String> ALLOWED_METHODS = Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE");
+    private static final List<String> ALLOWED_HEADERS = List.of("*");
+    private static final List<String> EXPOSED_HEADERS = List.of("*");
 
     @Bean
     @Primary
     public CorsConfigurationSource apiConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins));
-        configuration.setAllowedMethods(Arrays.asList(allowedMethods));
-        configuration.setAllowedHeaders(Arrays.asList(allowedHeaders));
-        configuration.setExposedHeaders(Arrays.asList(exposedHeaders));
+        configuration.setAllowedOrigins(ALLOWED_ORIGINS);
+        configuration.setAllowedMethods(ALLOWED_METHODS);
+        configuration.setAllowedHeaders(ALLOWED_HEADERS);
+        configuration.setExposedHeaders(EXPOSED_HEADERS);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

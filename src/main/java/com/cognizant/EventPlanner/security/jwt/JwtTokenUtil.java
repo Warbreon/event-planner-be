@@ -19,23 +19,20 @@ public class JwtTokenUtil {
 
     private static final Logger log = LoggerFactory.getLogger(JwtTokenUtil.class);
 
-    @Value("${jwt.secret:*}")
-    private String secret;
-
-    @Value("${jwt.expiration:*}")
-    private long expiration;
+    public static final String SECRET = "AgSqL8uNJdfQosx0nnChojH6IQ4HATVpC01PppjDSM6cQ7In9EhUi+iIsShjDuPcQU5APFFbGmF20ztMVb0A0A==";
+    public static final long EXPIRATION = 86400;
 
     public String generateAccessToken(String email) {
         return Jwts.builder()
                 .subject(email)
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + expiration * 1000))
+                .expiration(new Date(System.currentTimeMillis() + EXPIRATION * 1000))
                 .signWith(getKey())
                 .compact();
     }
 
     public String generateRefreshToken(String email) {
-        long refreshTokenExpiration = expiration * 24;
+        long refreshTokenExpiration = EXPIRATION * 24;
         return Jwts.builder()
                 .subject(email)
                 .issuedAt(new Date(System.currentTimeMillis()))
@@ -90,7 +87,7 @@ public class JwtTokenUtil {
     }
 
     private SecretKey getKey() {
-        byte[] keyBytes = java.util.Base64.getDecoder().decode(secret);
+        byte[] keyBytes = java.util.Base64.getDecoder().decode(SECRET);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
