@@ -13,16 +13,16 @@ import java.util.Arrays;
 @Configuration
 public class CorsConfig {
 
-    @Value("${cors.allowedOrigins}")
+    @Value("${cors.allowedOrigins:*}")
     private String[] allowedOrigins;
 
-    @Value("${cors.allowedMethods}")
+    @Value("${cors.allowedMethods:*}")
     private String[] allowedMethods;
 
-    @Value("${cors.allowedHeaders}")
+    @Value("${cors.allowedHeaders:*}")
     private String[] allowedHeaders;
 
-    @Value("${cors.exposedHeaders}")
+    @Value("${cors.exposedHeaders:*}")
     private String[] exposedHeaders;
 
     @Bean
