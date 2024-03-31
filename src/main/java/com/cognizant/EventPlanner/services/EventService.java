@@ -2,6 +2,7 @@ package com.cognizant.EventPlanner.services;
 
 import com.cognizant.EventPlanner.dto.response.EventResponseDto;
 import com.cognizant.EventPlanner.exception.EventNotFoundException;
+import com.cognizant.EventPlanner.mapper.EventMapper;
 import com.cognizant.EventPlanner.model.Event;
 import com.cognizant.EventPlanner.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,13 +20,13 @@ public class EventService {
     public List<EventResponseDto> getAllEvents() {
         return eventRepository.findAll()
                 .stream()
-                .map(EventResponseDto::of)
+                .map(EventMapper.INSTANCE::eventToDto)
                 .collect(Collectors.toList());
     }
 
     public EventResponseDto getEventById(Long id) {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new EventNotFoundException(id));
-        return EventResponseDto.of(event);
+        return EventMapper.INSTANCE.eventToDto(event);
     }
 }
