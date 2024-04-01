@@ -4,12 +4,9 @@ import com.cognizant.EventPlanner.dto.response.EventResponseDto;
 import com.cognizant.EventPlanner.model.Event;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.factory.Mappers;
 
-@Mapper
+@Mapper(componentModel = "spring")
 public interface EventMapper {
-
-    EventMapper INSTANCE = Mappers.getMapper(EventMapper.class);
 
     @Mapping(source = "open", target = "isOpen")
     @Mapping(source = "address.id", target = "addressId")

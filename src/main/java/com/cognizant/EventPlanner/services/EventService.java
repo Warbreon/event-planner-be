@@ -16,17 +16,18 @@ import java.util.stream.Collectors;
 public class EventService {
 
     private final EventRepository eventRepository;
+    private final EventMapper eventMapper;
 
     public List<EventResponseDto> getAllEvents() {
         return eventRepository.findAll()
                 .stream()
-                .map(EventMapper.INSTANCE::eventToDto)
+                .map(eventMapper::eventToDto)
                 .collect(Collectors.toList());
     }
 
     public EventResponseDto getEventById(Long id) {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new EventNotFoundException(id));
-        return EventMapper.INSTANCE.eventToDto(event);
+        return eventMapper.eventToDto(event);
     }
 }
