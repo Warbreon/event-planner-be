@@ -5,11 +5,12 @@ import com.cognizant.EventPlanner.model.Event;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = AttendeeMapper.class)
 public interface EventMapper {
 
     @Mapping(source = "open", target = "isOpen")
     @Mapping(source = "address.id", target = "addressId")
     @Mapping(source = "creator.id", target = "creatorId")
+    @Mapping(source = "attendees", target = "attendees")
     EventResponseDto eventToDto(Event event);
 }

@@ -1,7 +1,9 @@
 package com.cognizant.EventPlanner.services;
 
+import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
 import com.cognizant.EventPlanner.dto.response.EventResponseDto;
 import com.cognizant.EventPlanner.exception.EventNotFoundException;
+import com.cognizant.EventPlanner.mapper.AttendeeMapper;
 import com.cognizant.EventPlanner.mapper.EventMapper;
 import com.cognizant.EventPlanner.model.Event;
 import com.cognizant.EventPlanner.repository.EventRepository;
@@ -17,17 +19,35 @@ public class EventService {
 
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
+    private final AttendeeMapper attendeeMapper;
 
-    public List<EventResponseDto> getAllEvents() {
+    public List<EventResponseDto> getAllEvents(Long userId) {
         return eventRepository.findAll()
                 .stream()
-                .map(eventMapper::eventToDto)
+                .map(event -> convertEventToDto(event, userId))
                 .collect(Collectors.toList());
     }
 
-    public EventResponseDto getEventById(Long id) {
+    public EventResponseDto getEventById(Long id, Long userId) {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new EventNotFoundException(id));
-        return eventMapper.eventToDto(event);
+        return convertEventToDto(event, userId);
+    }
+
+    private EventResponseDto convertEventToDto(Event event, Long userId) {
+        EventResponseDto eventDto = eventMapper.eventToDto(event);
+        List<AttendeeResponseDto> attendeesDto = event.getAttendees()
+                .stream()
+                .map(attendeeMapper::attendeeToDto)
+                .collect(Collectors.toList());
+        eventDto.setAttendees(attendeesDto);
+        eventDto.setCurrentUserRegisteredToEvent(isUserRegistered(event, userId));
+        return eventDto;
+    }
+
+    private boolean isUserRegistered(Event event, Long userId) {
+        return event.getAttendees()
+                .stream()
+                .anyMatch(attendee -> attendee.getUser().getId().equals(userId));
     }
 }
