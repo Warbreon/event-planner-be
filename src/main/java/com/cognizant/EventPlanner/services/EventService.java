@@ -21,26 +21,33 @@ public class EventService {
     private final EventMapper eventMapper;
     private final AttendeeMapper attendeeMapper;
 
-    public List<EventResponseDto> getAllEvents() {
+    public List<EventResponseDto> getAllEvents(Long userId) {
         return eventRepository.findAll()
                 .stream()
-                .map(this::convertEventToDto)
+                .map(event -> convertEventToDto(event, userId))
                 .collect(Collectors.toList());
     }
 
-    public EventResponseDto getEventById(Long id) {
+    public EventResponseDto getEventById(Long id, Long userId) {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new EventNotFoundException(id));
-        return convertEventToDto(event);
+        return convertEventToDto(event, userId);
     }
 
-    private EventResponseDto convertEventToDto(Event event) {
+    private EventResponseDto convertEventToDto(Event event, Long userId) {
         EventResponseDto eventDto = eventMapper.eventToDto(event);
         List<AttendeeResponseDto> attendeesDto = event.getAttendees()
                 .stream()
                 .map(attendeeMapper::attendeeToDto)
                 .collect(Collectors.toList());
         eventDto.setAttendees(attendeesDto);
+        eventDto.setCurrentUserRegisteredToEvent(isUserRegistered(event, userId));
         return eventDto;
+    }
+
+    private boolean isUserRegistered(Event event, Long userId) {
+        return event.getAttendees()
+                .stream()
+                .anyMatch(attendee -> attendee.getUser().getId().equals(userId));
     }
 }

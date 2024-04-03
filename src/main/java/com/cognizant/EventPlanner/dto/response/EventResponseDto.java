@@ -19,5 +19,5 @@ public class EventResponseDto extends EventRequestDto {
     private LocalDateTime createdDate;
     private Long creatorId;
     private List<AttendeeResponseDto> attendees;
-
+    private boolean isCurrentUserRegisteredToEvent;
 }
