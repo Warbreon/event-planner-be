@@ -36,7 +36,8 @@ public class EventService {
 
     private EventResponseDto convertEventToDto(Event event) {
         EventResponseDto eventDto = eventMapper.eventToDto(event);
-        List<AttendeeResponseDto> attendeesDto = event.getAttendees().stream()
+        List<AttendeeResponseDto> attendeesDto = event.getAttendees()
+                .stream()
                 .map(attendeeMapper::attendeeToDto)
                 .collect(Collectors.toList());
         eventDto.setAttendees(attendeesDto);

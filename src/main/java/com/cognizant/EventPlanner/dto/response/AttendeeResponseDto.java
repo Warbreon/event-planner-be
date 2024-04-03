@@ -21,6 +21,6 @@ public class AttendeeResponseDto {
     private PaymentStatus paymentStatus;
     private LocalDateTime registrationTime;
     private Boolean isNewNotification;
-    private UserResponseDto user;
+    private UserAsAttendeeResponseDto user;
 
 }
