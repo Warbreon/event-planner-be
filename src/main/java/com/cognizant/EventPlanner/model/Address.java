@@ -30,6 +30,9 @@ public class Address {
     @Column(name = "zip")
     private String zip;
 
+    @Column(name = "venue_name")
+    private String venueName;
+
     @OneToMany(mappedBy = "address", fetch = FetchType.LAZY)
     private Set<Event> events;
 }
