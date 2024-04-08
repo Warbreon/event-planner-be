@@ -1,20 +1,23 @@
 package com.cognizant.EventPlanner.dto.response;
 
-import com.cognizant.EventPlanner.dto.request.EventRequestDto;
+import com.cognizant.EventPlanner.dto.EventDto;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@SuperBuilder(toBuilder = true)
-public class EventResponseDto extends EventRequestDto {
+public class EventResponseDto extends EventDto {
 
     private Long id;
     private LocalDateTime createdDate;
     private Long creatorId;
+    private AddressResponseDto address;
+    private List<AttendeeResponseDto> attendees;
+    private boolean isCurrentUserRegisteredToEvent;
 
 }

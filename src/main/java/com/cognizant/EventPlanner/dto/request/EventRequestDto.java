@@ -1,29 +1,17 @@
 package com.cognizant.EventPlanner.dto.request;
 
+import com.cognizant.EventPlanner.dto.EventDto;
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
-
-import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder(toBuilder = true)
-public class EventRequestDto {
+@EqualsAndHashCode(callSuper = true)
+public class EventRequestDto extends EventDto {
 
-    private String name;
-    private String description;
-    private String imageUrl;
-    private boolean isOpen;
-    private LocalDateTime eventStart;
-    private LocalDateTime eventEnd;
-    private LocalDateTime registrationStart;
-    private LocalDateTime registrationEnd;
-    private String[] agenda;
-    private Double price;
-    private String inviteUrl;
     private Long addressId;
 
 }

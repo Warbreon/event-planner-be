@@ -30,7 +30,7 @@ public class Attendee {
     private LocalDateTime registrationTime;
 
     @Column(name = "is_new_notification")
-    private boolean isNewNotification;
+    private Boolean isNewNotification;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
