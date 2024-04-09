@@ -2,7 +2,7 @@ package com.cognizant.EventPlanner.services;
 
 import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
 import com.cognizant.EventPlanner.dto.response.EventResponseDto;
-import com.cognizant.EventPlanner.exception.EventNotFoundException;
+import com.cognizant.EventPlanner.exception.EntityNotFoundException;
 import com.cognizant.EventPlanner.mapper.AttendeeMapper;
 import com.cognizant.EventPlanner.mapper.EventMapper;
 import com.cognizant.EventPlanner.model.Event;
@@ -30,7 +30,7 @@ public class EventService {
 
     public EventResponseDto getEventById(Long id, Long userId) {
         Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new EventNotFoundException(id));
+                .orElseThrow(() -> new EntityNotFoundException(Event.class, id));
         return convertEventToDto(event, userId);
     }
 
@@ -45,7 +45,7 @@ public class EventService {
         return eventDto;
     }
 
-    private boolean isUserRegistered(Event event, Long userId) {
+    public boolean isUserRegistered(Event event, Long userId) {
         return event.getAttendees()
                 .stream()
                 .anyMatch(attendee -> attendee.getUser().getId().equals(userId));
