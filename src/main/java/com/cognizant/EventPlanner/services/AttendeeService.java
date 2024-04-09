@@ -31,16 +31,14 @@ public class AttendeeService {
 
         Event event = eventRepository.findById(request.getEventId())
                 .orElseThrow(() -> new EntityNotFoundException(Event.class, request.getEventId()));
-add
+
         checkUserRegistrationStatus(event, request.getUserId());
 
         Attendee attendeeToRegister = buildAttendee(event, user);
         Attendee attendee = attendeeRepository.save(attendeeToRegister);
 
         return attendeeMapper.attendeeToDto(attendee);
-
     }
-
 
     private Attendee buildAttendee(Event event, User user) {
         Attendee attendeeToRegister = Attendee.builder()
