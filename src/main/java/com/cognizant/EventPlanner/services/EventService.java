@@ -52,6 +52,6 @@ public class EventService {
     }
 
     public boolean isPaid(Event event) {
-        return event.getPrice() != null;
+        return event.getPrice() != null && event.getPrice() > 0;
     }
 }
