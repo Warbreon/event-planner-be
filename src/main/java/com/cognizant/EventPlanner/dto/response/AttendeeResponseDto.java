@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.http.HttpStatus;
 
 
 import java.time.LocalDateTime;
@@ -22,5 +23,10 @@ public class AttendeeResponseDto {
     private LocalDateTime registrationTime;
     private Boolean isNewNotification;
     private UserAsAttendeeResponseDto user;
+    @Setter
+    private String message;
 
+    public AttendeeResponseDto(String message) {
+        this.message = message;
+    }
 }
