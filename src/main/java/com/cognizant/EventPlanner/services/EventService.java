@@ -50,4 +50,8 @@ public class EventService {
                 .stream()
                 .anyMatch(attendee -> attendee.getUser().getId().equals(userId));
     }
+
+    public boolean isPaid(Event event) {
+        return event.getPrice() != null;
+    }
 }

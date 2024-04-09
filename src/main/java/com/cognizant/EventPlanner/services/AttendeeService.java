@@ -26,44 +26,34 @@ public class AttendeeService {
     private final UserRepository userRepository;
 
     public AttendeeResponseDto registerToEvent(AttendeeRequestDto request) {
-        try {
-            Optional<User> userOptional = userRepository.findById(request.getUserId());
-            User user;
-            if (userOptional.isEmpty()) {
-                throw new EntityNotFoundException(User.class, request.getUserId());
-            }
-            user = userOptional.get();
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new EntityNotFoundException(User.class, request.getUserId()));
 
-            Optional<Event> eventOptional = eventRepository.findById(request.getEventId());
-            Event event;
-            if (eventOptional.isEmpty()) {
-                throw new EntityNotFoundException(Event.class, request.getEventId());
-            }
-            event = eventOptional.get();
+        Event event = eventRepository.findById(request.getEventId())
+                .orElseThrow(() -> new EntityNotFoundException(Event.class, request.getEventId()));
+add
+        checkUserRegistrationStatus(event, request.getUserId());
 
-            checkUserRegistrationStatus(event, request.getUserId());
+        Attendee attendeeToRegister = buildAttendee(event, user);
+        Attendee attendee = attendeeRepository.save(attendeeToRegister);
 
-            Attendee attendeeToRegister = buildAttendee(event, user);
-            Attendee attendee = attendeeRepository.save(attendeeToRegister);
+        return attendeeMapper.attendeeToDto(attendee);
 
-            return attendeeMapper.attendeeToDto(attendee);
-        } catch (Exception e) {
-            return new AttendeeResponseDto(e.getMessage());
-        }
     }
 
 
     private Attendee buildAttendee(Event event, User user) {
         Attendee attendeeToRegister = Attendee.builder()
                 .event(event)
-                .isNewNotification(true)
                 .user(user)
                 .registrationTime(LocalDateTime.now())
                 .build();
-        if (event.isOpen()) {
-            attendeeToRegister.setRegistrationStatus(RegistrationStatus.ACCEPTED);
-        } else {
+        if (!event.isOpen()) {
+            attendeeToRegister.setIsNewNotification(true);
             attendeeToRegister.setRegistrationStatus(RegistrationStatus.PENDING);
+        }
+
+        if (eventService.isPaid(event)) {
             attendeeToRegister.setPaymentStatus(PaymentStatus.PENDING);
         }
         return attendeeToRegister;

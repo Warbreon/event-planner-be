@@ -23,10 +23,5 @@ public class AttendeeResponseDto {
     private LocalDateTime registrationTime;
     private Boolean isNewNotification;
     private UserAsAttendeeResponseDto user;
-    @Setter
-    private String message;
 
-    public AttendeeResponseDto(String message) {
-        this.message = message;
-    }
 }
