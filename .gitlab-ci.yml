@@ -7,6 +7,7 @@ variables:
 
 stages:
   - clone
+  - print_env_vars
   - build
   - deploy
   - status
@@ -30,6 +31,11 @@ clone:
     paths:
       - git-clone/*
 
+print_env_vars:
+  stage: print_env_vars
+  script:
+    - printenv | sort
+
 build:
   stage: build
   image: harbor.devbridge.net/sourcery-academy/gitlab-packages:latest
@@ -38,6 +44,12 @@ build:
       --context "git-clone"
       --dockerfile "git-clone/Dockerfile"
       --destination "harbor.devbridge.net/sourcery-academy/$TEAM_NAME/backend:$APP_TAG"
+
+test:
+  stage: test
+  script:
+    - echo "Testing connection to $POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB"
+    - ./gradlew test
 
 deploy:
   stage: deploy
