@@ -12,12 +12,12 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/events/register")
+@RequestMapping("/api/events")
 public class AttendeeController {
 
     private final AttendeeService attendeeService;
 
-    @PostMapping("/")
+    @PostMapping("/register")
     public ResponseEntity<AttendeeResponseDto> registerToEvent(@RequestBody AttendeeRequestDto request) {
         AttendeeResponseDto response = attendeeService.registerToEvent(request);
         return ResponseEntity.ok(response);

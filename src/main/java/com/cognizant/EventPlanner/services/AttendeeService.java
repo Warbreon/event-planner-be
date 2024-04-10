@@ -2,7 +2,6 @@ package com.cognizant.EventPlanner.services;
 
 import com.cognizant.EventPlanner.dto.request.AttendeeRequestDto;
 import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
-import com.cognizant.EventPlanner.exception.AttendeeIsAlreadyRegisteredException;
 import com.cognizant.EventPlanner.exception.EntityNotFoundException;
 import com.cognizant.EventPlanner.mapper.AttendeeMapper;
 import com.cognizant.EventPlanner.model.*;
@@ -13,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -31,8 +29,6 @@ public class AttendeeService {
 
         Event event = eventRepository.findById(request.getEventId())
                 .orElseThrow(() -> new EntityNotFoundException(Event.class, request.getEventId()));
-
-        checkUserRegistrationStatus(event, request.getUserId());
 
         Attendee attendeeToRegister = buildAttendee(event, user);
         Attendee attendee = attendeeRepository.save(attendeeToRegister);
@@ -55,12 +51,5 @@ public class AttendeeService {
             attendeeToRegister.setPaymentStatus(PaymentStatus.PENDING);
         }
         return attendeeToRegister;
-    }
-
-    private void checkUserRegistrationStatus(Event event, Long userId) {
-        boolean isUserRegistered = eventService.isUserRegistered(event, userId);
-        if (isUserRegistered) {
-            throw new AttendeeIsAlreadyRegisteredException(userId);
-        }
     }
 }
