@@ -55,9 +55,9 @@ public class AuthController {
     }
 
     /**
-     * For Users check data-test.sql
+     * For Users check PgAdmin or Database extension if you have IDEA Ultimate
      * {
-     *     "email": "admin@example.com",
+     *     "email": "guy.hawkins@gmail.com",
      *     "password": "password"
      * }
      * @PreAuthorize to check roles. If role is not in authority, then it will throw 403

@@ -23,4 +23,10 @@ public class GlobalExceptionControllerAdvice {
         return ErrorResponseEntityUtil.buildErrorResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred. Please try again later.", request);
     }
 
+    @ExceptionHandler(EventNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEventNotFoundException(EventNotFoundException ex, HttpServletRequest request) {
+        log.error("Event not found", ex);
+        return ErrorResponseEntityUtil.buildErrorResponseEntity(HttpStatus.NOT_FOUND, ex.getMessage(), request);
+    }
+
 }

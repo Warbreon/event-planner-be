@@ -21,7 +21,6 @@ dist/
 
 # Maven
 target/
-dist/
 
 # JetBrains IDE
 .idea/
@@ -85,4 +84,4 @@ out/
 ### VS Code ###
 .vscode/
 
-src/main/resources/application.properties
+src/main/resources/application.yaml
