@@ -45,7 +45,7 @@ public class EventService {
         return eventDto;
     }
 
-    public boolean isUserRegistered(Event event, Long userId) {
+    private boolean isUserRegistered(Event event, Long userId) {
         return event.getAttendees()
                 .stream()
                 .anyMatch(attendee -> attendee.getUser().getId().equals(userId));
