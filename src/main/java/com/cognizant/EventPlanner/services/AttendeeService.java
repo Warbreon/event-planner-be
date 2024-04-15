@@ -9,7 +9,6 @@ import com.cognizant.EventPlanner.repository.AttendeeRepository;
 import com.cognizant.EventPlanner.repository.EventRepository;
 import com.cognizant.EventPlanner.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -36,7 +35,7 @@ public class AttendeeService {
     }
 
 
-    public boolean isPaid(Event event) {
+    public boolean isEventPaid(Event event) {
         return event.getPrice() != null && event.getPrice() > 0;
     }
 
@@ -53,7 +52,7 @@ public class AttendeeService {
             attendeeToRegister.setRegistrationStatus(RegistrationStatus.ACCEPTED);
         }
 
-        if (isPaid(event)) {
+        if (isEventPaid(event)) {
             attendeeToRegister.setPaymentStatus(PaymentStatus.PENDING);
         }
         return attendeeToRegister;
