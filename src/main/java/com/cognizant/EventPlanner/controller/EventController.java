@@ -10,13 +10,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-import java.util.Map;
-
-import static com.cognizant.EventPlanner.utils.FieldErrors.getFieldErrors;
 
 @RestController
 @RequiredArgsConstructor
@@ -49,6 +44,4 @@ public class EventController {
         EventResponseDto response = eventService.createNewEvent(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-
-
 }
