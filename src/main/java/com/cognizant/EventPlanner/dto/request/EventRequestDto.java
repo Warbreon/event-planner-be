@@ -22,7 +22,6 @@ public class EventRequestDto extends EventDto {
     @NotNull(message = "Attendees list is required. If there are no attendees, leave it empty")
     private Set<AttendeeRequestDto> attendees;
 
-    @NotNull(message = "Event venue address ID can not be null")
     @Min(value = 0, message = "Address ID has to be equal or greater than 0")
     @Max(value = Long.MAX_VALUE, message = "Address ID value can not exceed 9223372036854775807")
     private Long addressId;
