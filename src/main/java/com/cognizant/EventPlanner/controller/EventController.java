@@ -45,12 +45,7 @@ public class EventController {
         return ResponseEntity.ok(response);
     }
     @PostMapping("/create/new")
-    public ResponseEntity<?> createNewEvent(@Valid @RequestBody EventRequestDto request,  BindingResult validation) {
-        if (validation.hasErrors()) {
-            Map<String, String> fieldErrors = getFieldErrors(validation);
-            return new ResponseEntity<>(fieldErrors, HttpStatus.BAD_REQUEST);
-        }
-
+    public ResponseEntity<?> createNewEvent(@Valid @RequestBody EventRequestDto request) {
         EventResponseDto response = eventService.createNewEvent(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
