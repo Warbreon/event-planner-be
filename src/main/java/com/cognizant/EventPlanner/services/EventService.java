@@ -8,9 +8,7 @@ import com.cognizant.EventPlanner.exception.EntityNotFoundException;
 import com.cognizant.EventPlanner.mapper.AttendeeMapper;
 import com.cognizant.EventPlanner.mapper.EventMapper;
 import com.cognizant.EventPlanner.model.*;
-import com.cognizant.EventPlanner.repository.AddressRepository;
 import com.cognizant.EventPlanner.repository.EventRepository;
-import com.cognizant.EventPlanner.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
