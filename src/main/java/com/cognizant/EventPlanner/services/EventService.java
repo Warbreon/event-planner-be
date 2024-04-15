@@ -16,7 +16,9 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,10 +47,10 @@ public class EventService {
 
     private EventResponseDto convertEventToDto(Event event, Long userId) {
         EventResponseDto eventDto = eventMapper.eventToDto(event);
-        List<AttendeeResponseDto> attendeesDto = event.getAttendees()
+        Set<AttendeeResponseDto> attendeesDto = event.getAttendees()
                 .stream()
                 .map(attendeeMapper::attendeeToDto)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
         eventDto.setAttendees(attendeesDto);
         eventDto.setCurrentUserRegisteredToEvent(isUserRegistered(event, userId));
         return eventDto;
@@ -64,14 +66,16 @@ public class EventService {
         Event event = eventMapper.dtoToEvent(request);
 
         event.setCreatedDate(LocalDateTime.now());
-        Address address = addressRepository.findById(request.getAddressId()).orElseThrow(() -> new EntityNotFoundException(Address.class, request.getAddressId()));
+        Address address = addressRepository.findById(request.getAddressId())
+                .orElseThrow(() -> new EntityNotFoundException(Address.class, request.getAddressId()));
         event.setAddress(address);
-        User user = userRepository.findById(request.getCreatorId()).orElseThrow(() -> new EntityNotFoundException(User.class, request.getCreatorId()));
+        User user = userRepository.findById(request.getCreatorId())
+                .orElseThrow(() -> new EntityNotFoundException(User.class, request.getCreatorId()));
         event.setCreator(user);
         event = eventRepository.save(event);
 
         EventResponseDto eventResponseDto = eventMapper.eventToDto(event);
-        List<AttendeeResponseDto> attendeeDtoList = new ArrayList<>();
+        Set<AttendeeResponseDto> attendeeDtoList = new HashSet<>();
 
         for (AttendeeRequestDto attendeeFromRequest : request.getAttendees()) {
             attendeeFromRequest.setEventId(eventResponseDto.getId());
