@@ -15,8 +15,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -26,9 +24,9 @@ import java.util.stream.Collectors;
 public class EventService {
 
     private final EventRepository eventRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final AttendeeService attendeeService;
-    private final AddressRepository addressRepository;
+    private final AddressService addressService;
     private final EventMapper eventMapper;
     private final AttendeeMapper attendeeMapper;
 
@@ -64,26 +62,17 @@ public class EventService {
 
     public EventResponseDto createNewEvent(EventRequestDto request) {
         Event event = eventMapper.dtoToEvent(request);
-
         event.setCreatedDate(LocalDateTime.now());
-        Address address = addressRepository.findById(request.getAddressId())
-                .orElseThrow(() -> new EntityNotFoundException(Address.class, request.getAddressId()));
-        event.setAddress(address);
-        User user = userRepository.findById(request.getCreatorId())
-                .orElseThrow(() -> new EntityNotFoundException(User.class, request.getCreatorId()));
-        event.setCreator(user);
+        event.setAddress(addressService.getAddressById(request.getAddressId()));
+        event.setCreator(userService.getUserById(request.getCreatorId()));
         event = eventRepository.save(event);
-
         EventResponseDto eventResponseDto = eventMapper.eventToDto(event);
-        Set<AttendeeResponseDto> attendeeDtoList = new HashSet<>();
+        eventResponseDto.setAttendees(registerAttendeesToEvent(request.getAttendees(), eventResponseDto.getId()));
+        return eventResponseDto;
+    }
 
-        for (AttendeeRequestDto attendeeFromRequest : request.getAttendees()) {
-            attendeeFromRequest.setEventId(eventResponseDto.getId());
-            AttendeeResponseDto attendeeDto = attendeeService.registerToEvent(attendeeFromRequest);
-            attendeeDtoList.add(attendeeDto);
-        }
-
-       eventResponseDto.setAttendees(attendeeDtoList);
-       return eventResponseDto;
+    private Set<AttendeeResponseDto> registerAttendeesToEvent(Set<AttendeeRequestDto> requestSet, Long EventId) {
+        return requestSet.stream().peek(item -> item.setEventId(EventId))
+                .map(attendeeService::registerToEvent).collect(Collectors.toSet());
     }
 }

@@ -12,6 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +36,6 @@ public class AttendeeService {
         Attendee attendee = attendeeRepository.save(attendeeToRegister);
         return attendeeMapper.attendeeToDto(attendee);
     }
-
 
     public boolean isEventPaid(Event event) {
         return event.getPrice() != null && event.getPrice() > 0;
