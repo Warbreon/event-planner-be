@@ -26,7 +26,7 @@ public abstract class EventDto {
     @Size(max = 255, message = "Event image URL cannot exceed 255 characters")
     private String imageUrl;
 
-    @NotNull(message = "Event must open or private")
+    @NotNull(message = "Event must be open or private")
     private Boolean isOpen;
 
     @Future(message = "Event start date must be in the future")
