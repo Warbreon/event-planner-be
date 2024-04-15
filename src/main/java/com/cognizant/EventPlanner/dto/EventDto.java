@@ -1,5 +1,6 @@
 package com.cognizant.EventPlanner.dto;
 
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,16 +14,38 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public abstract class EventDto {
 
+    @NotBlank(message = "Event must have a name")
+    @Size(max = 255, message = "Event name cannot exceed 255 characters")
     private String name;
-    private String description;
-    private String imageUrl;
-    private boolean isOpen;
-    private LocalDateTime eventStart;
-    private LocalDateTime eventEnd;
-    private LocalDateTime registrationStart;
-    private LocalDateTime registrationEnd;
-    private String[] agenda;
-    private Double price;
-    private String inviteUrl;
 
+    @NotBlank(message = "Event must have a description")
+    @Size(max = 1000, message = "Description cannot exceed 1000 characters")
+    private String description;
+
+    @NotBlank(message = "Event must have an image")
+    @Size(max = 255, message = "Event image URL cannot exceed 255 characters")
+    private String imageUrl;
+
+    @NotNull(message = "Event must open or private")
+    private Boolean isOpen;
+
+    @Future(message = "Event start date must be in the future")
+    private LocalDateTime eventStart;
+
+    @Future(message = "Event end date must be in the future")
+    private LocalDateTime eventEnd;
+
+    private LocalDateTime registrationStart;
+
+    @Future(message = "Event registration closure date must be in the future")
+    private LocalDateTime registrationEnd;
+
+    private String[] agenda;
+
+    @Min(value = 0, message = "Event price can not be less than 0")
+    @Max(value = 10000, message = "Event price can not be greater than 10000")
+    private Double price;
+
+    @Size(max = 255, message = "Invite to online meeting cannot exceed 255 characters")
+    private String inviteUrl;
 }
