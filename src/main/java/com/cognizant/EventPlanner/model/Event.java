@@ -61,7 +61,7 @@ public class Event {
     @JoinColumn(name = "creator_id")
     private User creator;
 
-    @OneToMany(mappedBy = "event", fetch = FetchType.LAZY, cascade = CascadeType.MERGE)
+    @OneToMany(mappedBy = "event", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Attendee> attendees;
 
     @ManyToOne(fetch = FetchType.LAZY)
