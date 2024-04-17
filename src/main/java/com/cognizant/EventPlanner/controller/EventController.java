@@ -34,14 +34,12 @@ public class EventController {
     }
 
     @PostMapping("/register")
-
     public ResponseEntity<AttendeeResponseDto> registerToEvent(@Valid @RequestBody AttendeeRequestDto request) {
         AttendeeResponseDto response = attendeeService.registerToEvent(request);
         return ResponseEntity.ok(response);
     }
     @PostMapping("/create/new")
-    public ResponseEntity<?> createNewEvent(@Valid @RequestBody EventRequestDto request) {
-        EventResponseDto response = eventService.createNewEvent(request);
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    public ResponseEntity<EventResponseDto> createNewEvent(@Valid @RequestBody EventRequestDto request) {
+        return new ResponseEntity<>(eventService.createNewEvent(request), HttpStatus.CREATED);
     }
 }
