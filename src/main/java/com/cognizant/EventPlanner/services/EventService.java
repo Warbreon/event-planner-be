@@ -32,7 +32,7 @@ public class EventService {
         List<Event> events = tagIds
                 .filter(tagIdsSet -> !tagIdsSet.isEmpty())
                 .map(this::findEventsByTags)
-                .orElseGet(eventRepository::findAll);
+                .orElseGet(this::findAllEvents);
         return events.stream()
                 .map(event -> convertEventToDto(event, userId))
                 .collect(Collectors.toSet());
@@ -42,6 +42,14 @@ public class EventService {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(Event.class, id));
         return convertEventToDto(event, userId);
+    }
+
+    private List<Event> findAllEvents() {
+        return eventRepository.findAll();
+    }
+
+    private List<Event> findEventsByTags(Set<Long> tagIds) {
+        return eventRepository.findByTags(tagIds, tagIds.size());
     }
 
     private EventResponseDto convertEventToDto(Event event, Long userId) {
@@ -63,10 +71,6 @@ public class EventService {
                 .map(EventTag::getTag)
                 .map(tagMapper::tagToDto)
                 .collect(Collectors.toSet());
-    }
-
-    private List<Event> findEventsByTags(Set<Long> tagIds) {
-        return eventRepository.findByTags(tagIds, tagIds.size());
     }
 
     private boolean isUserRegistered(Event event, Long userId) {
