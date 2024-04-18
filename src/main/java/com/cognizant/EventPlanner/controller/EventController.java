@@ -10,7 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,8 +22,9 @@ public class EventController {
     private final AttendeeService attendeeService;
 
     @GetMapping
-    public ResponseEntity<List<EventResponseDto>> getAllEvents(@RequestParam Long userId) {
-        List<EventResponseDto> events = eventService.getAllEvents(userId);
+    public ResponseEntity<Set<EventResponseDto>> getEvents(@RequestParam(required = false) Set<Long> tagIds,
+                                                           @RequestParam Long userId) {
+        Set<EventResponseDto> events = eventService.getEvents(Optional.ofNullable(tagIds), userId);
         return ResponseEntity.ok(events);
     }
 

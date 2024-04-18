@@ -15,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,11 +28,14 @@ public class EventService {
     private final AttendeeMapper attendeeMapper;
     private final TagMapper tagMapper;
 
-    public List<EventResponseDto> getAllEvents(Long userId) {
-        return eventRepository.findAll()
-                .stream()
+    public Set<EventResponseDto> getEvents(Optional<Set<Long>> tagIds, Long userId) {
+        List<Event> events = tagIds
+                .filter(tagIdsSet -> !tagIdsSet.isEmpty())
+                .map(this::findEventsByTags)
+                .orElseGet(eventRepository::findAll);
+        return events.stream()
                 .map(event -> convertEventToDto(event, userId))
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 
     public EventResponseDto getEventById(Long id, Long userId) {
@@ -59,6 +63,10 @@ public class EventService {
                 .map(EventTag::getTag)
                 .map(tagMapper::tagToDto)
                 .collect(Collectors.toSet());
+    }
+
+    private List<Event> findEventsByTags(Set<Long> tagIds) {
+        return eventRepository.findByTags(tagIds, tagIds.size());
     }
 
     private boolean isUserRegistered(Event event, Long userId) {
