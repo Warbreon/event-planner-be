@@ -2,14 +2,11 @@ package com.cognizant.EventPlanner.validation.dateRangeValidation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 
 import java.time.LocalDateTime;
 
-
-@Slf4j
 public class DateRangeValidator implements ConstraintValidator<DateRange, Object> {
     private String startDate;
     private String endDate;
