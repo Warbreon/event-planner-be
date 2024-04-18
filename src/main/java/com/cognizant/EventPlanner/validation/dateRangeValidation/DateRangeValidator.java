@@ -2,11 +2,14 @@ package com.cognizant.EventPlanner.validation.dateRangeValidation;
 
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.PropertyAccessorFactory;
 
 import java.time.LocalDateTime;
 
+
+@Slf4j
 public class DateRangeValidator implements ConstraintValidator<DateRange, Object> {
     private String startDate;
     private String endDate;
@@ -21,29 +24,25 @@ public class DateRangeValidator implements ConstraintValidator<DateRange, Object
 
     @Override
     public boolean isValid(Object object, ConstraintValidatorContext constraintValidatorContext) {
-        try {
-            BeanWrapper beanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(object);
-            Object startDateValue = beanWrapper.getPropertyValue(startDate);
-            Object endDateValue = beanWrapper.getPropertyValue(endDate);
+        BeanWrapper beanWrapper = PropertyAccessorFactory.forBeanPropertyAccess(object);
+        Object startDateValue = beanWrapper.getPropertyValue(startDate);
+        Object endDateValue = beanWrapper.getPropertyValue(endDate);
 
-            if (startDateValue == null || endDateValue == null) {
-                return false;
-            }
-
-            LocalDateTime startDate = (LocalDateTime) startDateValue;
-            LocalDateTime endDate = (LocalDateTime) endDateValue;
-
-            if (endDate.isBefore(startDate)) {
-                constraintValidatorContext
-                        .buildConstraintViolationWithTemplate(this.message)
-                        .addPropertyNode(this.endDate)
-                        .addConstraintViolation();
-                return false;
-            }
-
-            return true;
-        } catch (final Exception e) {
+        if (startDateValue == null || endDateValue == null) {
             return false;
         }
+
+        LocalDateTime startDate = (LocalDateTime) startDateValue;
+        LocalDateTime endDate = (LocalDateTime) endDateValue;
+
+        if (endDate.isBefore(startDate)) {
+            constraintValidatorContext
+                    .buildConstraintViolationWithTemplate(this.message)
+                    .addPropertyNode(this.endDate)
+                    .addConstraintViolation();
+            return false;
+        }
+
+        return true;
     }
 }

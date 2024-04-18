@@ -31,14 +31,19 @@ public abstract class EventDto {
     private Boolean isOpen;
 
     @Future(message = "Event start date must be in the future")
+    @NotNull(message = "Date can not be null")
     private LocalDateTime eventStart;
 
     @Future(message = "Event end date must be in the future")
+    @NotNull(message = "Date can not be null")
     private LocalDateTime eventEnd;
 
+    @Future(message = "Event registration start date must be in the future")
+    @NotNull(message = "Date can not be null")
     private LocalDateTime registrationStart;
 
     @Future(message = "Event registration closure date must be in the future")
+    @NotNull(message = "Date can not be null")
     private LocalDateTime registrationEnd;
 
     private String[] agenda;
