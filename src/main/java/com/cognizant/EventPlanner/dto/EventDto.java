@@ -1,17 +1,18 @@
 package com.cognizant.EventPlanner.dto;
-
+import com.cognizant.EventPlanner.validation.dateRangeValidation.DateRange;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
+@Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@DateRange(startDate = "eventStart", endDate = "eventEnd", message = "Event end date can not be before event start date")
+@DateRange(startDate = "registrationStart", endDate = "registrationEnd", message = "Registration end date can not be before registration start date")
+@DateRange(startDate = "registrationEnd", endDate = "eventStart", message = "Event can't start before registration to the event wasn't closed")
 public abstract class EventDto {
 
     @NotBlank(message = "Event must have a name")
