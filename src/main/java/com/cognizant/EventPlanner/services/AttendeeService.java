@@ -8,9 +8,9 @@ import com.cognizant.EventPlanner.model.*;
 import com.cognizant.EventPlanner.repository.AttendeeRepository;
 import com.cognizant.EventPlanner.repository.EventRepository;
 import com.cognizant.EventPlanner.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -21,6 +21,7 @@ public class AttendeeService {
     private final AttendeeMapper attendeeMapper;
     private final UserRepository userRepository;
 
+    @Transactional
     public AttendeeResponseDto registerToEvent(AttendeeRequestDto request) {
         User user = userRepository.findById(request.getUserId())
                 .orElseThrow(() -> new EntityNotFoundException(User.class, request.getUserId()));
@@ -28,7 +29,8 @@ public class AttendeeService {
         Event event = eventRepository.findById(request.getEventId())
                 .orElseThrow(() -> new EntityNotFoundException(Event.class, request.getEventId()));
 
-        Attendee attendeeToRegister = buildAttendee(event, user);
+        Attendee attendeeToRegister = attendeeMapper.requestDtoToAttendee(request, event, user);
+        setAttendeeStatuses(attendeeToRegister, event);
         Attendee attendee = attendeeRepository.save(attendeeToRegister);
         return attendeeMapper.attendeeToDto(attendee);
     }
@@ -37,20 +39,13 @@ public class AttendeeService {
         return event.getPrice() != null && event.getPrice() > 0;
     }
 
-    private Attendee buildAttendee(Event event, User user) {
-        Attendee attendeeToRegister = Attendee.builder()
-                .event(event)
-                .user(user)
-                .registrationTime(LocalDateTime.now())
-                .build();
+    private void setAttendeeStatuses(Attendee attendee, Event event) {
         if (!event.getIsOpen()) {
-            attendeeToRegister.setIsNewNotification(true);
-            attendeeToRegister.setRegistrationStatus(RegistrationStatus.PENDING);
+            attendee.setIsNewNotification(true);
+            attendee.setRegistrationStatus(RegistrationStatus.PENDING);
         }
-
         if (isEventPaid(event)) {
-            attendeeToRegister.setPaymentStatus(PaymentStatus.PENDING);
+            attendee.setPaymentStatus(PaymentStatus.PENDING);
         }
-        return attendeeToRegister;
     }
 }
