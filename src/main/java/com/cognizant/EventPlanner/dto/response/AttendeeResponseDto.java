@@ -14,12 +14,10 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AttendeeResponseDto {
-
     private Long id;
     private RegistrationStatus registrationStatus;
     private PaymentStatus paymentStatus;
     private LocalDateTime registrationTime;
     private Boolean isNewNotification;
     private UserAsAttendeeResponseDto user;
-
 }

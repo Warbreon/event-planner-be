@@ -4,7 +4,7 @@ import com.cognizant.EventPlanner.dto.EventDto;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -17,7 +17,7 @@ public class EventResponseDto extends EventDto {
     private LocalDateTime createdDate;
     private Long creatorId;
     private AddressResponseDto address;
-    private List<AttendeeResponseDto> attendees;
+    private Set<AttendeeResponseDto> attendees;
     private boolean isCurrentUserRegisteredToEvent;
 
 }
