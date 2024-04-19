@@ -10,14 +10,12 @@ import com.cognizant.EventPlanner.repository.EventRepository;
 import com.cognizant.EventPlanner.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
 public class AttendeeService {
 
-    private final EventService eventService;
     private final EventRepository eventRepository;
     private final AttendeeRepository attendeeRepository;
     private final AttendeeMapper attendeeMapper;
@@ -32,8 +30,11 @@ public class AttendeeService {
 
         Attendee attendeeToRegister = buildAttendee(event, user);
         Attendee attendee = attendeeRepository.save(attendeeToRegister);
-
         return attendeeMapper.attendeeToDto(attendee);
+    }
+
+    public boolean isEventPaid(Event event) {
+        return event.getPrice() != null && event.getPrice() > 0;
     }
 
     private Attendee buildAttendee(Event event, User user) {
@@ -42,12 +43,14 @@ public class AttendeeService {
                 .user(user)
                 .registrationTime(LocalDateTime.now())
                 .build();
-        if (!event.isOpen()) {
+        if (!event.getIsOpen()) {
             attendeeToRegister.setIsNewNotification(true);
             attendeeToRegister.setRegistrationStatus(RegistrationStatus.PENDING);
+        } else {
+            attendeeToRegister.setRegistrationStatus(RegistrationStatus.ACCEPTED);
         }
 
-        if (eventService.isPaid(event)) {
+        if (isEventPaid(event)) {
             attendeeToRegister.setPaymentStatus(PaymentStatus.PENDING);
         }
         return attendeeToRegister;
