@@ -10,10 +10,10 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
-@Entity
-@Table(name = "events")
 @AllArgsConstructor
 @NoArgsConstructor
+@Entity
+@Table(name = "events")
 public class Event {
 
     @Id
@@ -31,7 +31,7 @@ public class Event {
     private String imageUrl;
 
     @Column(name = "is_open", nullable = false)
-    private boolean isOpen;
+    private Boolean isOpen;
 
     @Column(name = "created_date")
     private LocalDateTime createdDate;

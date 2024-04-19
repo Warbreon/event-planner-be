@@ -1,5 +1,7 @@
 package com.cognizant.EventPlanner.services;
 
+import com.cognizant.EventPlanner.dto.request.AttendeeRequestDto;
+import com.cognizant.EventPlanner.dto.request.EventRequestDto;
 import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
 import com.cognizant.EventPlanner.dto.response.EventResponseDto;
 import com.cognizant.EventPlanner.dto.response.TagResponseDto;
@@ -14,6 +16,7 @@ import com.cognizant.EventPlanner.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -24,6 +27,9 @@ import java.util.stream.Collectors;
 public class EventService {
 
     private final EventRepository eventRepository;
+    private final UserService userService;
+    private final AttendeeService attendeeService;
+    private final AddressService addressService;
     private final EventMapper eventMapper;
     private final AttendeeMapper attendeeMapper;
     private final TagMapper tagMapper;
@@ -79,7 +85,19 @@ public class EventService {
                 .anyMatch(attendee -> attendee.getUser().getId().equals(userId));
     }
 
-    public boolean isPaid(Event event) {
-        return event.getPrice() != null && event.getPrice() > 0;
+    public EventResponseDto createNewEvent(EventRequestDto request) {
+        Event event = eventMapper.dtoToEvent(request);
+        event.setCreatedDate(LocalDateTime.now());
+        event.setAddress(addressService.getAddressById(request.getAddressId()));
+        event.setCreator(userService.getUserById(request.getCreatorId()));
+        event = eventRepository.save(event);
+        EventResponseDto eventResponseDto = eventMapper.eventToDto(event);
+        eventResponseDto.setAttendees(registerAttendeesToEvent(request.getAttendees(), eventResponseDto.getId()));
+        return eventResponseDto;
+    }
+
+    private Set<AttendeeResponseDto> registerAttendeesToEvent(Set<AttendeeRequestDto> requestSet, Long EventId) {
+        return requestSet.stream().peek(item -> item.setEventId(EventId))
+                .map(attendeeService::registerToEvent).collect(Collectors.toSet());
     }
 }
