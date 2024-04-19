@@ -13,6 +13,7 @@ import com.cognizant.EventPlanner.model.Attendee;
 import com.cognizant.EventPlanner.model.Event;
 import com.cognizant.EventPlanner.model.EventTag;
 import com.cognizant.EventPlanner.repository.EventRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -45,13 +46,24 @@ public class EventService {
     }
 
     public EventResponseDto getEventById(Long id, Long userId) {
-        Event event = eventRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(Event.class, id));
+        Event event = findEventById(id);
         return convertEventToDto(event, userId);
+    }
+
+    @Transactional
+    public EventResponseDto createNewEvent(EventRequestDto request) {
+        Event event = prepareEventForCreation(request);
+        event = eventRepository.save(event);
+        return buildEventResponse(event, request);
     }
 
     private List<Event> findAllEvents() {
         return eventRepository.findAll();
+    }
+
+    private Event findEventById(Long id) {
+        return eventRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(Event.class, id));
     }
 
     private List<Event> findEventsByTags(Set<Long> tagIds) {
@@ -85,19 +97,24 @@ public class EventService {
                 .anyMatch(attendee -> attendee.getUser().getId().equals(userId));
     }
 
-    public EventResponseDto createNewEvent(EventRequestDto request) {
+    private Event prepareEventForCreation(EventRequestDto request) {
         Event event = eventMapper.dtoToEvent(request);
         event.setCreatedDate(LocalDateTime.now());
-        event.setAddress(addressService.getAddressById(request.getAddressId()));
-        event.setCreator(userService.getUserById(request.getCreatorId()));
-        event = eventRepository.save(event);
+        event.setAddress(addressService.findAddressById(request.getAddressId()));
+        event.setCreator(userService.findUserById(request.getCreatorId()));
+        return event;
+    }
+
+    private EventResponseDto buildEventResponse(Event event, EventRequestDto request) {
         EventResponseDto eventResponseDto = eventMapper.eventToDto(event);
         eventResponseDto.setAttendees(registerAttendeesToEvent(request.getAttendees(), eventResponseDto.getId()));
         return eventResponseDto;
     }
 
-    private Set<AttendeeResponseDto> registerAttendeesToEvent(Set<AttendeeRequestDto> requestSet, Long EventId) {
-        return requestSet.stream().peek(item -> item.setEventId(EventId))
-                .map(attendeeService::registerToEvent).collect(Collectors.toSet());
+    private Set<AttendeeResponseDto> registerAttendeesToEvent(Set<AttendeeRequestDto> requestSet, Long eventId) {
+        return requestSet.stream()
+                .peek(item -> item.setEventId(eventId))
+                .map(attendeeService::registerToEvent)
+                .collect(Collectors.toSet());
     }
 }

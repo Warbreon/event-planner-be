@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class AddressService {
     private final AddressRepository addressRepository;
-    public Address getAddressById(Long id) {
+    public Address findAddressById(Long id) {
         return addressRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(Address.class, id));
     }
