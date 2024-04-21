@@ -16,5 +16,6 @@ public interface EventMapper {
     EventResponseDto eventToDto(Event event);
 
     @Mapping(target = "attendees", ignore = true)
+    @Mapping(target = "tags", ignore = true)
     Event dtoToEvent(EventRequestDto dto);
 }

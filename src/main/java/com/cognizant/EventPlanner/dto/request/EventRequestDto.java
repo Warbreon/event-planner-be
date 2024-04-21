@@ -25,4 +25,6 @@ public class EventRequestDto extends EventDto {
     @Min(value = 0, message = "Address ID has to be equal or greater than 0")
     @Max(value = Long.MAX_VALUE, message = "Address ID value can not exceed 9223372036854775807")
     private Long addressId;
+
+    private Set<EventTagRequestDto> tags;
 }

@@ -2,10 +2,10 @@ package com.cognizant.EventPlanner.services;
 
 import com.cognizant.EventPlanner.dto.request.AttendeeRequestDto;
 import com.cognizant.EventPlanner.dto.request.EventRequestDto;
+import com.cognizant.EventPlanner.dto.request.EventTagRequestDto;
 import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
 import com.cognizant.EventPlanner.dto.response.EventResponseDto;
 import com.cognizant.EventPlanner.dto.response.TagResponseDto;
-import com.cognizant.EventPlanner.exception.EntityNotFoundException;
 import com.cognizant.EventPlanner.mapper.AttendeeMapper;
 import com.cognizant.EventPlanner.mapper.EventMapper;
 import com.cognizant.EventPlanner.mapper.TagMapper;
@@ -27,10 +27,10 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EventService {
 
-    private final EventRepository eventRepository;
-    private final UserService userService;
+    private final EntityFinderService entityFinderService;
     private final AttendeeService attendeeService;
-    private final AddressService addressService;
+    private final TagService tagService;
+    private final EventRepository eventRepository;
     private final EventMapper eventMapper;
     private final AttendeeMapper attendeeMapper;
     private final TagMapper tagMapper;
@@ -38,15 +38,15 @@ public class EventService {
     public Set<EventResponseDto> getEvents(Optional<Set<Long>> tagIds, Long userId) {
         List<Event> events = tagIds
                 .filter(tagIdsSet -> !tagIdsSet.isEmpty())
-                .map(this::findEventsByTags)
-                .orElseGet(this::findAllEvents);
+                .map(entityFinderService::findEventsByTags)
+                .orElseGet(entityFinderService::findAllEvents);
         return events.stream()
                 .map(event -> convertEventToDto(event, userId))
                 .collect(Collectors.toSet());
     }
 
     public EventResponseDto getEventById(Long id, Long userId) {
-        Event event = findEventById(id);
+        Event event = entityFinderService.findEventById(id);
         return convertEventToDto(event, userId);
     }
 
@@ -55,19 +55,6 @@ public class EventService {
         Event event = prepareEventForCreation(request);
         event = eventRepository.save(event);
         return buildEventResponse(event, request);
-    }
-
-    private List<Event> findAllEvents() {
-        return eventRepository.findAll();
-    }
-
-    private Event findEventById(Long id) {
-        return eventRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(Event.class, id));
-    }
-
-    private List<Event> findEventsByTags(Set<Long> tagIds) {
-        return eventRepository.findByTags(tagIds, tagIds.size());
     }
 
     private EventResponseDto convertEventToDto(Event event, Long userId) {
@@ -100,14 +87,15 @@ public class EventService {
     private Event prepareEventForCreation(EventRequestDto request) {
         Event event = eventMapper.dtoToEvent(request);
         event.setCreatedDate(LocalDateTime.now());
-        event.setAddress(addressService.findAddressById(request.getAddressId()));
-        event.setCreator(userService.findUserById(request.getCreatorId()));
+        event.setAddress(entityFinderService.findAddressById(request.getAddressId()));
+        event.setCreator(entityFinderService.findUserById(request.getCreatorId()));
         return event;
     }
 
     private EventResponseDto buildEventResponse(Event event, EventRequestDto request) {
         EventResponseDto eventResponseDto = eventMapper.eventToDto(event);
         eventResponseDto.setAttendees(registerAttendeesToEvent(request.getAttendees(), eventResponseDto.getId()));
+        eventResponseDto.setTags(addTagsToEvent(request.getTags(), eventResponseDto.getId()));
         return eventResponseDto;
     }
 
@@ -115,6 +103,13 @@ public class EventService {
         return requestSet.stream()
                 .peek(item -> item.setEventId(eventId))
                 .map(attendeeService::registerToEvent)
+                .collect(Collectors.toSet());
+    }
+
+    private Set<TagResponseDto> addTagsToEvent(Set<EventTagRequestDto> requestSet, Long eventId) {
+        return requestSet.stream()
+                .peek(item -> item.setEventId(eventId))
+                .map(tagService::addTagToEvent)
                 .collect(Collectors.toSet());
     }
 }
