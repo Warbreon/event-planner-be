@@ -10,6 +10,7 @@ import com.cognizant.EventPlanner.repository.EventRepository;
 import com.cognizant.EventPlanner.repository.TagRepository;
 import com.cognizant.EventPlanner.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,8 +31,7 @@ public class EntityFinderService {
     }
 
     public Event findEventById(Long id) {
-        return eventRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(Event.class, id));
+        return findByIdOrThrow(id, eventRepository, Event.class);
     }
 
     public List<Event> findEventsByTags(Set<Long> tagIds) {
@@ -40,8 +40,7 @@ public class EntityFinderService {
 
     // User
     public User findUserById(Long id){
-        return userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(User.class, id));
+        return findByIdOrThrow(id, userRepository, User.class);
     }
 
     // Tag
@@ -50,13 +49,16 @@ public class EntityFinderService {
     }
 
     public Tag findTagById(Long id) {
-        return tagRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(Tag.class, id));
+        return findByIdOrThrow(id, tagRepository, Tag.class);
     }
 
     // Address
     public Address findAddressById(Long id) {
-        return addressRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(Address.class, id));
+        return findByIdOrThrow(id, addressRepository, Address.class);
+    }
+
+    private <T> T findByIdOrThrow(Long id, JpaRepository<T, Long> repository, Class<T> entityClass) {
+        return repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(entityClass, id));
     }
 }
