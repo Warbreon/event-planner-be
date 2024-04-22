@@ -8,8 +8,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,10 +23,8 @@ import java.io.IOException;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class JwtRequestFilter extends OncePerRequestFilter {
-
-    final Logger logger = LoggerFactory.getLogger(JwtRequestFilter.class);
-
     private static final int BEARER_PREFIX_LENGTH = 7;
     private static final String BEARER_PREFIX = "Bearer ";
 
@@ -35,7 +32,9 @@ public class JwtRequestFilter extends OncePerRequestFilter {
     private final JwtTokenUtil jwtTokenUtil;
 
     @Override
-    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request,
+                                    @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         final String requestTokenHeader = request.getHeader("Authorization");
 
@@ -61,7 +60,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(email);
 
                 if (jwtTokenUtil.validateToken(jwtToken)) {
-                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    UsernamePasswordAuthenticationToken authenticationToken =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                     authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
@@ -69,14 +69,17 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 }
             }
         } catch (ExpiredJwtException e) {
-            logger.error("JWT token is expired", e);
-            ErrorResponseEntityUtil.writeErrorResponse(response, HttpStatus.UNAUTHORIZED, "JWT token is expired", request.getRequestURI());
+            log.error("JWT token is expired", e);
+            ErrorResponseEntityUtil.writeErrorResponse(response, HttpStatus.UNAUTHORIZED,
+                    "JWT token is expired", request.getRequestURI());
         } catch (JwtException e) {
-            logger.error("JWT token validation failed", e);
-            ErrorResponseEntityUtil.writeErrorResponse(response, HttpStatus.BAD_REQUEST, "JWT token validation failed", request.getRequestURI());
+            log.error("JWT token validation failed", e);
+            ErrorResponseEntityUtil.writeErrorResponse(response, HttpStatus.BAD_REQUEST,
+                    "JWT token validation failed", request.getRequestURI());
         } catch (Exception e) {
-            logger.error("Unexpected error during JWT token validation", e);
-            ErrorResponseEntityUtil.writeErrorResponse(response, HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error during JWT token validation", request.getRequestURI());
+            log.error("Unexpected error during JWT token validation", e);
+            ErrorResponseEntityUtil.writeErrorResponse(response, HttpStatus.INTERNAL_SERVER_ERROR,
+                    "Unexpected error during JWT token validation", request.getRequestURI());
         }
 
         return false;

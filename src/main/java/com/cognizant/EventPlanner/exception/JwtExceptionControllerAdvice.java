@@ -4,8 +4,7 @@ import com.cognizant.EventPlanner.dto.response.ErrorResponse;
 import com.cognizant.EventPlanner.util.ErrorResponseEntityUtil;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -15,10 +14,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 @Order(Ordered.HIGHEST_PRECEDENCE)
+@Slf4j
 public class JwtExceptionControllerAdvice {
-
-    private static final Logger log = LoggerFactory.getLogger(JwtExceptionControllerAdvice.class);
-
     @ExceptionHandler(UnsupportedJwtException.class)
     public ResponseEntity<ErrorResponse> handleUnsupportedJwtException(UnsupportedJwtException ex, HttpServletRequest request) {
         log.error("Unsupported JWT token", ex);
@@ -42,5 +39,4 @@ public class JwtExceptionControllerAdvice {
         log.error("Invalid JWT token", ex);
         return ErrorResponseEntityUtil.buildErrorResponseEntity(HttpStatus.BAD_REQUEST, "Invalid JWT token.", request);
     }
-
 }
