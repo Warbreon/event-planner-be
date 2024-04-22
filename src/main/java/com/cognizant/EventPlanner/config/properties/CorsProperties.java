@@ -11,9 +11,9 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "cors")
 public class CorsProperties {
 
-    private String[] allowedOrigins = new String[]{"http://localhost:3000"};
-    private String[] allowedMethods = new String[]{"GET", "POST", "PUT", "PATCH", "DELETE"};
-    private String[] allowedHeaders = new String[]{"*"};
-    private String[] exposedHeaders = new String[]{"*"};
+    private String[] allowedOrigins;
+    private String[] allowedMethods;
+    private String[] allowedHeaders;
+    private String[] exposedHeaders;
 
 }

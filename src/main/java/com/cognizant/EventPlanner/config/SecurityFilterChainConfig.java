@@ -32,7 +32,7 @@ public class SecurityFilterChainConfig {
             .sessionManagement((session) -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests((authorizeHttpRequests) -> authorizeHttpRequests
-                .requestMatchers("/authenticate", "/refresh").permitAll()
+                .requestMatchers("/api/auth/authenticate", "/api/auth/refresh").permitAll()
                 .anyRequest().authenticated())
             .exceptionHandling((exceptions) -> exceptions
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint));

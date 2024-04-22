@@ -2,10 +2,10 @@ package com.cognizant.EventPlanner.services;
 
 import com.cognizant.EventPlanner.model.Role;
 import com.cognizant.EventPlanner.model.User;
-import com.cognizant.EventPlanner.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -18,13 +18,11 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
-
+        User user = userService.getUserByEmail(email);
         return new org.springframework.security.core.userdetails.User(user.getEmail(),
                 user.getPasswordHash(), true, true, true, true, getAuthorities(user.getRole()));
     }
@@ -32,5 +30,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     private Set<GrantedAuthority> getAuthorities(Role role) {
         return Collections.singleton(new SimpleGrantedAuthority(role.name()));
     }
+
+    public UserDetails getCurrentUser() {
+        return (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
+
 
 }

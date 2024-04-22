@@ -22,14 +22,14 @@ public class EventController {
     private final AttendeeService attendeeService;
 
     @GetMapping
-    public ResponseEntity<List<EventResponseDto>> getAllEvents(@RequestParam Long userId) {
-        List<EventResponseDto> events = eventService.getAllEvents(userId);
+    public ResponseEntity<List<EventResponseDto>> getAllEvents() {
+        List<EventResponseDto> events = eventService.getAllEvents();
         return ResponseEntity.ok(events);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EventResponseDto> getEventById(@PathVariable(value = "id") Long id, @RequestParam Long userId) {
-        EventResponseDto event = eventService.getEventById(id, userId);
+    public ResponseEntity<EventResponseDto> getEventById(@PathVariable(value = "id") Long id) {
+        EventResponseDto event = eventService.getEventById(id);
         return ResponseEntity.ok(event);
     }
 
