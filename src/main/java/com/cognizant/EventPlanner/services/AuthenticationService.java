@@ -17,28 +17,31 @@ public class AuthenticationService {
     private final UserDetailsServiceImpl userDetailsServiceImpl;
     private final JwtTokenUtil jwtTokenUtil;
     private final AuthenticationManager authenticationManager;
+
     public AuthenticationResponse authenticateUser(AuthenticationRequest authenticationRequest) {
         authenticate(authenticationRequest.getEmail(), authenticationRequest.getPassword());
-
-        UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(authenticationRequest.getEmail());
-        String accessToken = jwtTokenUtil.generateAccessToken(userDetails.getUsername());
-        String refreshToken = jwtTokenUtil.generateRefreshToken(userDetails.getUsername());
-        Role role = jwtTokenUtil.convertAuthoritiesToRole(userDetails.getAuthorities());
-
-        return new AuthenticationResponse(accessToken, refreshToken, userDetails.getUsername(), role);
+        return buildAuthenticationResponse(authenticationRequest.getEmail(), null);
     }
 
     public AuthenticationResponse refreshAccessToken(TokenRefreshRequest refreshTokenRequest) {
         String refreshToken = refreshTokenRequest.getRefreshToken();
         jwtTokenUtil.validateToken(refreshToken);
         String email = jwtTokenUtil.getEmailFromToken(refreshToken);
-        UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(email);
-        String newAccessToken = jwtTokenUtil.generateAccessToken(userDetails.getUsername());
-        Role role = jwtTokenUtil.convertAuthoritiesToRole(userDetails.getAuthorities());
-
-        return new AuthenticationResponse(newAccessToken, refreshToken, userDetails.getUsername(), role);
+        return buildAuthenticationResponse(email, refreshToken);
     }
 
+    private AuthenticationResponse buildAuthenticationResponse(String email, String refreshToken)
+    {
+        UserDetails userDetails = userDetailsServiceImpl.loadUserByUsername(email);
+        String accessToken = jwtTokenUtil.generateAccessToken(userDetails.getUsername());
+
+        if (refreshToken == null) {
+            refreshToken = jwtTokenUtil.generateRefreshToken(userDetails.getUsername());
+        }
+
+        Role role = jwtTokenUtil.convertAuthoritiesToRole(userDetails.getAuthorities());
+        return new AuthenticationResponse(accessToken, refreshToken, userDetails.getUsername(), role);
+    }
 
     private void authenticate(String username, String password) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
