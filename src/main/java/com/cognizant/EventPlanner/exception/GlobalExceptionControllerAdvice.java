@@ -23,7 +23,7 @@ public class GlobalExceptionControllerAdvice {
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleEventNotFoundException(EntityNotFoundException ex, HttpServletRequest request) {
+    public ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityNotFoundException ex, HttpServletRequest request) {
         log.error("Entity not found", ex);
         return ErrorResponseEntityUtil.buildErrorResponseEntity(HttpStatus.NOT_FOUND, ex.getMessage(), request);
     }
