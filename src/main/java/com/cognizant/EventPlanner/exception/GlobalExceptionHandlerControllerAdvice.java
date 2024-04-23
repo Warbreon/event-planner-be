@@ -15,6 +15,7 @@ public class GlobalExceptionHandlerControllerAdvice {
         log.error("Unexpected error", ex);
         return new ResponseEntity<>("A problem occurred in the application", HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
     @ExceptionHandler(EntityNotFoundException.class)
     public ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException ex) {
         log.error("Entity not found", ex);
