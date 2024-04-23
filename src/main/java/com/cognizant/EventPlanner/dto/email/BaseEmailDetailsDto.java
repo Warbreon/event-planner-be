@@ -1,18 +1,15 @@
 package com.cognizant.EventPlanner.dto.email;
 
 import com.cognizant.EventPlanner.constants.EmailType;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
-@Setter
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-public class BaseEmailDetailsDto {
+@SuperBuilder
+public abstract class BaseEmailDetailsDto {
 
-    private EmailType emailType;
-    private String recipientEmail;
+    private final EmailType emailType;
+    private final String recipientEmail;
+    private final String name;
 
 }

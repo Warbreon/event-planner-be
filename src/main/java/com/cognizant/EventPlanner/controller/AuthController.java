@@ -3,7 +3,7 @@ package com.cognizant.EventPlanner.controller;
 import com.cognizant.EventPlanner.dto.email.ResetPasswordEmailDetailsDto;
 import com.cognizant.EventPlanner.dto.request.PasswordResetRequestDto;
 import com.cognizant.EventPlanner.model.User;
-import com.cognizant.EventPlanner.services.AuthenticationService;
+import com.cognizant.EventPlanner.services.PasswordResetTokenService;
 import com.cognizant.EventPlanner.services.EmailService;
 import com.cognizant.EventPlanner.services.UserService;
 import com.cognizant.EventPlanner.util.EmailDetailsBuilder;
@@ -19,14 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final AuthenticationService authenticationService;
+    private final PasswordResetTokenService passwordResetTokenService;
     private final EmailService emailService;
     private final UserService userService;
 
     @PostMapping("/reset-password")
     public ResponseEntity<?> requestResetPassword(@RequestBody PasswordResetRequestDto request) {
         User user = userService.findUserByEmail(request.getEmail());
-        String resetToken = authenticationService.generateResetToken(user);
+        String resetToken = passwordResetTokenService.generateResetToken(user);
         ResetPasswordEmailDetailsDto emailDetails = EmailDetailsBuilder.buildResetPasswordDetails(user, request,
                 resetToken);
         emailService.sendEmail(emailDetails);
