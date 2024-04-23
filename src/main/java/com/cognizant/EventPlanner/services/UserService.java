@@ -3,6 +3,7 @@ package com.cognizant.EventPlanner.services;
 import com.cognizant.EventPlanner.dto.response.UserResponseDto;
 import com.cognizant.EventPlanner.exception.EntityNotFoundException;
 import com.cognizant.EventPlanner.mapper.UserMapper;
+import com.cognizant.EventPlanner.model.Role;
 import com.cognizant.EventPlanner.model.User;
 import com.cognizant.EventPlanner.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,20 +19,22 @@ public class UserService {
     private final UserMapper userMapper;
     private final UserRepository userRepository;
 
-    public UserResponseDto getUserById(Long userId) {
-        var user = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(User.class, userId));
-        return convertUserToDto(user);
-    }
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(User.class, id));
+        }
 
     public List<UserResponseDto> getAllAdminUsers() {
-        return userRepository.findAllAdminUsers().stream().map(this::convertUserToDto).collect(Collectors.toList());
+        return userRepository.findByRole(Role.EVENT_ADMIN).stream().map(userMapper::userToUserDto).collect(Collectors.toList());
     }
 
-    public void removeAdminRole(Long adminUserId) {
-        userRepository.removeAdminRoleForUser(adminUserId);
-    }
-
-    private UserResponseDto convertUserToDto(User user) {
-        return userMapper.userToUserDto(user);
+    public void demoteEventAdmin(Long adminUserId) {
+        User admin = userRepository.findById(adminUserId).orElseThrow(() -> new EntityNotFoundException(User.class, adminUserId));
+        if (admin.getRole() == Role.EVENT_ADMIN) {
+            admin.setRole(Role.USER);
+            userRepository.save(admin);
+        } else {
+            throw new EntityNotFoundException(User.class, adminUserId);
+        }
     }
 }

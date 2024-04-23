@@ -1,5 +1,6 @@
 package com.cognizant.EventPlanner.repository;
 
+import com.cognizant.EventPlanner.model.Role;
 import com.cognizant.EventPlanner.model.User;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,11 +13,5 @@ import java.util.List;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
 
-    @Query("SELECT u FROM User u WHERE u.role != 'USER'")
-    List<User> findAllAdminUsers();
-
-    @Transactional
-    @Modifying
-    @Query("UPDATE User u SET u.role = 'USER' WHERE u.id = :userId")
-    void removeAdminRoleForUser(long userId);
+    List<User> findByRole(Role role);
 }
