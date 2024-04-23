@@ -1,6 +1,5 @@
 package com.cognizant.EventPlanner.dto.email;
 
-import com.cognizant.EventPlanner.constants.EmailType;
 import lombok.Getter;
 import lombok.experimental.SuperBuilder;
 

@@ -1,8 +1,7 @@
 package com.cognizant.EventPlanner.services;
 
-import com.cognizant.EventPlanner.constants.EmailType;
+import com.cognizant.EventPlanner.dto.email.EmailType;
 import com.cognizant.EventPlanner.dto.email.BaseEmailDetailsDto;
-import com.cognizant.EventPlanner.model.User;
 import com.cognizant.EventPlanner.strategy.EmailStrategy;
 import jakarta.annotation.PostConstruct;
 import jakarta.mail.MessagingException;
@@ -55,4 +54,5 @@ public class EmailServiceImpl implements EmailService {
             throw new RuntimeException("Failed to send email", e);
         }
     }
+
 }

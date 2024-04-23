@@ -1,6 +1,6 @@
 package com.cognizant.EventPlanner.util;
 
-import com.cognizant.EventPlanner.constants.EmailType;
+import com.cognizant.EventPlanner.dto.email.EmailType;
 import com.cognizant.EventPlanner.dto.email.ResetPasswordEmailDetailsDto;
 import com.cognizant.EventPlanner.dto.request.PasswordResetRequestDto;
 import com.cognizant.EventPlanner.model.User;

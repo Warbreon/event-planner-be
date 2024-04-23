@@ -1,6 +1,6 @@
 package com.cognizant.EventPlanner.strategy;
 
-import com.cognizant.EventPlanner.constants.EmailType;
+import com.cognizant.EventPlanner.dto.email.EmailType;
 import com.cognizant.EventPlanner.dto.email.BaseEmailDetailsDto;
 import com.cognizant.EventPlanner.dto.email.ResetPasswordEmailDetailsDto;
 import lombok.RequiredArgsConstructor;
