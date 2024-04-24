@@ -1,43 +1,33 @@
 package com.cognizant.EventPlanner.config;
 
-import org.springframework.beans.factory.annotation.Value;
+import com.cognizant.EventPlanner.config.properties.CorsProperties;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
-
 import java.util.Arrays;
 
 @Configuration
+@RequiredArgsConstructor
 public class CorsConfig {
 
-    @Value("${cors.allowedOrigins}")
-    private String allowedOrigins;
-
-    @Value("${cors.allowedMethods}")
-    private String allowedMethods;
-
-    @Value("${cors.allowedHeaders}")
-    private String allowedHeaders;
-
-    @Value("${cors.exposedHeaders}")
-    private String exposedHeaders;
+    private final CorsProperties corsProperties;
 
     @Bean
-    public CorsFilter corsFilter() {
+    @Primary
+    public CorsConfigurationSource apiConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
-        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
-        configuration.setAllowedMethods(Arrays.asList(allowedMethods.split(",")));
-        configuration.setAllowedHeaders(Arrays.asList(allowedHeaders.split(",")));
-        configuration.setExposedHeaders(Arrays.asList(exposedHeaders.split(",")));
-
-        configuration.setAllowCredentials(true);
+        configuration.setAllowedOrigins(Arrays.asList(corsProperties.getAllowedOrigins()));
+        configuration.setAllowedMethods(Arrays.asList(corsProperties.getAllowedMethods()));
+        configuration.setAllowedHeaders(Arrays.asList(corsProperties.getAllowedHeaders()));
+        configuration.setExposedHeaders(Arrays.asList(corsProperties.getExposedHeaders()));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
-
-        return new CorsFilter(source);
+        return source;
     }
+    
 }
