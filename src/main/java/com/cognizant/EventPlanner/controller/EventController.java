@@ -30,7 +30,7 @@ public class EventController {
         return ResponseEntity.ok(event);
     }
 
-    //@PreAuthorize("hasAnyAuthority('EVENT_ADMIN', 'SYSTEM_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('EVENT_ADMIN', 'SYSTEM_ADMIN')")
     @PostMapping("/create/new")
     public ResponseEntity<EventResponseDto> createNewEvent(@Valid @RequestBody EventRequestDto request) {
         return new ResponseEntity<>(eventService.createNewEvent(request), HttpStatus.CREATED);
