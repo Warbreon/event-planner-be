@@ -25,6 +25,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthenticationService authenticationService;
+    private final PasswordResetTokenService passwordResetTokenService;
+    private final EmailService emailService;
+    private final UserService userService;
+
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> createAuthenticationToken(@Valid @RequestBody AuthenticationRequest request) {
         AuthenticationResponse response = authenticationService.authenticateUser(request);
@@ -36,13 +40,10 @@ public class AuthController {
         AuthenticationResponse response = authenticationService.refreshAccessToken(request);
         return ResponseEntity.ok(response);
     }
-    private final PasswordResetTokenService passwordResetTokenService;
-    private final EmailService emailService;
-    private final UserService userService;
 
     @PostMapping("/reset-password")
-    public ResponseEntity<?> requestResetPassword(@RequestBody PasswordResetRequestDto request) {
-        User user = userService.findUserByEmail(request.getEmail());
+    public ResponseEntity<?> requestResetPassword(@Valid @RequestBody PasswordResetRequestDto request) {
+        User user = userService.getUserByEmail(request.getEmail());
         String resetToken = passwordResetTokenService.generateResetToken(user);
         ResetPasswordEmailDetailsDto emailDetails = EmailDetailsBuilder.buildResetPasswordDetails(user, request,
                 resetToken);

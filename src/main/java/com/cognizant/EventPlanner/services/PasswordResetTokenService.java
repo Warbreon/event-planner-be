@@ -6,7 +6,7 @@ import com.cognizant.EventPlanner.repository.PasswordResetTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -18,7 +18,7 @@ import java.util.UUID;
 public class PasswordResetTokenService {
 
     private final PasswordResetTokenRepository passwordResetTokenRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
 
     @Value("${reset.token.expiration:3600}")
     private long resetTokenExpiration;
