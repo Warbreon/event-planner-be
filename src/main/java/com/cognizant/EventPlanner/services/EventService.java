@@ -34,20 +34,21 @@ public class EventService {
     private final EventMapper eventMapper;
     private final AttendeeMapper attendeeMapper;
     private final TagMapper tagMapper;
+    private final UserDetailsServiceImpl userDetailsService;
 
-    public Set<EventResponseDto> getEvents(Optional<Set<Long>> tagIds, Long userId) {
+    public Set<EventResponseDto> getEvents(Optional<Set<Long>> tagIds) {
         List<Event> events = tagIds
                 .filter(tagIdsSet -> !tagIdsSet.isEmpty())
                 .map(entityFinderService::findEventsByTags)
                 .orElseGet(entityFinderService::findAllEvents);
         return events.stream()
-                .map(event -> convertEventToDto(event, userId))
+                .map(this::convertEventToDto)
                 .collect(Collectors.toSet());
     }
 
-    public EventResponseDto getEventById(Long id, Long userId) {
+    public EventResponseDto getEventById(Long id) {
         Event event = entityFinderService.findEventById(id);
-        return convertEventToDto(event, userId);
+        return convertEventToDto(event);
     }
 
     @Transactional
@@ -57,11 +58,11 @@ public class EventService {
         return buildEventResponse(event, request);
     }
 
-    private EventResponseDto convertEventToDto(Event event, Long userId) {
+    private EventResponseDto convertEventToDto(Event event) {
         EventResponseDto eventDto = eventMapper.eventToDto(event);
         eventDto.setAttendees(mapEventAttendees(event.getAttendees()));
         eventDto.setTags(mapEventTags(event.getTags()));
-        eventDto.setCurrentUserRegisteredToEvent(isUserRegistered(event, userId));
+        eventDto.setCurrentUserRegisteredToEvent(isUserRegistered(event, userDetailsService.getCurrentUser().getUsername()));
         return eventDto;
     }
 
@@ -78,10 +79,10 @@ public class EventService {
                 .collect(Collectors.toSet());
     }
 
-    private boolean isUserRegistered(Event event, Long userId) {
+    private boolean isUserRegistered(Event event, String userEmail) {
         return event.getAttendees()
                 .stream()
-                .anyMatch(attendee -> attendee.getUser().getId().equals(userId));
+                .anyMatch(attendee -> attendee.getUser().getEmail().equals(userEmail));
     }
 
     private Event prepareEventForCreation(EventRequestDto request) {
