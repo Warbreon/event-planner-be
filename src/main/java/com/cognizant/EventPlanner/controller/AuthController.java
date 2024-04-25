@@ -7,6 +7,11 @@ import com.cognizant.EventPlanner.services.PasswordResetTokenService;
 import com.cognizant.EventPlanner.services.EmailService;
 import com.cognizant.EventPlanner.services.UserService;
 import com.cognizant.EventPlanner.util.EmailDetailsBuilder;
+import com.cognizant.EventPlanner.dto.request.AuthenticationRequest;
+import com.cognizant.EventPlanner.dto.request.TokenRefreshRequest;
+import com.cognizant.EventPlanner.dto.response.AuthenticationResponse;
+import com.cognizant.EventPlanner.services.AuthenticationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +24,18 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 public class AuthController {
 
+    private final AuthenticationService authenticationService;
+    @PostMapping("/authenticate")
+    public ResponseEntity<AuthenticationResponse> createAuthenticationToken(@Valid @RequestBody AuthenticationRequest request) {
+        AuthenticationResponse response = authenticationService.authenticateUser(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthenticationResponse> refreshAccessToken(@Valid @RequestBody TokenRefreshRequest request) {
+        AuthenticationResponse response = authenticationService.refreshAccessToken(request);
+        return ResponseEntity.ok(response);
+    }
     private final PasswordResetTokenService passwordResetTokenService;
     private final EmailService emailService;
     private final UserService userService;
