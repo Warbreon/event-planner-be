@@ -1,6 +1,5 @@
 package com.cognizant.EventPlanner.mapper;
 
-import com.cognizant.EventPlanner.dto.request.EventTagRequestDto;
 import com.cognizant.EventPlanner.dto.response.TagResponseDto;
 import com.cognizant.EventPlanner.model.Event;
 import com.cognizant.EventPlanner.model.EventTag;
@@ -16,5 +15,5 @@ public interface TagMapper {
     @Mapping(source = "event", target = "event")
     @Mapping(source = "tag", target = "tag")
     @Mapping(target = "id", ignore = true)
-    EventTag requestDtoToEventTag(EventTagRequestDto requestDto, Event event, Tag tag);
+    EventTag createEventTag(Event event, Tag tag);
 }

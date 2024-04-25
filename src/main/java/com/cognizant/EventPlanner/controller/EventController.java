@@ -2,7 +2,7 @@ package com.cognizant.EventPlanner.controller;
 
 import com.cognizant.EventPlanner.dto.request.EventRequestDto;
 import com.cognizant.EventPlanner.dto.response.EventResponseDto;
-import com.cognizant.EventPlanner.services.EventService;
+import com.cognizant.EventPlanner.services.facade.EventManagementFacade;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -18,24 +18,24 @@ import java.util.Set;
 @RequestMapping("/api/events")
 public class EventController {
 
-    private final EventService eventService;
+    private final EventManagementFacade eventManagementFacade;
 
     @GetMapping
     public ResponseEntity<Set<EventResponseDto>> getEvents(@RequestParam(required = false) Set<Long> tagIds) {
-        Set<EventResponseDto> events = eventService.getEvents(Optional.ofNullable(tagIds));
+        Set<EventResponseDto> events = eventManagementFacade.getEvents(Optional.ofNullable(tagIds));
         return ResponseEntity.ok(events);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<EventResponseDto> getEventById(@PathVariable(value = "id") Long id) {
-        EventResponseDto event = eventService.getEventById(id);
+        EventResponseDto event = eventManagementFacade.getEventById(id);
         return ResponseEntity.ok(event);
     }
 
     @PreAuthorize("hasAnyAuthority('EVENT_ADMIN', 'SYSTEM_ADMIN')")
     @PostMapping("/create/new")
     public ResponseEntity<EventResponseDto> createNewEvent(@Valid @RequestBody EventRequestDto request) {
-        EventResponseDto response = eventService.createNewEvent(request);
+        EventResponseDto response = eventManagementFacade.createNewEvent(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 }

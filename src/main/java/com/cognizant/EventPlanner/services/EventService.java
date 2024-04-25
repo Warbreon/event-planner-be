@@ -1,25 +1,21 @@
 package com.cognizant.EventPlanner.services;
 
-import com.cognizant.EventPlanner.dto.request.AttendeeRequestDto;
 import com.cognizant.EventPlanner.dto.request.EventRequestDto;
-import com.cognizant.EventPlanner.dto.request.EventTagRequestDto;
-import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
 import com.cognizant.EventPlanner.dto.response.EventResponseDto;
 import com.cognizant.EventPlanner.dto.response.TagResponseDto;
-import com.cognizant.EventPlanner.mapper.AttendeeMapper;
+import com.cognizant.EventPlanner.exception.EntityNotFoundException;
 import com.cognizant.EventPlanner.mapper.EventMapper;
 import com.cognizant.EventPlanner.mapper.TagMapper;
-import com.cognizant.EventPlanner.model.Attendee;
+import com.cognizant.EventPlanner.model.Address;
 import com.cognizant.EventPlanner.model.Event;
 import com.cognizant.EventPlanner.model.EventTag;
+import com.cognizant.EventPlanner.model.User;
 import com.cognizant.EventPlanner.repository.EventRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -27,90 +23,56 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class EventService {
 
-    private final EntityFinderService entityFinderService;
-    private final AttendeeService attendeeService;
-    private final TagService tagService;
     private final EventRepository eventRepository;
-    private final EventMapper eventMapper;
-    private final AttendeeMapper attendeeMapper;
     private final TagMapper tagMapper;
-    private final UserDetailsServiceImpl userDetailsService;
+    private final EventMapper eventMapper;
 
-    public Set<EventResponseDto> getEvents(Optional<Set<Long>> tagIds) {
-        List<Event> events = tagIds
-                .filter(tagIdsSet -> !tagIdsSet.isEmpty())
-                .map(entityFinderService::findEventsByTags)
-                .orElseGet(entityFinderService::findAllEvents);
-        return events.stream()
-                .map(this::convertEventToDto)
-                .collect(Collectors.toSet());
+    public List<Event> findAllEvents() {
+        return eventRepository.findAll();
     }
 
-    public EventResponseDto getEventById(Long id) {
-        Event event = entityFinderService.findEventById(id);
-        return convertEventToDto(event);
+    public Event findEventById(Long id) {
+        return eventRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(Event.class, id));
     }
 
-    @Transactional
-    public EventResponseDto createNewEvent(EventRequestDto request) {
-        Event event = prepareEventForCreation(request);
-        event = eventRepository.save(event);
-        return buildEventResponse(event, request);
+    public List<Event> findEventsByTags(Set<Long> tagIds) {
+        return eventRepository.findByTags(tagIds, tagIds.size());
     }
 
-    private EventResponseDto convertEventToDto(Event event) {
-        EventResponseDto eventDto = eventMapper.eventToDto(event);
-        eventDto.setAttendees(mapEventAttendees(event.getAttendees()));
-        eventDto.setTags(mapEventTags(event.getTags()));
-        eventDto.setCurrentUserRegisteredToEvent(isUserRegistered(event, userDetailsService.getCurrentUser().getUsername()));
-        return eventDto;
+    public Event saveEvent(Event event) {
+        return eventRepository.save(event);
     }
 
-    private Set<AttendeeResponseDto> mapEventAttendees(Set<Attendee> attendees) {
-        return attendees.stream()
-                .map(attendeeMapper::attendeeToDto)
-                .collect(Collectors.toSet());
+    public boolean isPaid(Event event) {
+        return event.getPrice() != null && event.getPrice() > 0;
     }
 
-    private Set<TagResponseDto> mapEventTags(Set<EventTag> eventTags) {
+    public Set<TagResponseDto> mapEventTags(Set<EventTag> eventTags) {
         return eventTags.stream()
                 .map(EventTag::getTag)
                 .map(tagMapper::tagToDto)
                 .collect(Collectors.toSet());
     }
 
-    private boolean isUserRegistered(Event event, String userEmail) {
+    public boolean isUserRegistered(Event event, String userEmail) {
         return event.getAttendees()
                 .stream()
                 .anyMatch(attendee -> attendee.getUser().getEmail().equals(userEmail));
     }
 
-    private Event prepareEventForCreation(EventRequestDto request) {
+    public Event prepareEventForCreation(EventRequestDto request, Address address, User user) {
         Event event = eventMapper.dtoToEvent(request);
         event.setCreatedDate(LocalDateTime.now());
-        event.setAddress(entityFinderService.findAddressById(request.getAddressId()));
-        event.setCreator(entityFinderService.findUserById(request.getCreatorId()));
+        event.setAddress(address);
+        event.setCreator(user);
         return event;
     }
 
-    private EventResponseDto buildEventResponse(Event event, EventRequestDto request) {
-        EventResponseDto eventResponseDto = eventMapper.eventToDto(event);
-        eventResponseDto.setAttendees(registerAttendeesToEvent(request.getAttendees(), eventResponseDto.getId()));
-        eventResponseDto.setTags(addTagsToEvent(request.getTags(), eventResponseDto.getId()));
-        return eventResponseDto;
-    }
-
-    private Set<AttendeeResponseDto> registerAttendeesToEvent(Set<AttendeeRequestDto> requestSet, Long eventId) {
-        return requestSet.stream()
-                .peek(item -> item.setEventId(eventId))
-                .map(attendeeService::registerToEvent)
-                .collect(Collectors.toSet());
-    }
-
-    private Set<TagResponseDto> addTagsToEvent(Set<EventTagRequestDto> requestSet, Long eventId) {
-        return requestSet.stream()
-                .peek(item -> item.setEventId(eventId))
-                .map(tagService::addTagToEvent)
-                .collect(Collectors.toSet());
+    public EventResponseDto convertToDto(Event event, String userEmail) {
+        EventResponseDto eventDto = eventMapper.eventToDto(event);
+        eventDto.setTags(mapEventTags(event.getTags()));
+        eventDto.setCurrentUserRegisteredToEvent(isUserRegistered(event, userEmail));
+        return eventDto;
     }
 }
