@@ -1,7 +1,7 @@
 package com.cognizant.EventPlanner.strategy;
 
-import com.cognizant.EventPlanner.dto.email.EmailType;
 import com.cognizant.EventPlanner.dto.email.BaseEmailDetailsDto;
+import com.cognizant.EventPlanner.dto.email.EmailType;
 import com.cognizant.EventPlanner.dto.email.ResetPasswordEmailDetailsDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -36,7 +36,7 @@ public class PasswordResetEmailStrategy implements EmailStrategy {
 
     @Override
     public String getTemplateName() {
-        return "passwordReset.html";
+        return EmailType.PASSWORD_RESET.getTemplateName();
     }
 
 }
