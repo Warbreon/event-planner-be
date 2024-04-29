@@ -14,7 +14,6 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
-
     @GetMapping("/admins")
     public ResponseEntity<List<UserResponseDto>> getAllAdminUsers() {
         List<UserResponseDto> admins = userService.getAllAdminUsers();
