@@ -68,6 +68,9 @@ public class EventManagementFacade {
     }
 
     private EventResponseDto convertEventToDto(Event event) {
-        return eventService.convertToDto(event, userDetailsService.getCurrentUser().getUsername());
+        EventResponseDto eventDto = eventMapper.eventToDto(event);
+        eventDto.setTags(tagService.mapEventTags(event.getTags()));
+        eventDto.setCurrentUserRegisteredToEvent(userService.isUserRegistered(event, userDetailsService.getCurrentUser().getUsername()));
+        return eventDto;
     }
 }

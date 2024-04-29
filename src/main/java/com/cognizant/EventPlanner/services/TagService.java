@@ -48,4 +48,11 @@ public class TagService {
     public void saveEventTag(EventTag eventTag) {
         eventTagRepository.save(eventTag);
     }
+
+    public Set<TagResponseDto> mapEventTags(Set<EventTag> eventTags) {
+        return eventTags.stream()
+                .map(EventTag::getTag)
+                .map(tagMapper::tagToDto)
+                .collect(Collectors.toSet());
+    }
 }
