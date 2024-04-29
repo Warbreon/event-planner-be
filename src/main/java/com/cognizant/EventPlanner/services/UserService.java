@@ -27,8 +27,12 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException(User.class, email));
     }
 
+    public List<User> findAllUsers() {
+        return userRepository.findAll();
+    }
+
     public List<UserResponseDto> getAllUsers() {
-        return userRepository.findAll().stream().map(this::convertUserToDto).collect(Collectors.toList());
+        return findAllUsers().stream().map(this::convertUserToDto).collect(Collectors.toList());
     }
 
     private UserResponseDto convertUserToDto(User user) {
