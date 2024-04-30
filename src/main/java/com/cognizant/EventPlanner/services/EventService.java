@@ -64,7 +64,7 @@ public class EventService {
         Event event = eventMapper.dtoToEvent(request);
         event.setCreatedDate(LocalDateTime.now());
         event.setAddress(addressService.getAddressById(request.getAddressId()));
-        event.setCreator(userService.getUserById(request.getCreatorId()));
+        event.setCreator(userService.findUserById(request.getCreatorId()));
         event = eventRepository.save(event);
         EventResponseDto eventResponseDto = eventMapper.eventToDto(event);
         eventResponseDto.setAttendees(registerAttendeesToEvent(request.getAttendees(), eventResponseDto.getId()));

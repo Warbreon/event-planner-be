@@ -20,7 +20,7 @@ public class UserService {
     private final UserMapper userMapper;
     private final UserRepository userRepository;
 
-    public User getUserById(Long id) {
+    public User findUserById(Long id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(User.class, id));
         }
@@ -47,7 +47,7 @@ public class UserService {
         }
     }
 
-    public User getUserByEmail(String email) {
+    public User findUserByEmail(String email) {
         return  userRepository.findByEmail(email)
                 .orElseThrow(() -> new EntityNotFoundException(User.class, email));
     }
