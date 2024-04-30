@@ -19,6 +19,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/admins")
+    @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN')")
     public ResponseEntity<List<UserResponseDto>> getAllAdminUsers() {
         List<Role> adminRoles = Arrays.asList(Role.SYSTEM_ADMIN, Role.EVENT_ADMIN);
         List<UserResponseDto> admins = userService.findUsersByRoles(adminRoles);
