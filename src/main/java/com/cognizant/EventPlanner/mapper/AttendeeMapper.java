@@ -14,7 +14,6 @@ public interface AttendeeMapper {
     @Mapping(source = "user", target = "user")
     AttendeeResponseDto attendeeToDto(Attendee attendee);
 
-    @Mapping(source = "event", target = "event")
     @Mapping(expression = "java(java.time.LocalDateTime.now())", target = "registrationTime")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "isNewNotification", ignore = true)
