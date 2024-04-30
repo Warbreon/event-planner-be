@@ -12,8 +12,6 @@ public interface TagMapper {
 
     TagResponseDto tagToDto(Tag tag);
 
-    @Mapping(source = "event", target = "event")
-    @Mapping(source = "tag", target = "tag")
     @Mapping(target = "id", ignore = true)
     EventTag createEventTag(Event event, Tag tag);
 }
