@@ -9,6 +9,7 @@ import com.cognizant.EventPlanner.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,8 +25,16 @@ public class UserService {
                 .orElseThrow(() -> new EntityNotFoundException(User.class, id));
         }
 
-    public List<UserResponseDto> getAllAdminUsers() {
-        return userRepository.findByRole(Role.EVENT_ADMIN).stream().map(userMapper::userToUserDto).collect(Collectors.toList());
+    public List<UserResponseDto> findUsersByRole(Role role) {
+        return userRepository.findByRole(role).stream().map(userMapper::userToUserDto).collect(Collectors.toList());
+    }
+
+    public List<UserResponseDto> findUsersByRoles(List<Role> roleList) {
+        List<User> listOfUsers = new ArrayList<>();
+        for (Role role : roleList) {
+            listOfUsers.addAll(userRepository.findByRole(role));
+        }
+        return listOfUsers.stream().map(userMapper::userToUserDto).collect(Collectors.toList());
     }
 
     public void demoteEventAdmin(Long adminUserId) {
@@ -36,5 +45,10 @@ public class UserService {
         } else {
             throw new EntityNotFoundException(User.class, adminUserId);
         }
+    }
+
+    public User getUserByEmail(String email) {
+        return  userRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException(User.class, email));
     }
 }
