@@ -7,7 +7,7 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum EmailType {
 
-    PASSWORD_RESET("passwordReset.html");
+    PASSWORD_RESET("PasswordReset.html");
 
     private final String templateName;
 
