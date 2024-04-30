@@ -27,17 +27,24 @@ public class PasswordResetTokenService {
         try {
             String resetToken = UUID.randomUUID().toString();
             String hashedToken = passwordEncoder.encode(resetToken);
+            saveResetToken(hashedToken, user);
+            return hashedToken;
+        } catch (Exception ex) {
+            log.error("Error generating token for user: {}", user.getId(), ex);
+            throw ex;
+        }
+    }
 
+    private void saveResetToken(String hashedToken, User user) {
+        try {
             PasswordResetToken token = new PasswordResetToken();
             token.setToken(hashedToken);
             token.setUser(user);
             token.setExpirationDate(LocalDateTime.now().plusSeconds(resetTokenExpiration));
             passwordResetTokenRepository.save(token);
-
-            return hashedToken;
         } catch (Exception ex) {
-            log.error("Error generating token for user: {}", user.getId(), ex);
-            throw ex;
+            log.error("Error saving token for user: {}", user.getId(), ex);
+            throw new RuntimeException("Failed to save reset token", ex);
         }
     }
 

@@ -1,7 +1,7 @@
 package com.cognizant.EventPlanner.services;
 
-import com.cognizant.EventPlanner.dto.email.EmailType;
 import com.cognizant.EventPlanner.dto.email.BaseEmailDetailsDto;
+import com.cognizant.EventPlanner.dto.email.EmailType;
 import com.cognizant.EventPlanner.strategy.EmailStrategy;
 import jakarta.annotation.PostConstruct;
 import jakarta.mail.MessagingException;
@@ -40,19 +40,26 @@ public class EmailServiceImpl implements EmailService {
             throw new IllegalArgumentException("Unsupported email type");
         }
 
-        MimeMessage mimeMessage = mailSender.createMimeMessage();
-
         try {
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
-            helper.setTo(emailDetailsDto.getRecipientEmail());
-            helper.setSubject(strategy.getSubject());
-            String content = templateEngine.process(strategy.getTemplateName(), new Context(Locale.ENGLISH,
-                    strategy.getProperties(emailDetailsDto)));
-            helper.setText(content, true);
-            mailSender.send(mimeMessage);
+            MimeMessage message = prepareMessage(emailDetailsDto, strategy);
+            mailSender.send(message);
         } catch (MessagingException e) {
             throw new RuntimeException("Failed to send email", e);
         }
+    }
+
+    private MimeMessage prepareMessage(BaseEmailDetailsDto emailDetailsDto, EmailStrategy strategy) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true);
+        helper.setTo(emailDetailsDto.getRecipientEmail());
+        helper.setSubject(strategy.getSubject());
+        helper.setText(prepareEmailContent(strategy, emailDetailsDto), true);
+        return message;
+    }
+
+    private String prepareEmailContent(EmailStrategy strategy, BaseEmailDetailsDto emailDetailsDto) {
+        Context context = new Context(Locale.ENGLISH, strategy.getProperties(emailDetailsDto));
+        return templateEngine.process(strategy.getTemplateName(), context);
     }
 
 }
