@@ -1,7 +1,7 @@
 package com.cognizant.EventPlanner.controller;
 
 import com.cognizant.EventPlanner.dto.response.UserAsAttendeeResponseDto;
-import com.cognizant.EventPlanner.services.UserService;
+import com.cognizant.EventPlanner.services.facade.UserManagementFacade;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -16,12 +16,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
 
-    private final UserService userService;
+    private final UserManagementFacade userManagementFacade;
 
     @PreAuthorize("hasAnyAuthority('EVENT_ADMIN', 'SYSTEM_ADMIN')")
     @GetMapping("/all")
     public ResponseEntity<List<UserAsAttendeeResponseDto>> getAllUsers() {
-        List<UserAsAttendeeResponseDto> response = userService.getAllUsers();
+        List<UserAsAttendeeResponseDto> response = userManagementFacade.getAllUsers();
         return ResponseEntity.ok(response);
     }
 }

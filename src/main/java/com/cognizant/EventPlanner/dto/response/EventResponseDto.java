@@ -19,5 +19,6 @@ public class EventResponseDto extends EventDto {
     private AddressResponseDto address;
     private Set<AttendeeResponseDto> attendees;
     private boolean isCurrentUserRegisteredToEvent;
+    private Set<TagResponseDto> tags;
 
 }
