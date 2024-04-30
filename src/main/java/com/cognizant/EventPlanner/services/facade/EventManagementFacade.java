@@ -30,14 +30,14 @@ public class EventManagementFacade {
     private final UserService userService;
     private final RegistrationService registrationService;
 
-    public Set<EventResponseDto> getEvents(Optional<Set<Long>> tagIds) {
+    public List<EventResponseDto> getEvents(Optional<Set<Long>> tagIds) {
         List<Event> events = tagIds
                 .filter(tagIdsSet -> !tagIdsSet.isEmpty())
                 .map(eventService::findEventsByTags)
                 .orElseGet(eventService::findAllEvents);
         return events.stream()
                 .map(this::convertEventToDto)
-                .collect(Collectors.toSet());
+                .collect(Collectors.toList());
     }
 
     public EventResponseDto getEventById(Long id) {

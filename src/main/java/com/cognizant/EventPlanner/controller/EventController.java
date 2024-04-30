@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -21,8 +22,8 @@ public class EventController {
     private final EventManagementFacade eventManagementFacade;
 
     @GetMapping
-    public ResponseEntity<Set<EventResponseDto>> getEvents(@RequestParam(required = false) Set<Long> tagIds) {
-        Set<EventResponseDto> events = eventManagementFacade.getEvents(Optional.ofNullable(tagIds));
+    public ResponseEntity<List<EventResponseDto>> getEvents(@RequestParam(required = false) Set<Long> tagIds) {
+        List<EventResponseDto> events = eventManagementFacade.getEvents(Optional.ofNullable(tagIds));
         return ResponseEntity.ok(events);
     }
 

@@ -13,6 +13,8 @@ import java.util.Set;
 public interface EventRepository extends JpaRepository<Event, Long> {
 
     @Query("SELECT DISTINCT e FROM Event e JOIN e.tags t WHERE t.tag.id IN :tagIds " +
-            "GROUP BY e HAVING COUNT(DISTINCT t.tag.id) = :countOfTags")
+            "GROUP BY e HAVING COUNT(DISTINCT t.tag.id) = :countOfTags ORDER BY e.eventStart ASC")
     List<Event> findByTags(@Param("tagIds") Set<Long> tagIds, @Param("countOfTags") long countOfTags);
+
+    List<Event> findAllByOrderByEventStartAsc();
 }

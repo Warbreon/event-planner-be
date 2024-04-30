@@ -22,7 +22,7 @@ public class EventService {
     private final EventMapper eventMapper;
 
     public List<Event> findAllEvents() {
-        return eventRepository.findAll();
+        return eventRepository.findAllByOrderByEventStartAsc();
     }
 
     public Event findEventById(Long id) {
