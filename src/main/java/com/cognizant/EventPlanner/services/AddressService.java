@@ -6,6 +6,8 @@ import com.cognizant.EventPlanner.repository.AddressRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class AddressService {
@@ -15,5 +17,9 @@ public class AddressService {
     public Address findAddressById(Long id) {
         return addressRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(Address.class, id));
+    }
+
+    public List<String> findAllCities() {
+        return addressRepository.findAllCities();
     }
 }
