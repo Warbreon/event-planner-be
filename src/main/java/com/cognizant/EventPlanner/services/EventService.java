@@ -49,4 +49,12 @@ public class EventService {
         event.setCreator(user);
         return event;
     }
+
+    public List<Event> getEventsByCreator(String email) {
+        return eventRepository.findAllByCreatorEmail(email);
+    }
+
+    public List<Event> getEventsUserIsRegisteredTo(String email) {
+        return eventRepository.findAllUserIsRegisteredTo(email);
+    }
 }

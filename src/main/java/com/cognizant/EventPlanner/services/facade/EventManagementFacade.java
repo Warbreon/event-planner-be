@@ -73,4 +73,13 @@ public class EventManagementFacade {
         eventDto.setCurrentUserRegisteredToEvent(userService.isUserRegistered(event, userDetailsService.getCurrentUser().getUsername()));
         return eventDto;
     }
+
+    public List<EventResponseDto> getEventsCreatedByUser() {
+        String email = userDetailsService.getCurrentUser().getUsername();
+        return eventService.getEventsByCreator(email).stream().map(this::convertEventToDto).toList();
+    }
+    public List<EventResponseDto> getEventsUserIsRegisteredTo() {
+        String email = userDetailsService.getCurrentUser().getUsername();
+        return eventService.getEventsUserIsRegisteredTo(email).stream().map(this::convertEventToDto).toList();
+    }
 }
