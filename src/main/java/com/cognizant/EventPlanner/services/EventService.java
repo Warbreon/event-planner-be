@@ -8,11 +8,13 @@ import com.cognizant.EventPlanner.model.Event;
 import com.cognizant.EventPlanner.model.User;
 import com.cognizant.EventPlanner.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -21,17 +23,13 @@ public class EventService {
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
 
-    public List<Event> findAllEvents() {
-        return eventRepository.findAllByOrderByEventStartAsc();
-    }
-
     public Event findEventById(Long id) {
         return eventRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(Event.class, id));
     }
 
-    public List<Event> findEventsByTags(Set<Long> tagIds) {
-        return eventRepository.findByTags(tagIds, tagIds.size());
+    public List<Event> findEventsWithSpec(Specification<Event> spec) {
+        return eventRepository.findAll(spec, Sort.by(Sort.Direction.ASC, "eventStart"));
     }
 
     public List<Event> findEventsByCreator(String email) {
@@ -42,6 +40,7 @@ public class EventService {
         return eventRepository.findAllUserIsRegisteredTo(email);
     }
 
+    @CacheEvict(value = "events", allEntries = true)
     public Event saveEvent(Event event) {
         return eventRepository.save(event);
     }

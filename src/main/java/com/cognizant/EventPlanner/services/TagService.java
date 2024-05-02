@@ -10,6 +10,7 @@ import com.cognizant.EventPlanner.repository.EventTagRepository;
 import com.cognizant.EventPlanner.repository.TagRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,6 +46,7 @@ public class TagService {
                 .orElseThrow(() -> new EntityNotFoundException(Tag.class, id));
     }
 
+    @CacheEvict(value = "events", allEntries = true)
     public void saveEventTag(EventTag eventTag) {
         eventTagRepository.save(eventTag);
     }

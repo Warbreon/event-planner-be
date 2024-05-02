@@ -1,15 +1,18 @@
 package com.cognizant.EventPlanner.dto.response;
 
-import com.cognizant.EventPlanner.dto.request.AddressRequestDto;
 import lombok.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@EqualsAndHashCode(callSuper = true)
-public class AddressResponseDto extends AddressRequestDto {
+public class AddressResponseDto {
 
     private Long id;
+    private String city;
+    private String street;
+    private String building;
+    private String zip;
+    private String venueName;
 
 }
