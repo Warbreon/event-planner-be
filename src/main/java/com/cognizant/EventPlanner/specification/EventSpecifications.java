@@ -32,15 +32,15 @@ public class EventSpecifications {
 
     public static Specification<Event> withinDays(int days) {
         LocalDateTime now = LocalDateTime.now().toLocalDate().atStartOfDay();
-        LocalDateTime end = now.plusDays(days).minusNanos(1);
+        LocalDateTime end = now.plusDays(days);
         return (root, query, cb) -> cb.between(root.get("eventStart"), now, end);
     }
 
     public static Specification<Event> byCity(String city) {
         return (root, query, cb) -> {
-            if (city == null) {
+            if (city == null || city.equals("all")) {
                 return cb.conjunction();
-            } else if (city.equalsIgnoreCase("Online")) {
+            } else if (city.equalsIgnoreCase("online")) {
                 return cb.isNull(root.get("address"));
             } else {
                 return cb.equal(root.join("address").get("city"), city);
