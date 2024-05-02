@@ -33,11 +33,12 @@ public class EventManagementFacade {
     private final UserService userService;
     private final RegistrationService registrationService;
 
-    @Cacheable(value = "events", key = "{#tagIds.orElse('all'), #days.orElse('all'), #city.orElse('all')}")
+    @Cacheable(value = "events", key = "{#tagIds.orElse('all'), #days.orElse('all'), #city.orElse('all'), #name.orElse('all')}")
     public List<EventResponseDto> getEvents(
             Optional<Set<Long>> tagIds,
             Optional<Integer> days,
-            Optional<String> city
+            Optional<String> city,
+            Optional<String> name
     ) {
         Specification<Event> spec = Specification.where(null);
 
@@ -49,6 +50,9 @@ public class EventManagementFacade {
         }
         if (city.isPresent()) {
             spec = spec.and(EventSpecifications.byCity(city.get()));
+        }
+        if (name.isPresent()) {
+            spec = spec.and(EventSpecifications.byName(name.get()));
         }
 
         return eventService.findEventsWithSpec(spec)
