@@ -33,7 +33,7 @@ public class EventService {
     }
 
     public List<Event> findEventsByCreator(String email) {
-        return eventRepository.findAllByCreatorEmail(email);
+        return eventRepository.findAllByCreatorEmailOrderByEventStartDesc(email);
     }
 
     public List<Event> findEventsUserIsRegisteredTo(String email) {
