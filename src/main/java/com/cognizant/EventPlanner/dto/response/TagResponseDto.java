@@ -1,4 +1,5 @@
 package com.cognizant.EventPlanner.dto.response;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,11 +9,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResponseDto {
+public class TagResponseDto {
+
     private Long id;
-    private String firstName;
-    private String lastName;
-    private String jobTitle;
-    private String imageUrl;
-    private String role;
+    private String name;
 }

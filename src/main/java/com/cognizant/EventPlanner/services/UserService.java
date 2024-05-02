@@ -1,8 +1,7 @@
 package com.cognizant.EventPlanner.services;
 
-import com.cognizant.EventPlanner.dto.response.UserResponseDto;
 import com.cognizant.EventPlanner.exception.EntityNotFoundException;
-import com.cognizant.EventPlanner.mapper.UserMapper;
+import com.cognizant.EventPlanner.model.Event;
 import com.cognizant.EventPlanner.model.Role;
 import com.cognizant.EventPlanner.model.User;
 import com.cognizant.EventPlanner.repository.UserRepository;
@@ -11,30 +10,28 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UserMapper userMapper;
     private final UserRepository userRepository;
 
-    public User findUserById(Long id) {
+    public User findUserById(Long id){
         return userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(User.class, id));
-        }
-
-    public List<UserResponseDto> findUsersByRole(Role role) {
-        return userRepository.findByRole(role).stream().map(userMapper::userToUserDto).collect(Collectors.toList());
     }
 
-    public List<UserResponseDto> findUsersByRoles(List<Role> roleList) {
+    public User findUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException(User.class, email));
+    }
+
+    public List<User> findUsersByRoles(List<Role> roleList) {
         List<User> listOfUsers = new ArrayList<>();
         for (Role role : roleList) {
             listOfUsers.addAll(userRepository.findByRole(role));
         }
-        return listOfUsers.stream().map(userMapper::userToUserDto).collect(Collectors.toList());
+        return listOfUsers;
     }
 
     public void demoteEventAdmin(Long adminUserId) {
@@ -47,8 +44,13 @@ public class UserService {
         }
     }
 
-    public User findUserByEmail(String email) {
-        return  userRepository.findByEmail(email)
-                .orElseThrow(() -> new EntityNotFoundException(User.class, email));
+    public List<User> findAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public boolean isUserRegistered(Event event, String userEmail) {
+        return event.getAttendees()
+                .stream()
+                .anyMatch(attendee -> attendee.getUser().getEmail().equals(userEmail));
     }
 }

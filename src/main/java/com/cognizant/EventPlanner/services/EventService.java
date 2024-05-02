@@ -1,13 +1,11 @@
 package com.cognizant.EventPlanner.services;
 
-import com.cognizant.EventPlanner.dto.request.AttendeeRequestDto;
 import com.cognizant.EventPlanner.dto.request.EventRequestDto;
-import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
-import com.cognizant.EventPlanner.dto.response.EventResponseDto;
 import com.cognizant.EventPlanner.exception.EntityNotFoundException;
-import com.cognizant.EventPlanner.mapper.AttendeeMapper;
 import com.cognizant.EventPlanner.mapper.EventMapper;
-import com.cognizant.EventPlanner.model.*;
+import com.cognizant.EventPlanner.model.Address;
+import com.cognizant.EventPlanner.model.Event;
+import com.cognizant.EventPlanner.model.User;
 import com.cognizant.EventPlanner.repository.EventRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,64 +13,40 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class EventService {
 
     private final EventRepository eventRepository;
-    private final UserService userService;
-    private final AttendeeService attendeeService;
-    private final AddressService addressService;
     private final EventMapper eventMapper;
-    private final AttendeeMapper attendeeMapper;
-    private final UserDetailsServiceImpl userDetailsService;
 
-    public List<EventResponseDto> getAllEvents() {
-        return eventRepository.findAll()
-                .stream()
-                .map(this::convertEventToDto)
-                .collect(Collectors.toList());
+    public List<Event> findAllEvents() {
+        return eventRepository.findAllByOrderByEventStartAsc();
     }
 
-    public EventResponseDto getEventById(Long id) {
-        Event event = eventRepository.findById(id)
+    public Event findEventById(Long id) {
+        return eventRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(Event.class, id));
-        return convertEventToDto(event);
     }
 
-    private EventResponseDto convertEventToDto(Event event) {
-        EventResponseDto eventDto = eventMapper.eventToDto(event);
-        Set<AttendeeResponseDto> attendeesDto = event.getAttendees()
-                .stream()
-                .map(attendeeMapper::attendeeToDto)
-                .collect(Collectors.toSet());
-        eventDto.setAttendees(attendeesDto);
-        eventDto.setCurrentUserRegisteredToEvent(isUserRegistered(event,
-                userDetailsService.getCurrentUser().getUsername()));
-        return eventDto;
+    public List<Event> findEventsByTags(Set<Long> tagIds) {
+        return eventRepository.findByTags(tagIds, tagIds.size());
     }
 
-    private boolean isUserRegistered(Event event, String userEmail) {
-        return event.getAttendees()
-                .stream()
-                .anyMatch(attendee -> attendee.getUser().getEmail().equals(userEmail));
+    public Event saveEvent(Event event) {
+        return eventRepository.save(event);
     }
 
-    public EventResponseDto createNewEvent(EventRequestDto request) {
+    public boolean isPaid(Event event) {
+        return event.getPrice() != null && event.getPrice() > 0;
+    }
+
+    public Event prepareEventForCreation(EventRequestDto request, Address address, User user) {
         Event event = eventMapper.dtoToEvent(request);
         event.setCreatedDate(LocalDateTime.now());
-        event.setAddress(addressService.getAddressById(request.getAddressId()));
-        event.setCreator(userService.findUserById(request.getCreatorId()));
-        event = eventRepository.save(event);
-        EventResponseDto eventResponseDto = eventMapper.eventToDto(event);
-        eventResponseDto.setAttendees(registerAttendeesToEvent(request.getAttendees(), eventResponseDto.getId()));
-        return eventResponseDto;
-    }
-
-    private Set<AttendeeResponseDto> registerAttendeesToEvent(Set<AttendeeRequestDto> requestSet, Long EventId) {
-        return requestSet.stream().peek(item -> item.setEventId(EventId))
-                .map(attendeeService::registerToEvent).collect(Collectors.toSet());
+        event.setAddress(address);
+        event.setCreator(user);
+        return event;
     }
 }
