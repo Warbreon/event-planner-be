@@ -47,4 +47,17 @@ public class EventController {
         EventResponseDto response = eventManagementFacade.createNewEvent(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
+
+    @PreAuthorize("hasAnyAuthority('EVENT_ADMIN', 'SYSTEM_ADMIN')")
+    @GetMapping("/created-by-user")
+    public ResponseEntity<List<EventResponseDto>> getEventsCreatedByUser() {
+        List<EventResponseDto> response = eventManagementFacade.getEventsCreatedByUser();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/user-registered")
+    public ResponseEntity<List<EventResponseDto>> getEventsUserIsRegisteredTo() {
+        List<EventResponseDto> response = eventManagementFacade.getEventsUserIsRegisteredTo();
+        return ResponseEntity.ok(response);
+    }
 }

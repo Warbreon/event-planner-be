@@ -32,6 +32,14 @@ public class EventService {
         return eventRepository.findAll(spec, Sort.by(Sort.Direction.ASC, "eventStart"));
     }
 
+    public List<Event> findEventsByCreator(String email) {
+        return eventRepository.findAllByCreatorEmail(email);
+    }
+
+    public List<Event> findEventsUserIsRegisteredTo(String email) {
+        return eventRepository.findAllUserIsRegisteredTo(email);
+    }
+
     @CacheEvict(value = "events", allEntries = true)
     public Event saveEvent(Event event) {
         return eventRepository.save(event);
