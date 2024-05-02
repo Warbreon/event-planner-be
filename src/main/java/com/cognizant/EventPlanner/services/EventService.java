@@ -34,6 +34,14 @@ public class EventService {
         return eventRepository.findByTags(tagIds, tagIds.size());
     }
 
+    public List<Event> findEventsByCreator(String email) {
+        return eventRepository.findAllByCreatorEmail(email);
+    }
+
+    public List<Event> findEventsUserIsRegisteredTo(String email) {
+        return eventRepository.findAllUserIsRegisteredTo(email);
+    }
+
     public Event saveEvent(Event event) {
         return eventRepository.save(event);
     }

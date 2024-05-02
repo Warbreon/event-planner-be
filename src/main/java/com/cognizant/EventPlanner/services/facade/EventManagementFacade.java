@@ -54,6 +54,16 @@ public class EventManagementFacade {
         return buildEventResponse(event, request);
     }
 
+    public List<EventResponseDto> getEventsCreatedByUser() {
+        String email = userDetailsService.getCurrentUser().getUsername();
+        return eventService.findEventsByCreator(email).stream().map(this::convertEventToDto).toList();
+    }
+
+    public List<EventResponseDto> getEventsUserIsRegisteredTo() {
+        String email = userDetailsService.getCurrentUser().getUsername();
+        return eventService.findEventsUserIsRegisteredTo(email).stream().map(this::convertEventToDto).toList();
+    }
+
     private EventResponseDto buildEventResponse(Event event, EventRequestDto request) {
         EventResponseDto eventResponseDto = eventMapper.eventToDto(event);
         eventResponseDto.setAttendees(registerAttendeesToEvent(request.getAttendees(), event));
