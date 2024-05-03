@@ -52,6 +52,12 @@ public class User {
     @Column(name = "role", nullable = false)
     private Role role;
 
+    @Column(name = "city", nullable = true)
+    private String city;
+
+    @Column(name = "country", nullable = true)
+    private String country;
+
     @OneToMany(mappedBy = "creator", fetch = FetchType.LAZY)
     private Set<Event> createdEvents;
 
