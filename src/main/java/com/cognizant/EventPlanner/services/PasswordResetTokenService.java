@@ -1,11 +1,11 @@
 package com.cognizant.EventPlanner.services;
 
+import com.cognizant.EventPlanner.config.properties.ResetTokenProperties;
 import com.cognizant.EventPlanner.model.PasswordResetToken;
 import com.cognizant.EventPlanner.model.User;
 import com.cognizant.EventPlanner.repository.PasswordResetTokenRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -19,9 +19,7 @@ public class PasswordResetTokenService {
 
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordEncoder passwordEncoder;
-
-    @Value("${reset.token.expiration:3600}")
-    private long resetTokenExpiration;
+    private final ResetTokenProperties resetTokenProperties;
 
     public String generateResetToken(User user) {
         try {
@@ -40,7 +38,7 @@ public class PasswordResetTokenService {
             PasswordResetToken token = new PasswordResetToken();
             token.setToken(hashedToken);
             token.setUser(user);
-            token.setExpirationDate(LocalDateTime.now().plusSeconds(resetTokenExpiration));
+            token.setExpirationDate(LocalDateTime.now().plusSeconds(resetTokenProperties.getExpiration()));
             passwordResetTokenRepository.save(token);
         } catch (Exception ex) {
             log.error("Error saving token for user: {}", user.getId(), ex);
