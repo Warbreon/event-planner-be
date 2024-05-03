@@ -39,8 +39,6 @@ public class UserService {
         if (admin.getRole() == Role.EVENT_ADMIN) {
             admin.setRole(Role.USER);
             userRepository.save(admin);
-        } else {
-            throw new EntityNotFoundException(User.class, adminUserId);
         }
     }
 
