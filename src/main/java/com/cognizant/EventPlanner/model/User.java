@@ -52,10 +52,10 @@ public class User {
     @Column(name = "role", nullable = false)
     private Role role;
 
-    @Column(name = "city", nullable = true)
+    @Column(name = "city")
     private String city;
 
-    @Column(name = "country", nullable = true)
+    @Column(name = "country")
     private String country;
 
     @OneToMany(mappedBy = "creator", fetch = FetchType.LAZY)
