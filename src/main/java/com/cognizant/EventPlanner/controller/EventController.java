@@ -25,12 +25,14 @@ public class EventController {
     public ResponseEntity<List<EventResponseDto>> getEvents(
             @RequestParam(required = false) Set<Long> tagIds,
             @RequestParam(required = false) Integer days,
-            @RequestParam(required = false) String city
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String name
     ) {
         List<EventResponseDto> events = eventManagementFacade.getEvents(
                 Optional.ofNullable(tagIds),
                 Optional.ofNullable(days),
-                Optional.ofNullable(city)
+                Optional.ofNullable(city),
+                Optional.ofNullable(name)
         );
         return ResponseEntity.ok(events);
     }

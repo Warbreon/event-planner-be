@@ -33,11 +33,12 @@ public class EventManagementFacade {
     private final UserService userService;
     private final RegistrationService registrationService;
 
-    @Cacheable(value = "events", key = "{#tagIds.orElse('all'), #days.orElse('all'), #city.orElse('all')}")
+    @Cacheable(value = "events", key = "{#tagIds.orElse('all'), #days.orElse('all'), #city.orElse('all'), #name.orElse('all'), @userDetailsServiceImpl.getCurrentUserEmail()}")
     public List<EventResponseDto> getEvents(
             Optional<Set<Long>> tagIds,
             Optional<Integer> days,
-            Optional<String> city
+            Optional<String> city,
+            Optional<String> name
     ) {
         Specification<Event> spec = Specification.where(null);
 
@@ -49,6 +50,9 @@ public class EventManagementFacade {
         }
         if (city.isPresent()) {
             spec = spec.and(EventSpecifications.byCity(city.get()));
+        }
+        if (name.isPresent()) {
+            spec = spec.and(EventSpecifications.byName(name.get()));
         }
 
         return eventService.findEventsWithSpec(spec)
@@ -72,7 +76,7 @@ public class EventManagementFacade {
     }
 
     public List<EventResponseDto> getEventsCreatedByUser() {
-        String email = userDetailsService.getCurrentUser().getUsername();
+        String email = userDetailsService.getCurrentUserEmail();
         return eventService.findEventsByCreator(email)
                 .stream()
                 .map(this::convertEventToDto)
@@ -80,7 +84,7 @@ public class EventManagementFacade {
     }
 
     public List<EventResponseDto> getEventsUserIsRegisteredTo() {
-        String email = userDetailsService.getCurrentUser().getUsername();
+        String email = userDetailsService.getCurrentUserEmail();
         return eventService.findEventsUserIsRegisteredTo(email)
                 .stream()
                 .map(this::convertEventToDto)
@@ -103,7 +107,7 @@ public class EventManagementFacade {
     private EventResponseDto convertEventToDto(Event event) {
         EventResponseDto eventDto = eventMapper.eventToDto(event);
         eventDto.setTags(tagService.mapEventTags(event.getTags()));
-        eventDto.setCurrentUserRegisteredToEvent(userService.isUserRegistered(event, userDetailsService.getCurrentUser().getUsername()));
+        eventDto.setCurrentUserRegisteredToEvent(userService.isUserRegistered(event, userDetailsService.getCurrentUserEmail()));
         return eventDto;
     }
 }
