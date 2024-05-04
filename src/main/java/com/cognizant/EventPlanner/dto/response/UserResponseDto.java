@@ -14,4 +14,7 @@ public class UserResponseDto {
     private String lastName;
     private String jobTitle;
     private String imageUrl;
+    private String role;
+    private String city;
+    private String country;
 }
