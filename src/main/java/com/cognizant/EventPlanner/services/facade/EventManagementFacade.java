@@ -76,7 +76,7 @@ public class EventManagementFacade {
     }
 
     public List<EventResponseDto> getEventsCreatedByUser() {
-        String email = userDetailsService.getCurrentUser().getUsername();
+        String email = userDetailsService.getCurrentUserEmail();
         return eventService.findEventsByCreator(email)
                 .stream()
                 .map(this::convertEventToDto)
@@ -84,7 +84,7 @@ public class EventManagementFacade {
     }
 
     public List<EventResponseDto> getEventsUserIsRegisteredTo() {
-        String email = userDetailsService.getCurrentUser().getUsername();
+        String email = userDetailsService.getCurrentUserEmail();
         return eventService.findEventsUserIsRegisteredTo(email)
                 .stream()
                 .map(this::convertEventToDto)
@@ -107,7 +107,7 @@ public class EventManagementFacade {
     private EventResponseDto convertEventToDto(Event event) {
         EventResponseDto eventDto = eventMapper.eventToDto(event);
         eventDto.setTags(tagService.mapEventTags(event.getTags()));
-        eventDto.setCurrentUserRegisteredToEvent(userService.isUserRegistered(event, userDetailsService.getCurrentUser().getUsername()));
+        eventDto.setCurrentUserRegisteredToEvent(userService.isUserRegistered(event, userDetailsService.getCurrentUserEmail()));
         return eventDto;
     }
 }

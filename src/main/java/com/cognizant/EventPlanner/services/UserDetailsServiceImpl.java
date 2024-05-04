@@ -31,7 +31,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return Collections.singleton(new SimpleGrantedAuthority(role.name()));
     }
 
-    public UserDetails getCurrentUser() {
+    private UserDetails getCurrentUser() {
         return (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
