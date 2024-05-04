@@ -35,5 +35,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
 
+    public String getCurrentUserEmail() {
+        return getCurrentUser().getUsername();
+    }
 
 }

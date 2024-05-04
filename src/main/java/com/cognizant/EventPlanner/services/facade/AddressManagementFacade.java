@@ -13,7 +13,7 @@ public class AddressManagementFacade {
 
     private final AddressService addressService;
 
-    @Cacheable(value = "addresses")
+    @Cacheable(value = "addresses", key = "@userDetailsServiceImpl.getCurrentUserEmail()")
     public List<String> getAllCities() {
         return addressService.findAllCities();
     }

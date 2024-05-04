@@ -33,7 +33,7 @@ public class EventManagementFacade {
     private final UserService userService;
     private final RegistrationService registrationService;
 
-    @Cacheable(value = "events", key = "{#tagIds.orElse('all'), #days.orElse('all'), #city.orElse('all'), #name.orElse('all')}")
+    @Cacheable(value = "events", key = "{#tagIds.orElse('all'), #days.orElse('all'), #city.orElse('all'), #name.orElse('all'), @userDetailsServiceImpl.getCurrentUserEmail()}")
     public List<EventResponseDto> getEvents(
             Optional<Set<Long>> tagIds,
             Optional<Integer> days,

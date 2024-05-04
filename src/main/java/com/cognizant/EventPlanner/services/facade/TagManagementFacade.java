@@ -17,7 +17,7 @@ public class TagManagementFacade {
     private final TagService tagService;
     private final TagMapper tagMapper;
 
-    @Cacheable(value = "tags")
+    @Cacheable(value = "tags", key = "@userDetailsServiceImpl.getCurrentUserEmail()")
     public List<TagResponseDto> getAllTags() {
         return tagService.findAllTags()
                 .stream()
