@@ -51,6 +51,9 @@ public class Event {
     @Column(name = "agenda", columnDefinition = "text[]")
     private String[] agenda;
 
+    @Column(name = "tickets")
+    private Integer tickets;
+
     @Column(name = "price")
     private Double price;
 
