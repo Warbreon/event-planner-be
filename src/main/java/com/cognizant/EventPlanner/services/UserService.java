@@ -42,6 +42,14 @@ public class UserService {
         }
     }
 
+    public void promoteToEventAdmin(Long userId) {
+        User newAdmin = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(User.class, userId));
+        if (newAdmin.getRole() == Role.USER) {
+            newAdmin.setRole(Role.EVENT_ADMIN);
+            userRepository.save(newAdmin);
+        }
+    }
+
     public List<User> findAllUsers() {
         return userRepository.findAll();
     }
