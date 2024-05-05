@@ -54,6 +54,10 @@ public abstract class EventDto {
     @Max(value = 10000, message = "Event price can not be greater than 10000")
     private Double price;
 
+    @Min(value = 0, message = "Event tickets count can not be less than 0")
+    @Max(value = 10000, message = "Event tickets count can not be greater than 10000")
+    private Integer tickets;
+
     @Size(max = 255, message = "Invite to online meeting cannot exceed 255 characters")
     private String inviteUrl;
 }
