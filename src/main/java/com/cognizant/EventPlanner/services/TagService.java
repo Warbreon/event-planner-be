@@ -37,6 +37,11 @@ public class TagService {
                 .collect(Collectors.toSet());
     }
 
+    @Transactional
+    public void addEventTag (EventTag t) {
+        eventTagRepository.save(t);
+    }
+
     public List<Tag> findAllTags() {
         return tagRepository.findAll();
     }
@@ -44,6 +49,15 @@ public class TagService {
     public Tag findTagById(Long id) {
         return tagRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(Tag.class, id));
+    }
+
+    public List<EventTag> findEventTags(Long eventId){
+        return eventTagRepository.findAllByEventId(eventId);
+    }
+
+    @Transactional
+    public void removeEventTag(Long eventTagId) {
+        eventTagRepository.removeById(eventTagId);
     }
 
     @CacheEvict(value = "events", allEntries = true)
@@ -56,5 +70,23 @@ public class TagService {
                 .map(EventTag::getTag)
                 .map(tagMapper::tagToDto)
                 .collect(Collectors.toSet());
+    }
+
+
+    @Transactional
+    public void updateEventTags(Event event, Set<Long> newTagIds) {
+        List<EventTag> currentTags = findEventTags(event.getId());
+        Set<Tag> usedTags = currentTags.stream().map(EventTag::getTag).collect(Collectors.toSet());
+
+        currentTags.forEach(tag -> {
+            if (!newTagIds.contains(tag.getTag().getId())) {
+                removeEventTag(tag.getId());
+            }
+        });
+
+        newTagIds.stream()
+                .map(this::findTagById)
+                .filter(tag -> !usedTags.contains(tag))
+                .forEach(tag -> addEventTag(new EventTag(null, event, tag)));
     }
 }

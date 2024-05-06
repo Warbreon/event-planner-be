@@ -1,5 +1,6 @@
 package com.cognizant.EventPlanner.controller;
 
+import com.cognizant.EventPlanner.dto.request.EditEventRequestDto;
 import com.cognizant.EventPlanner.dto.request.EventRequestDto;
 import com.cognizant.EventPlanner.dto.response.EventResponseDto;
 import com.cognizant.EventPlanner.services.facade.EventManagementFacade;
@@ -60,6 +61,12 @@ public class EventController {
     @GetMapping("/user-registered")
     public ResponseEntity<List<EventResponseDto>> getEventsUserIsRegisteredTo() {
         List<EventResponseDto> response = eventManagementFacade.getEventsUserIsRegisteredTo();
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/edit/{id}")
+    public ResponseEntity<EventResponseDto> editEvent(@PathVariable("id") Long id, @Valid @RequestBody EditEventRequestDto request) {
+        EventResponseDto response  = eventManagementFacade.updateEvent(id, request);
         return ResponseEntity.ok(response);
     }
 }

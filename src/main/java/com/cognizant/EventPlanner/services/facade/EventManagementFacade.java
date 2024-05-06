@@ -1,24 +1,24 @@
 package com.cognizant.EventPlanner.services.facade;
 
 import com.cognizant.EventPlanner.dto.request.AttendeeRequestDto;
+import com.cognizant.EventPlanner.dto.request.EditEventRequestDto;
 import com.cognizant.EventPlanner.dto.request.EventRequestDto;
 import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
 import com.cognizant.EventPlanner.dto.response.EventResponseDto;
 import com.cognizant.EventPlanner.mapper.EventMapper;
-import com.cognizant.EventPlanner.model.Address;
-import com.cognizant.EventPlanner.model.Event;
-import com.cognizant.EventPlanner.model.User;
+import com.cognizant.EventPlanner.model.*;
 import com.cognizant.EventPlanner.services.*;
 import com.cognizant.EventPlanner.specification.EventSpecifications;
+import com.cognizant.EventPlanner.util.FieldUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,6 +32,7 @@ public class EventManagementFacade {
     private final AddressService addressService;
     private final UserService userService;
     private final RegistrationService registrationService;
+    private final AttendeeService attendeeService;
 
     @Cacheable(value = "events", key = "{#tagIds.orElse('all'), #days.orElse('all'), #city.orElse('all'), #name.orElse('all'), @userDetailsServiceImpl.getCurrentUserEmail()}")
     public List<EventResponseDto> getEvents(
@@ -89,6 +90,38 @@ public class EventManagementFacade {
                 .stream()
                 .map(this::convertEventToDto)
                 .toList();
+    }
+
+    @Transactional
+    @Modifying
+    public EventResponseDto updateEvent(Long id, EditEventRequestDto requestDto) {
+        Event eventToEdit = eventService.findEventById(id);
+
+        FieldUtils.updateField(eventToEdit::setName, requestDto.getName());
+        FieldUtils.updateField(eventToEdit::setDescription, requestDto.getDescription());
+        FieldUtils.updateField(eventToEdit::setImageUrl, requestDto.getImageUrl());
+        FieldUtils.updateField(eventToEdit::setIsOpen, requestDto.getIsOpen());
+        FieldUtils.updateField(eventToEdit::setEventStart, requestDto.getEventStart());
+        FieldUtils.updateField(eventToEdit::setEventEnd, requestDto.getEventEnd());
+        FieldUtils.updateField(eventToEdit::setRegistrationStart, requestDto.getRegistrationStart());
+        FieldUtils.updateField(eventToEdit::setRegistrationEnd, requestDto.getRegistrationEnd());
+        FieldUtils.updateField(eventToEdit::setAgenda, requestDto.getAgenda());
+        FieldUtils.updateField(eventToEdit::setTickets, requestDto.getTickets());
+        FieldUtils.updateField(eventToEdit::setPrice, requestDto.getPrice());
+        FieldUtils.updateField(eventToEdit::setInviteUrl, requestDto.getInviteUrl());
+        FieldUtils.updateField(addressId -> addressService.updateEventAddress(eventToEdit, addressId), requestDto.getAddressId());
+        FieldUtils.updateField(userIds -> updateEventAttendeesFacade(eventToEdit, userIds), requestDto.getUserIds());
+        FieldUtils.updateField(eventTagIds -> tagService.updateEventTags(eventToEdit, eventTagIds), requestDto.getTagIds());
+
+        Event updatedEvent = eventService.updateEvent(eventToEdit);
+        return convertEventToDto(updatedEvent);
+    }
+
+    private void updateEventAttendeesFacade(Event event, Set<Long> newUserIds) {
+        Set<User> newUsers = newUserIds.stream()
+                .map(userService::findUserById)
+                .collect(Collectors.toSet());
+        attendeeService.updateEventAttendees(event, newUsers);
     }
 
     private EventResponseDto buildEventResponse(Event event, EventRequestDto request) {
