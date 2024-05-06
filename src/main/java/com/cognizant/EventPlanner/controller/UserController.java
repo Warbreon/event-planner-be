@@ -40,4 +40,11 @@ public class UserController {
         userManagementFacade.demoteEventAdmin(adminId);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/admins/promote/{id}")
+    @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN')")
+    public ResponseEntity<Void> promoteUserToAdmin(@PathVariable(value = "id") Long userId) {
+        userManagementFacade.promoteToEventAdmin(userId);
+        return ResponseEntity.noContent().build();
+    }
 }
