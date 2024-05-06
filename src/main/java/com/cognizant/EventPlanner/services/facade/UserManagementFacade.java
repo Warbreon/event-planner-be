@@ -35,4 +35,6 @@ public class UserManagementFacade {
     public void demoteEventAdmin(Long adminId) {
         userService.demoteEventAdmin(adminId);
     }
+
+    public void promoteToEventAdmin(Long userId) { userService.promoteToEventAdmin(userId); }
 }
