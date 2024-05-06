@@ -35,7 +35,7 @@ public class UserService {
     }
 
     public void demoteEventAdmin(Long adminUserId) {
-        User admin = userRepository.findById(adminUserId).orElseThrow(() -> new EntityNotFoundException(User.class, adminUserId));
+        User admin = findUserById(adminUserId);
         if (admin.getRole() == Role.EVENT_ADMIN) {
             admin.setRole(Role.USER);
             userRepository.save(admin);
@@ -43,7 +43,7 @@ public class UserService {
     }
 
     public void promoteToEventAdmin(Long userId) {
-        User newAdmin = userRepository.findById(userId).orElseThrow(() -> new EntityNotFoundException(User.class, userId));
+        User newAdmin = findUserById(userId);
         if (newAdmin.getRole() == Role.USER) {
             newAdmin.setRole(Role.EVENT_ADMIN);
             userRepository.save(newAdmin);
