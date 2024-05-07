@@ -73,8 +73,6 @@ public class EventService {
         return eventRepository.save(event);
     }
 
-
-    @CacheEvict(value = "events", allEntries = true)
     @CacheEvict(value = {"paginatedEvents", "events"}, allEntries = true)
     public Event saveEvent(Event event) {
         return eventRepository.save(event);
