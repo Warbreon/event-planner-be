@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserProfileResponseDto {
+public class UserInfoResponseDto {
 
     private String userFirstName;
     private String userImageUrl;

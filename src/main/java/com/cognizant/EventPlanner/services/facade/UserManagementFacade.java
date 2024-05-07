@@ -1,7 +1,7 @@
 package com.cognizant.EventPlanner.services.facade;
 
 import com.cognizant.EventPlanner.dto.response.UserAsAttendeeResponseDto;
-import com.cognizant.EventPlanner.dto.response.UserProfileResponseDto;
+import com.cognizant.EventPlanner.dto.response.UserInfoResponseDto;
 import com.cognizant.EventPlanner.dto.response.UserResponseDto;
 import com.cognizant.EventPlanner.mapper.UserMapper;
 import com.cognizant.EventPlanner.model.Role;
@@ -46,12 +46,12 @@ public class UserManagementFacade {
         userService.promoteToEventAdmin(userId);
     }
 
-    public UserProfileResponseDto getUserProfile() {
+    public UserInfoResponseDto getUserInfo() {
         String email = userDetailsService.getCurrentUserEmail();
         User user = userService.findUserByEmail(email);
         int activeNotifications = eventService.countActiveNotifications(email);
 
-        return new UserProfileResponseDto(
+        return new UserInfoResponseDto(
             user.getFirstName(),
             user.getImageUrl(),
             activeNotifications

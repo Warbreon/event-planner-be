@@ -1,7 +1,7 @@
 package com.cognizant.EventPlanner.controller;
 
 import com.cognizant.EventPlanner.dto.response.UserAsAttendeeResponseDto;
-import com.cognizant.EventPlanner.dto.response.UserProfileResponseDto;
+import com.cognizant.EventPlanner.dto.response.UserInfoResponseDto;
 import com.cognizant.EventPlanner.dto.response.UserResponseDto;
 import com.cognizant.EventPlanner.model.Role;
 import com.cognizant.EventPlanner.services.facade.UserManagementFacade;
@@ -50,8 +50,8 @@ public class UserController {
     }
 
     @GetMapping("/current/info")
-    public ResponseEntity<UserProfileResponseDto> getUserProfile() {
-        UserProfileResponseDto response = userManagementFacade.getUserProfile();
+    public ResponseEntity<UserInfoResponseDto> getUserProfile() {
+        UserInfoResponseDto response = userManagementFacade.getUserInfo();
         return ResponseEntity.ok(response);
     }
 }
