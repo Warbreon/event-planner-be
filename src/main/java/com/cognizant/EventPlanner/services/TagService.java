@@ -61,6 +61,7 @@ public class TagService {
     }
 
     @CacheEvict(value = "events", allEntries = true)
+    @CacheEvict(value = {"paginatedEvents", "events"}, allEntries = true)
     public void saveEventTag(EventTag eventTag) {
         eventTagRepository.save(eventTag);
     }
