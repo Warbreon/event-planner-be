@@ -17,7 +17,7 @@ public class RegistrationService {
     private final EventService eventService;
 
     @Transactional
-    public AttendeeResponseDto registerAttendeeToEvent(AttendeeRequestDto request, User user, Event event) {
+    public AttendeeResponseDto registerAttendee(AttendeeRequestDto request, User user, Event event) {
         Attendee attendeeToRegister = attendeeMapper.requestDtoToAttendee(request, event, user);
         setAttendeeStatuses(attendeeToRegister, event);
         Attendee attendee = attendeeService.saveAttendee(attendeeToRegister);
@@ -25,10 +25,14 @@ public class RegistrationService {
     }
 
     private void setAttendeeStatuses(Attendee attendee, Event event) {
-        if (!event.getIsOpen()) {
+        if (event.getIsOpen()) {
+            attendee.setIsNewNotification(false);
+            attendee.setRegistrationStatus(RegistrationStatus.ACCEPTED);
+        } else {
             attendee.setIsNewNotification(true);
             attendee.setRegistrationStatus(RegistrationStatus.PENDING);
         }
+
         if (eventService.isPaid(event)) {
             attendee.setPaymentStatus(PaymentStatus.PENDING);
         }

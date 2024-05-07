@@ -32,6 +32,7 @@ public class EventManagementFacade {
     private final AddressService addressService;
     private final UserService userService;
     private final RegistrationService registrationService;
+    private final AttendeeService attendeeService;
 
     @Cacheable(value = "events", key = "{#tagIds.orElse('all'), #days.orElse('all'), #city.orElse('all')}")
     public List<EventResponseDto> getEvents(
@@ -96,14 +97,18 @@ public class EventManagementFacade {
 
     private Set<AttendeeResponseDto> registerAttendeesToEvent(Set<AttendeeRequestDto> requestSet, Event event) {
         return requestSet.stream()
-                .map(request -> registrationService.registerAttendeeToEvent(request, userService.findUserById(request.getUserId()), event))
+                .map(request -> registrationService.registerAttendee(request,
+                        userService.findUserByEmail(request.getUserEmail()), event))
                 .collect(Collectors.toSet());
     }
 
     private EventResponseDto convertEventToDto(Event event) {
         EventResponseDto eventDto = eventMapper.eventToDto(event);
         eventDto.setTags(tagService.mapEventTags(event.getTags()));
-        eventDto.setCurrentUserRegisteredToEvent(userService.isUserRegistered(event, userDetailsService.getCurrentUser().getUsername()));
+        eventDto.setCurrentUserRegistrationStatus(attendeeService.getAttendeeRegistrationStatus(
+                event,
+                userDetailsService.getCurrentUser().getUsername()
+        ));
         return eventDto;
     }
 }
