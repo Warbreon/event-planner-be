@@ -5,6 +5,7 @@ import com.cognizant.EventPlanner.model.Event;
 import com.cognizant.EventPlanner.model.Role;
 import com.cognizant.EventPlanner.model.User;
 import com.cognizant.EventPlanner.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -34,20 +35,14 @@ public class UserService {
         return listOfUsers;
     }
 
-    public void demoteEventAdmin(Long adminUserId) {
-        User admin = findUserById(adminUserId);
-        if (admin.getRole() == Role.EVENT_ADMIN) {
-            admin.setRole(Role.USER);
-            userRepository.save(admin);
-        }
+    @Transactional
+    public void demoteEventAdmins(List<Long> adminUserIds) {
+        userRepository.updateRolesById(adminUserIds, Role.EVENT_ADMIN, Role.USER);
     }
 
-    public void promoteToEventAdmin(Long userId) {
-        User newAdmin = findUserById(userId);
-        if (newAdmin.getRole() == Role.USER) {
-            newAdmin.setRole(Role.EVENT_ADMIN);
-            userRepository.save(newAdmin);
-        }
+    @Transactional
+    public void promoteToEventAdmins(List<Long> userIds) {
+        userRepository.updateRolesById(userIds, Role.USER, Role.EVENT_ADMIN);
     }
 
     public List<User> findAllUsers() {

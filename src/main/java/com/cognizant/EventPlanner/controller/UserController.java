@@ -34,17 +34,17 @@ public class UserController {
         return ResponseEntity.ok(admins);
     }
 
-    @PatchMapping("/admins/demote/{id}")
+    @PatchMapping("/admins/demote")
     @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN')")
-    public ResponseEntity<Void> demoteAdminUser(@PathVariable(value = "id") Long adminId) {
-        userManagementFacade.demoteEventAdmin(adminId);
+    public ResponseEntity<Void> demoteAdminUsers(@RequestParam(value = "ids") List<Long> adminIds) {
+        userManagementFacade.demoteEventAdmins(adminIds);
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/admins/promote/{id}")
+    @PatchMapping("/admins/promote")
     @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN')")
-    public ResponseEntity<Void> promoteUserToAdmin(@PathVariable(value = "id") Long userId) {
-        userManagementFacade.promoteToEventAdmin(userId);
+    public ResponseEntity<Void> promoteUsersToAdmin(@RequestParam(value = "ids") List<Long> userIds) {
+        userManagementFacade.promoteToEventAdmins(userIds);
         return ResponseEntity.noContent().build();
     }
 }

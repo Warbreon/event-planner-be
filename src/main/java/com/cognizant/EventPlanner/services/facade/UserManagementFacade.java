@@ -32,9 +32,9 @@ public class UserManagementFacade {
                 .collect(Collectors.toList());
     }
 
-    public void demoteEventAdmin(Long adminId) {
-        userService.demoteEventAdmin(adminId);
+    public void demoteEventAdmins(List<Long> adminIds) {
+        userService.demoteEventAdmins(adminIds);
     }
 
-    public void promoteToEventAdmin(Long userId) { userService.promoteToEventAdmin(userId); }
+    public void promoteToEventAdmins(List<Long> userIds) { userService.promoteToEventAdmins(userIds); }
 }
