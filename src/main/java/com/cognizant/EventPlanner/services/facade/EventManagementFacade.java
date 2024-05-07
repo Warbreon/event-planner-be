@@ -9,15 +9,17 @@ import com.cognizant.EventPlanner.mapper.EventMapper;
 import com.cognizant.EventPlanner.model.*;
 import com.cognizant.EventPlanner.services.*;
 import com.cognizant.EventPlanner.specification.EventSpecifications;
-import com.cognizant.EventPlanner.util.FieldUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
 
+import java.beans.PropertyDescriptor;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -95,23 +97,30 @@ public class EventManagementFacade {
     @Transactional
     @Modifying
     public EventResponseDto updateEvent(Long id, EditEventRequestDto requestDto) {
+        Event newEventValues = eventMapper.editEventRequestDtoToEvent(requestDto);
         Event eventToEdit = eventService.findEventById(id);
 
-        FieldUtils.updateField(eventToEdit::setName, requestDto.getName());
-        FieldUtils.updateField(eventToEdit::setDescription, requestDto.getDescription());
-        FieldUtils.updateField(eventToEdit::setImageUrl, requestDto.getImageUrl());
-        FieldUtils.updateField(eventToEdit::setIsOpen, requestDto.getIsOpen());
-        FieldUtils.updateField(eventToEdit::setEventStart, requestDto.getEventStart());
-        FieldUtils.updateField(eventToEdit::setEventEnd, requestDto.getEventEnd());
-        FieldUtils.updateField(eventToEdit::setRegistrationStart, requestDto.getRegistrationStart());
-        FieldUtils.updateField(eventToEdit::setRegistrationEnd, requestDto.getRegistrationEnd());
-        FieldUtils.updateField(eventToEdit::setAgenda, requestDto.getAgenda());
-        FieldUtils.updateField(eventToEdit::setTickets, requestDto.getTickets());
-        FieldUtils.updateField(eventToEdit::setPrice, requestDto.getPrice());
-        FieldUtils.updateField(eventToEdit::setInviteUrl, requestDto.getInviteUrl());
-        FieldUtils.updateField(addressId -> addressService.updateEventAddress(eventToEdit, addressId), requestDto.getAddressId());
-        FieldUtils.updateField(userIds -> updateEventAttendeesFacade(eventToEdit, userIds), requestDto.getUserIds());
-        FieldUtils.updateField(eventTagIds -> tagService.updateEventTags(eventToEdit, eventTagIds), requestDto.getTagIds());
+        BeanWrapper eventWrapper = new BeanWrapperImpl(eventToEdit);
+        BeanWrapper newValuesWrapper = new BeanWrapperImpl(newEventValues);
+
+        for (PropertyDescriptor propertyDescriptor : newValuesWrapper.getPropertyDescriptors()) {
+            String propertyName = propertyDescriptor.getName();
+            if (eventWrapper.isWritableProperty(propertyName) && newValuesWrapper.getPropertyValue(propertyName) != null) {
+                eventWrapper.setPropertyValue(propertyName, newValuesWrapper.getPropertyValue(propertyName));
+            }
+        }
+
+        if (requestDto.getAddressId() != null) {
+            addressService.updateEventAddress(eventToEdit, requestDto.getAddressId());
+        }
+
+        if (requestDto.getUserIds() != null) {
+            updateEventAttendeesFacade(eventToEdit, requestDto.getUserIds());
+        }
+
+        if (requestDto.getTagIds() != null) {
+            tagService.updateEventTags(eventToEdit, requestDto.getTagIds());
+        }
 
         Event updatedEvent = eventService.updateEvent(eventToEdit);
         return convertEventToDto(updatedEvent);

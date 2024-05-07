@@ -1,5 +1,6 @@
 package com.cognizant.EventPlanner.mapper;
 
+import com.cognizant.EventPlanner.dto.request.EditEventRequestDto;
 import com.cognizant.EventPlanner.dto.request.EventRequestDto;
 import com.cognizant.EventPlanner.dto.response.EventResponseDto;
 import com.cognizant.EventPlanner.model.Event;
@@ -18,4 +19,9 @@ public interface EventMapper {
     @Mapping(target = "attendees", ignore = true)
     @Mapping(target = "tags", ignore = true)
     Event dtoToEvent(EventRequestDto dto);
+
+    @Mapping(target = "address", ignore = true)
+    @Mapping(target = "attendees", ignore = true)
+    @Mapping(target = "tags", ignore = true)
+    Event editEventRequestDtoToEvent(EditEventRequestDto dto);
 }
