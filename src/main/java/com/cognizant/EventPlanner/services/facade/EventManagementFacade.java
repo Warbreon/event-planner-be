@@ -89,7 +89,7 @@ public class EventManagementFacade {
         eventDto.setTags(tagService.mapEventTags(event.getTags()));
         eventDto.setCurrentUserRegistrationStatus(attendeeService.getAttendeeRegistrationStatus(
                 event,
-                userDetailsService.getCurrentUser().getUsername()
+                userDetailsService.getCurrentUserEmail()
         ));
         return eventDto;
     }
