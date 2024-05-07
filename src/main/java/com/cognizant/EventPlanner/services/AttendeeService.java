@@ -12,7 +12,7 @@ public class AttendeeService {
 
     private final AttendeeRepository attendeeRepository;
 
-    @CacheEvict(value = "events", allEntries = true)
+    @CacheEvict(value = {"paginatedEvents", "events"}, allEntries = true)
     public Attendee saveAttendee(Attendee attendee) {
         return attendeeRepository.save(attendee);
     }

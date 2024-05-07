@@ -47,4 +47,13 @@ public class EventSpecifications {
             }
         };
     }
+
+    public static Specification<Event> byName(String name) {
+        return (root, query, cb) -> {
+            if (name == null || name.isEmpty()) {
+                return cb.conjunction();
+            }
+            return cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%");
+        };
+    }
 }
