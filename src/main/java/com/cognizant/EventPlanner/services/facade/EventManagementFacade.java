@@ -97,8 +97,11 @@ public class EventManagementFacade {
 
     private Set<AttendeeResponseDto> registerAttendeesToEvent(Set<AttendeeRequestDto> requestSet, Event event) {
         return requestSet.stream()
-                .map(request -> registrationService.registerAttendeeToEvent(request,
-                        userService.findUserById(request.getUserId()), event))
+                .map(request -> registrationService.registerAttendeeToEvent(
+                        request,
+                        userService.findUserById(request.getUserId()),
+                        event
+                ))
                 .collect(Collectors.toSet());
     }
 
