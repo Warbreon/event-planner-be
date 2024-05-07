@@ -9,11 +9,8 @@ import com.cognizant.EventPlanner.model.Address;
 import com.cognizant.EventPlanner.model.Event;
 import com.cognizant.EventPlanner.model.User;
 import com.cognizant.EventPlanner.services.*;
-import com.cognizant.EventPlanner.specification.EventSpecifications;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,32 +30,10 @@ public class EventManagementFacade {
     private final UserService userService;
     private final RegistrationService registrationService;
 
-    @Cacheable(value = "events", key = "{#tagIds.orElse('all'), #days.orElse('all'), #city.orElse('all'), #name.orElse('all'), @userDetailsServiceImpl.getCurrentUserEmail()}")
-    public List<EventResponseDto> getEvents(
-            Optional<Set<Long>> tagIds,
-            Optional<Integer> days,
-            Optional<String> city,
-            Optional<String> name
-    ) {
-        Specification<Event> spec = Specification.where(null);
-
-        if (tagIds.isPresent() && !tagIds.get().isEmpty()) {
-            spec = spec.and(EventSpecifications.hasTags(tagIds.get()));
-        }
-        if (days.isPresent()) {
-            spec = spec.and(EventSpecifications.withinDays(days.get()));
-        }
-        if (city.isPresent()) {
-            spec = spec.and(EventSpecifications.byCity(city.get()));
-        }
-        if (name.isPresent()) {
-            spec = spec.and(EventSpecifications.byName(name.get()));
-        }
-
-        return eventService.findEventsWithSpec(spec)
-                .stream()
-                .map(this::convertEventToDto)
-                .collect(Collectors.toList());
+    public Object getEventsFacade(Optional<Set<Long>> tagIds, Optional<Integer> days, Optional<String> city, Optional<String> name, Optional<Integer> page, Optional<Integer> size) {
+        return (page.isPresent() && size.isPresent())
+                ? eventService.getPaginatedEvents(tagIds, days, city, name, page.get(), size.get()).map(this::convertEventToDto)
+                : eventService.getEventsWithoutPagination(tagIds, days, city, name).stream().map(this::convertEventToDto).toList();
     }
 
     public EventResponseDto getEventById(Long id) {
