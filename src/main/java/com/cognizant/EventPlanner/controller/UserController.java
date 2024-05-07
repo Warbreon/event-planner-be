@@ -26,6 +26,14 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/default")
+    @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN')")
+    public ResponseEntity<List<UserResponseDto>> getAllDefaultUsers() {
+        List<Role> role = Arrays.asList(Role.USER);
+        List<UserResponseDto> admins = userManagementFacade.getUsersByRoles(role);
+        return ResponseEntity.ok(admins);
+    }
+
     @GetMapping("/admins")
     @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN')")
     public ResponseEntity<List<UserResponseDto>> getAllAdminUsers() {
