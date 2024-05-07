@@ -17,7 +17,7 @@ public class RegistrationService {
     private final EventService eventService;
 
     @Transactional
-    public AttendeeResponseDto registerAttendee(AttendeeRequestDto request, User user, Event event) {
+    public AttendeeResponseDto registerAttendeeToEvent(AttendeeRequestDto request, User user, Event event) {
         Attendee attendeeToRegister = attendeeMapper.requestDtoToAttendee(request, event, user);
         setAttendeeStatuses(attendeeToRegister, event);
         Attendee attendee = attendeeService.saveAttendee(attendeeToRegister);

@@ -1,6 +1,7 @@
 package com.cognizant.EventPlanner.services.facade;
 
 import com.cognizant.EventPlanner.dto.request.AttendeeRequestDto;
+import com.cognizant.EventPlanner.dto.request.UserEventRegistrationRequestDto;
 import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
 import com.cognizant.EventPlanner.mapper.AttendeeMapper;
 import com.cognizant.EventPlanner.model.*;
@@ -23,10 +24,15 @@ public class AttendeeManagementFacade {
     private final AttendeeMapper attendeeMapper;
 
     @Transactional
-    public AttendeeResponseDto registerAttendee(AttendeeRequestDto request) {
-        User user = userService.findUserByEmail(request.getUserEmail());
+    public AttendeeResponseDto registerToEvent(UserEventRegistrationRequestDto request) {
+        User user = userService.findUserByEmail(request.getEmail());
         Event event = eventService.findEventById(request.getEventId());
-        return registrationService.registerAttendee(request, user, event);
+
+        AttendeeRequestDto attendeeDto = new AttendeeRequestDto();
+        attendeeDto.setUserId(user.getId());
+        attendeeDto.setEventId(event.getId());
+
+        return registrationService.registerAttendeeToEvent(attendeeDto, user, event);
     }
 
     @Transactional

@@ -10,9 +10,9 @@ import lombok.*;
 public class AttendeeRequestDto {
 
     @NotNull(message = "Only an existing user can be an attendee")
-    @NotBlank(message = "Email cannot be blank")
-    @Email(message = "Email should be valid")
-    private String userEmail;
+    @Min(value = 0, message = "User ID has to be equal or greater than 0")
+    @Max(value = Long.MAX_VALUE, message = "User ID value can not exceed 9223372036854775807")
+    private Long userId;
 
     @NotNull(message = "Attendee can register only to existing events")
     @Min(value = 0, message = "Event ID has to be equal or greater than 0")
