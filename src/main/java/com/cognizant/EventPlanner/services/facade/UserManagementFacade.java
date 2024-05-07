@@ -1,9 +1,13 @@
 package com.cognizant.EventPlanner.services.facade;
 
 import com.cognizant.EventPlanner.dto.response.UserAsAttendeeResponseDto;
+import com.cognizant.EventPlanner.dto.response.UserProfileResponseDto;
 import com.cognizant.EventPlanner.dto.response.UserResponseDto;
 import com.cognizant.EventPlanner.mapper.UserMapper;
 import com.cognizant.EventPlanner.model.Role;
+import com.cognizant.EventPlanner.model.User;
+import com.cognizant.EventPlanner.services.EventService;
+import com.cognizant.EventPlanner.services.UserDetailsServiceImpl;
 import com.cognizant.EventPlanner.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +21,8 @@ public class UserManagementFacade {
 
     private final UserService userService;
     private final UserMapper userMapper;
+    private final UserDetailsServiceImpl userDetailsService;
+    private final EventService eventService;
 
     public List<UserAsAttendeeResponseDto> getAllUsers() {
         return userService.findAllUsers()
@@ -36,5 +42,19 @@ public class UserManagementFacade {
         userService.demoteEventAdmin(adminId);
     }
 
-    public void promoteToEventAdmin(Long userId) { userService.promoteToEventAdmin(userId); }
+    public void promoteToEventAdmin(Long userId) {
+        userService.promoteToEventAdmin(userId);
+    }
+
+    public UserProfileResponseDto getUserProfile() {
+        String email = userDetailsService.getCurrentUserEmail();
+        User user = userService.findUserByEmail(email);
+        int activeNotifications = eventService.countActiveNotifications(email);
+
+        return new UserProfileResponseDto(
+            user.getFirstName(),
+            user.getImageUrl(),
+            activeNotifications
+        );
+    }
 }

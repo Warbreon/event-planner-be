@@ -1,6 +1,7 @@
 package com.cognizant.EventPlanner.controller;
 
 import com.cognizant.EventPlanner.dto.response.UserAsAttendeeResponseDto;
+import com.cognizant.EventPlanner.dto.response.UserProfileResponseDto;
 import com.cognizant.EventPlanner.dto.response.UserResponseDto;
 import com.cognizant.EventPlanner.model.Role;
 import com.cognizant.EventPlanner.services.facade.UserManagementFacade;
@@ -46,5 +47,11 @@ public class UserController {
     public ResponseEntity<Void> promoteUserToAdmin(@PathVariable(value = "id") Long userId) {
         userManagementFacade.promoteToEventAdmin(userId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/current/info")
+    public ResponseEntity<UserProfileResponseDto> getUserProfile() {
+        UserProfileResponseDto response = userManagementFacade.getUserProfile();
+        return ResponseEntity.ok(response);
     }
 }

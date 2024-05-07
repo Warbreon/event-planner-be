@@ -16,4 +16,8 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
     @Query("SELECT e FROM Event e JOIN Attendee a ON e.id = a.event.id" +
             " JOIN User u ON a.user.id = u.id WHERE u.email = :email ORDER BY e.eventStart DESC")
     List<Event> findAllUserIsRegisteredTo(@Param("email") String email);
+
+    @Query("SELECT COUNT(a) FROM Event e JOIN e.attendees a " +
+            "WHERE e.creator.email = :email AND a.isNewNotification = TRUE")
+    int countActiveNotifications(@Param("email") String email);
 }
