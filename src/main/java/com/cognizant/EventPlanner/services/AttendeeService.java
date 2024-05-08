@@ -33,22 +33,28 @@ public class AttendeeService {
     @Transactional
     public void markNotificationAsViewed(Long attendeeId) {
         Attendee attendee = findAttendeeById(attendeeId);
-        attendee.setIsNewNotification(false);
-        attendeeRepository.save(attendee);
+        if (attendee.getIsNewNotification()) {
+            attendee.setIsNewNotification(false);
+            attendeeRepository.save(attendee);
+        }
     }
 
     @Transactional
     public Attendee confirmRegistration(Long attendeeId) {
         Attendee attendee = findAttendeeById(attendeeId);
-        attendee.setRegistrationStatus(RegistrationStatus.ACCEPTED);
-        return attendeeRepository.save(attendee);
+        if (attendee.getRegistrationStatus() == RegistrationStatus.PENDING) {
+            attendee.setRegistrationStatus(RegistrationStatus.ACCEPTED);
+        }
+        return saveAttendee(attendee);
     }
 
     @Transactional
     public Attendee declineRegistration(Long attendeeId) {
         Attendee attendee = findAttendeeById(attendeeId);
-        attendee.setRegistrationStatus(RegistrationStatus.REJECTED);
-        return attendeeRepository.save(attendee);
+        if (attendee.getRegistrationStatus() == RegistrationStatus.PENDING) {
+            attendee.setRegistrationStatus(RegistrationStatus.REJECTED);
+        }
+        return saveAttendee(attendee);
     }
 
     public Attendee findAttendeeById(Long attendeeId) {
