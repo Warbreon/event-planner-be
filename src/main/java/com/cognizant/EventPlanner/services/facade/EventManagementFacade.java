@@ -70,6 +70,11 @@ public class EventManagementFacade {
 
     @Transactional
     public EventResponseDto updateEvent(Long id, EditEventRequestDto requestDto) {
+        return convertEventToDto(eventService.updateEvent(setUpdatedEventValues(id, requestDto)));
+    }
+
+
+    private Event setUpdatedEventValues(Long id, EditEventRequestDto requestDto) {
         Event newEventValues = eventMapper.editEventRequestDtoToEvent(requestDto);
         Event eventToEdit = eventService.findEventById(id);
 
@@ -78,7 +83,10 @@ public class EventManagementFacade {
 
         for (PropertyDescriptor propertyDescriptor : newValuesWrapper.getPropertyDescriptors()) {
             String propertyName = propertyDescriptor.getName();
-            if (eventWrapper.isWritableProperty(propertyName) && newValuesWrapper.getPropertyValue(propertyName) != null) {
+            if (eventWrapper.isWritableProperty(propertyName)
+                    && newValuesWrapper.getPropertyValue(propertyName) != null
+                    && !Objects.equals(eventWrapper.getPropertyValue(propertyName), newValuesWrapper.getPropertyValue(propertyName)))
+            {
                 eventWrapper.setPropertyValue(propertyName, newValuesWrapper.getPropertyValue(propertyName));
             }
         }
@@ -95,8 +103,7 @@ public class EventManagementFacade {
             tagService.updateEventTags(eventToEdit, requestDto.getTagIds());
         }
 
-        Event updatedEvent = eventService.updateEvent(eventToEdit);
-        return convertEventToDto(updatedEvent);
+        return eventToEdit;
     }
 
     private void updateEventAttendeesFacade(Event event, Set<Long> newUserIds) {
