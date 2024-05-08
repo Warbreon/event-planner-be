@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -52,7 +53,7 @@ public abstract class EventDto {
 
     @Min(value = 0, message = "Event price can not be less than 0")
     @Max(value = 10000, message = "Event price can not be greater than 10000")
-    private Double price;
+    private BigDecimal price;
 
     @Min(value = 0, message = "Event tickets count can not be less than 0")
     @Max(value = 10000, message = "Event tickets count can not be greater than 10000")

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -54,8 +55,8 @@ public class Event {
     @Column(name = "tickets")
     private Integer tickets;
 
-    @Column(name = "price")
-    private Double price;
+    @Column(name = "price", precision = 15, scale = 2)
+    private BigDecimal price;
 
     @Column(name = "invite_url")
     private String inviteUrl;
