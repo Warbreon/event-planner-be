@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 public class NotificationResponseDto {
 
-    List<AttendeeNotificationResponseDto> eventAttendees;
-    int totalNotifications;
-    int activeNotifications;
+    private List<AttendeeNotificationResponseDto> eventAttendees;
+    private int totalNotifications;
+    private int activeNotifications;
 }
