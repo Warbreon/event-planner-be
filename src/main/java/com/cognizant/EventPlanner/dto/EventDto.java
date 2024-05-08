@@ -51,8 +51,8 @@ public abstract class EventDto {
 
     private String[] agenda;
 
-    @Min(value = 0, message = "Event price can not be less than 0")
-    @Max(value = 10000, message = "Event price can not be greater than 10000")
+    @DecimalMin(value = "0.00", message = "Event price can not be less than 0.00")
+    @DecimalMax(value = "10000.00", message = "Event price can not be greater than 10000.00")
     private BigDecimal price;
 
     @Min(value = 0, message = "Event tickets count can not be less than 0")
