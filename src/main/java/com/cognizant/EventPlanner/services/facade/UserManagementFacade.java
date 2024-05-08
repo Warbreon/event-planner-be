@@ -6,7 +6,7 @@ import com.cognizant.EventPlanner.dto.response.UserResponseDto;
 import com.cognizant.EventPlanner.mapper.UserMapper;
 import com.cognizant.EventPlanner.model.Role;
 import com.cognizant.EventPlanner.model.User;
-import com.cognizant.EventPlanner.services.EventService;
+import com.cognizant.EventPlanner.services.AttendeeService;
 import com.cognizant.EventPlanner.services.UserDetailsServiceImpl;
 import com.cognizant.EventPlanner.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class UserManagementFacade {
     private final UserService userService;
     private final UserMapper userMapper;
     private final UserDetailsServiceImpl userDetailsService;
-    private final EventService eventService;
+    private final AttendeeService attendeeService;
 
     public List<UserAsAttendeeResponseDto> getAllUsers() {
         return userService.findAllUsers()
@@ -49,7 +49,7 @@ public class UserManagementFacade {
     public UserInfoResponseDto getUserInfo() {
         String email = userDetailsService.getCurrentUserEmail();
         User user = userService.findUserByEmail(email);
-        int activeNotifications = eventService.countActiveNotifications(email);
+        int activeNotifications = attendeeService.countActiveNotifications(email);
 
         return new UserInfoResponseDto(
             user.getFirstName(),

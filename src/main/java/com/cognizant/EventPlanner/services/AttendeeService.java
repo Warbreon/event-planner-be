@@ -12,6 +12,10 @@ public class AttendeeService {
 
     private final AttendeeRepository attendeeRepository;
 
+    public int countActiveNotifications(String email) {
+        return attendeeRepository.countActiveNotifications(email);
+    }
+
     @CacheEvict(value = {"paginatedEvents", "events"}, allEntries = true)
     public Attendee saveAttendee(Attendee attendee) {
         return attendeeRepository.save(attendee);
