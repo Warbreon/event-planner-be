@@ -14,6 +14,6 @@ public interface EventTagRepository extends JpaRepository<EventTag, Long> {
     List<EventTag> findAllByEventId(Long eventId);
 
     @Modifying
-    @Query("delete from EventTag t where t.id = :id")
-    void removeById(@Param("id") Long id);
+    @Query("DELETE FROM EventTag t WHERE t.id IN :eventTagsToRemove")
+    void removeAllByIdIn(@Param("eventTagsToRemove") List<Long> eventTagsToRemove);
 }

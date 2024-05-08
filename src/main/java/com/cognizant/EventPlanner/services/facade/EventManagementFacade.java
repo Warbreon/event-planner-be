@@ -12,7 +12,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
 
@@ -70,7 +69,6 @@ public class EventManagementFacade {
     }
 
     @Transactional
-    @Modifying
     public EventResponseDto updateEvent(Long id, EditEventRequestDto requestDto) {
         Event newEventValues = eventMapper.editEventRequestDtoToEvent(requestDto);
         Event eventToEdit = eventService.findEventById(id);

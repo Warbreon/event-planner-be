@@ -2,7 +2,6 @@ package com.cognizant.EventPlanner.services;
 
 import com.cognizant.EventPlanner.model.*;
 import com.cognizant.EventPlanner.repository.AttendeeRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
@@ -32,12 +31,10 @@ public class AttendeeService {
         return attendeeRepository.findAllByEventId(eventId);
     }
 
-
     public void removeAttendees(List<Long> attendeesIdsToRemove) {
         attendeeRepository.removeAllByIdIn(attendeesIdsToRemove);
     }
 
-    @Transactional
     public void updateEventAttendees(Event event, Set<User> newUsers) {
         List<Attendee> currentEventAttendees = findAllByEventId(event.getId());
         List<Long> toRemove = currentEventAttendees.stream().filter(attendee -> !newUsers.contains(attendee.getUser())).map(Attendee::getId).toList();

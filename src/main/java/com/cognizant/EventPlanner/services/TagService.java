@@ -37,9 +37,8 @@ public class TagService {
                 .collect(Collectors.toSet());
     }
 
-    @Transactional
-    public void addEventTag (EventTag t) {
-        eventTagRepository.save(t);
+    public void addEventTags(Set<EventTag> newEventTags) {
+        eventTagRepository.saveAll(newEventTags);
     }
 
     public List<Tag> findAllTags() {
@@ -51,13 +50,13 @@ public class TagService {
                 .orElseThrow(() -> new EntityNotFoundException(Tag.class, id));
     }
 
-    public List<EventTag> findEventTags(Long eventId){
+    public List<EventTag> findEventTags(Long eventId) {
         return eventTagRepository.findAllByEventId(eventId);
     }
 
-    @Transactional
-    public void removeEventTag(Long eventTagId) {
-        eventTagRepository.removeById(eventTagId);
+
+    public void removeEventTags(List<Long> eventTagIds) {
+        eventTagRepository.removeAllByIdIn(eventTagIds);
     }
 
     @CacheEvict(value = {"paginatedEvents", "events"}, allEntries = true)
@@ -72,21 +71,16 @@ public class TagService {
                 .collect(Collectors.toSet());
     }
 
-
-    @Transactional
     public void updateEventTags(Event event, Set<Long> newTagIds) {
         List<EventTag> currentTags = findEventTags(event.getId());
-        Set<Tag> usedTags = currentTags.stream().map(EventTag::getTag).collect(Collectors.toSet());
+        List<Long> eventTagsToRemove = currentTags.stream().filter(eventTag ->
+                !newTagIds.contains(eventTag.getTag().getId())).map(EventTag::getId).toList();
 
-        currentTags.forEach(tag -> {
-            if (!newTagIds.contains(tag.getTag().getId())) {
-                removeEventTag(tag.getId());
-            }
-        });
+        removeEventTags(eventTagsToRemove);
 
-        newTagIds.stream()
-                .map(this::findTagById)
-                .filter(tag -> !usedTags.contains(tag))
-                .forEach(tag -> addEventTag(new EventTag(null, event, tag)));
+        Set<EventTag> newEventTags = newTagIds.stream().filter(tagId ->
+                        currentTags.stream().noneMatch(eventTag -> eventTag.getTag().getId().equals(tagId)))
+                .map(tagId -> new EventTag(null, event, findTagById(tagId))).collect(Collectors.toSet());
+        addEventTags(newEventTags);
     }
 }

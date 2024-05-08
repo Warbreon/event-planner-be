@@ -16,9 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -67,8 +65,6 @@ public class EventService {
         return eventRepository.findAllUserIsRegisteredTo(email);
     }
 
-    @Transactional
-    @Modifying
     public Event updateEvent(Event event) {
         return eventRepository.save(event);
     }
