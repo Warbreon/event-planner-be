@@ -2,11 +2,10 @@ package com.cognizant.EventPlanner.services.facade;
 
 import com.cognizant.EventPlanner.dto.request.AttendeeRequestDto;
 import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
+import com.cognizant.EventPlanner.dto.response.NotificationResponseDto;
+import com.cognizant.EventPlanner.mapper.AttendeeMapper;
 import com.cognizant.EventPlanner.model.*;
-import com.cognizant.EventPlanner.services.EventService;
-import com.cognizant.EventPlanner.services.RegistrationService;
-import com.cognizant.EventPlanner.services.UserService;
-import jakarta.transaction.Transactional;
+import com.cognizant.EventPlanner.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,11 +16,32 @@ public class AttendeeManagementFacade {
     private final UserService userService;
     private final EventService eventService;
     private final RegistrationService registrationService;
+    private final UserDetailsServiceImpl userDetailsService;
+    private final AttendeeService attendeeService;
+    private final AttendeeMapper attendeeMapper;
 
-    @Transactional
     public AttendeeResponseDto registerToEvent(AttendeeRequestDto request) {
         User user = userService.findUserById(request.getUserId());
         Event event = eventService.findEventById(request.getEventId());
         return registrationService.registerAttendeeToEvent(request, user, event);
+    }
+
+    public NotificationResponseDto getAttendeeNotifications() {
+        String email = userDetailsService.getCurrentUserEmail();
+        return attendeeService.getAttendeeNotifications(email);
+    }
+
+    public void markNotificationAsViewed(Long attendeeId) {
+        attendeeService.markNotificationAsViewed(attendeeId);
+    }
+
+    public AttendeeResponseDto confirmRegistration(Long attendeeId) {
+        Attendee attendee = attendeeService.confirmRegistration(attendeeId);
+        return attendeeMapper.attendeeToDto(attendee);
+    }
+
+    public AttendeeResponseDto declineRegistration(Long attendeeId) {
+        Attendee attendee = attendeeService.declineRegistration(attendeeId);
+        return attendeeMapper.attendeeToDto(attendee);
     }
 }
