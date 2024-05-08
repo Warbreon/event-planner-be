@@ -5,7 +5,6 @@ import com.cognizant.EventPlanner.repository.AttendeeRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,34 +23,33 @@ public class AttendeeService {
         return attendeeRepository.save(attendee);
     }
 
+    @CacheEvict(value = {"paginatedEvents", "events"}, allEntries = true)
+    public void saveAttendees(Set<Attendee> attendees) {
+        attendeeRepository.saveAll(attendees);
+    }
+
     public List<Attendee> findAllByEventId(Long eventId) {
         return attendeeRepository.findAllByEventId(eventId);
     }
 
-    @Transactional
-    @Modifying
-    public void removeAttendee(Long id) {
-        attendeeRepository.removeById(id);
+
+    public void removeAttendees(List<Long> attendeesIdsToRemove) {
+        attendeeRepository.removeAllByIdIn(attendeesIdsToRemove);
     }
 
     @Transactional
     public void updateEventAttendees(Event event, Set<User> newUsers) {
         List<Attendee> currentEventAttendees = findAllByEventId(event.getId());
-        Set<Long> newUserIds = newUsers.stream().map(User::getId).collect(Collectors.toSet());
+        List<Long> toRemove = currentEventAttendees.stream().filter(attendee -> !newUsers.contains(attendee.getUser())).map(Attendee::getId).toList();
+        removeAttendees(toRemove);
 
-        currentEventAttendees.forEach(attendee -> {
-            if (!newUserIds.contains(attendee.getUser().getId())) {
-                removeAttendee(attendee.getId());
-            }
-        });
-
-        Set<User> currentUsers = currentEventAttendees.stream()
-                .map(Attendee::getUser)
+        Set<Attendee> newAttendees = newUsers.stream()
+                .filter(user -> currentEventAttendees.stream().noneMatch(attendee -> attendee.getUser().equals(user)))
+                .map(user -> new Attendee(null, RegistrationStatus.ACCEPTED, null,
+                        LocalDateTime.now(), null, user, event))
                 .collect(Collectors.toSet());
-        newUsers.stream()
-                .filter(user -> !currentUsers.contains(user))
-                .forEach(user -> saveAttendee(new Attendee(null, RegistrationStatus.ACCEPTED, null,
-                        LocalDateTime.now(), false, user, event)));
+
+        saveAttendees(newAttendees);
     }
 
 }

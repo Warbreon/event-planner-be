@@ -13,6 +13,7 @@ public interface AttendeeRepository extends JpaRepository<Attendee, Long> {
     List<Attendee> findAllByEventId(Long eventId);
 
     @Modifying
-    @Query("delete from Attendee a where a.id = :id")
-    void removeById(@Param("id") Long id);
+    @Query("DELETE FROM Attendee a WHERE a.id IN :attendeesIdsToRemove")
+    void removeAllByIdIn(@Param("attendeesIdsToRemove") List<Long> attendeesIdsToRemove);
+
 }
