@@ -1,14 +1,11 @@
 package com.cognizant.EventPlanner.services.facade;
 
 import com.cognizant.EventPlanner.dto.request.AttendeeRequestDto;
-import com.cognizant.EventPlanner.dto.request.UserEventRegistrationRequestDto;
+import com.cognizant.EventPlanner.dto.request.BaseEventRegistrationRequestDto;
 import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
 import com.cognizant.EventPlanner.mapper.AttendeeMapper;
 import com.cognizant.EventPlanner.model.*;
-import com.cognizant.EventPlanner.services.AttendeeService;
-import com.cognizant.EventPlanner.services.EventService;
-import com.cognizant.EventPlanner.services.RegistrationService;
-import com.cognizant.EventPlanner.services.UserService;
+import com.cognizant.EventPlanner.services.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,10 +19,12 @@ public class AttendeeManagementFacade {
     private final RegistrationService registrationService;
     private final AttendeeService attendeeService;
     private final AttendeeMapper attendeeMapper;
+    private final UserDetailsServiceImpl userDetailsService;
 
     @Transactional
-    public AttendeeResponseDto registerToEvent(UserEventRegistrationRequestDto request) {
-        User user = userService.findUserByEmail(request.getEmail());
+    public AttendeeResponseDto registerToEvent(BaseEventRegistrationRequestDto request) {
+        String userEmail = userDetailsService.getCurrentUserEmail();
+        User user = userService.findUserByEmail(userEmail);
         Event event = eventService.findEventById(request.getEventId());
 
         AttendeeRequestDto attendeeDto = new AttendeeRequestDto();

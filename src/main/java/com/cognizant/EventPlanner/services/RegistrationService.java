@@ -26,7 +26,6 @@ public class RegistrationService {
 
     private void setAttendeeStatuses(Attendee attendee, Event event) {
         if (event.getIsOpen()) {
-            attendee.setIsNewNotification(false);
             attendee.setRegistrationStatus(RegistrationStatus.ACCEPTED);
         } else {
             attendee.setIsNewNotification(true);

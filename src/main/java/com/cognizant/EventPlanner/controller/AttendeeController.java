@@ -1,6 +1,6 @@
 package com.cognizant.EventPlanner.controller;
 
-import com.cognizant.EventPlanner.dto.request.UserEventRegistrationRequestDto;
+import com.cognizant.EventPlanner.dto.request.BaseEventRegistrationRequestDto;
 import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
 import com.cognizant.EventPlanner.services.facade.AttendeeManagementFacade;
 import jakarta.validation.Valid;
@@ -16,7 +16,7 @@ public class AttendeeController {
     private final AttendeeManagementFacade attendeeManagementFacade;
 
     @PostMapping("/register")
-    public ResponseEntity<AttendeeResponseDto> registerToEvent(@Valid @RequestBody UserEventRegistrationRequestDto request) {
+    public ResponseEntity<AttendeeResponseDto> registerToEvent(@Valid @RequestBody BaseEventRegistrationRequestDto request) {
         AttendeeResponseDto response = attendeeManagementFacade.registerToEvent(request);
         return ResponseEntity.ok(response);
     }

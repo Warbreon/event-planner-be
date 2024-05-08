@@ -1,20 +1,15 @@
 package com.cognizant.EventPlanner.dto.request;
 
-import jakarta.validation.constraints.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserEventRegistrationRequestDto {
-
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email should be valid")
-    private String email;
+public class BaseEventRegistrationRequestDto {
 
     @NotNull(message = "Event ID is required")
     @Min(value = 0, message = "Event ID has to be equal or greater than 0")
