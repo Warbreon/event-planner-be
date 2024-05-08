@@ -18,6 +18,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -75,7 +76,7 @@ public class EventService {
     }
 
     public boolean isPaid(Event event) {
-        return event.getPrice() != null && event.getPrice() > 0;
+        return event.getPrice() != null && event.getPrice().compareTo(BigDecimal.ZERO) > 0;
     }
 
     public Event prepareEventForCreation(EventRequestDto request, Address address, User user) {
