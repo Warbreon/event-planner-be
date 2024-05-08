@@ -40,7 +40,7 @@ public class AttendeeService {
     }
 
     @Transactional
-    public Attendee confirmRegistration(Long attendeeId) {
+    public Attendee confirmPendingRegistration(Long attendeeId) {
         Attendee attendee = findAttendeeById(attendeeId);
         if (attendee.getRegistrationStatus() == RegistrationStatus.PENDING) {
             attendee.setRegistrationStatus(RegistrationStatus.ACCEPTED);
@@ -49,7 +49,7 @@ public class AttendeeService {
     }
 
     @Transactional
-    public Attendee declineRegistration(Long attendeeId) {
+    public Attendee declinePendingRegistration(Long attendeeId) {
         Attendee attendee = findAttendeeById(attendeeId);
         if (attendee.getRegistrationStatus() == RegistrationStatus.PENDING) {
             attendee.setRegistrationStatus(RegistrationStatus.REJECTED);

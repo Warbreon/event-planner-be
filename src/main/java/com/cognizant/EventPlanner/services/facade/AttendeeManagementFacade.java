@@ -35,13 +35,13 @@ public class AttendeeManagementFacade {
         attendeeService.markNotificationAsViewed(attendeeId);
     }
 
-    public AttendeeResponseDto confirmRegistration(Long attendeeId) {
-        Attendee attendee = attendeeService.confirmRegistration(attendeeId);
+    public AttendeeResponseDto confirmPendingRegistration(Long attendeeId) {
+        Attendee attendee = attendeeService.confirmPendingRegistration(attendeeId);
         return attendeeMapper.attendeeToDto(attendee);
     }
 
-    public AttendeeResponseDto declineRegistration(Long attendeeId) {
-        Attendee attendee = attendeeService.declineRegistration(attendeeId);
+    public AttendeeResponseDto declinePendingRegistration(Long attendeeId) {
+        Attendee attendee = attendeeService.declinePendingRegistration(attendeeId);
         return attendeeMapper.attendeeToDto(attendee);
     }
 }

@@ -35,14 +35,14 @@ public class AttendeeController {
     }
 
     @PatchMapping("/register/{attendeeId}/confirm")
-    public ResponseEntity<AttendeeResponseDto> confirmRegistration(@PathVariable Long attendeeId) {
-        AttendeeResponseDto response = attendeeManagementFacade.confirmRegistration(attendeeId);
+    public ResponseEntity<AttendeeResponseDto> confirmPendingRegistration(@PathVariable Long attendeeId) {
+        AttendeeResponseDto response = attendeeManagementFacade.confirmPendingRegistration(attendeeId);
         return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/register/{attendeeId}/decline")
-    public ResponseEntity<AttendeeResponseDto> declineRegistration(@PathVariable Long attendeeId) {
-        AttendeeResponseDto response = attendeeManagementFacade.declineRegistration(attendeeId);
+    public ResponseEntity<AttendeeResponseDto> declinePendingRegistration(@PathVariable Long attendeeId) {
+        AttendeeResponseDto response = attendeeManagementFacade.declinePendingRegistration(attendeeId);
         return ResponseEntity.ok(response);
     }
 }
