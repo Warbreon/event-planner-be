@@ -21,31 +21,17 @@ public class UserController {
 
     private final UserManagementFacade userManagementFacade;
 
-    @PreAuthorize("hasAnyAuthority('EVENT_ADMIN', 'SYSTEM_ADMIN')")
-    @GetMapping("/all")
-    public ResponseEntity<List<UserAsAttendeeResponseDto>> getAllUsers() {
-        List<UserAsAttendeeResponseDto> response = userManagementFacade.getAllUsers();
-        return ResponseEntity.ok(response);
-    }
-
     @GetMapping
-    @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN')")
+    @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN', 'EVENT_ADMIN')")
     public ResponseEntity<List<UserResponseDto>> getUsers(@RequestParam(required = false) List<Role> roles) {
         List<UserResponseDto> admins = userManagementFacade.getUsersByRoles(Optional.ofNullable(roles));
         return ResponseEntity.ok(admins);
     }
 
-    @PatchMapping("/admins/demote")
+    @PatchMapping("/changeRole")
     @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN')")
-    public ResponseEntity<Void> demoteAdminUsers(@RequestParam List<Long> ids) {
-        userManagementFacade.demoteEventAdmins(ids);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PatchMapping("/admins/promote")
-    @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN')")
-    public ResponseEntity<Void> promoteUsersToAdmin(@RequestParam List<Long> ids) {
-        userManagementFacade.promoteToEventAdmins(ids);
+    public ResponseEntity<Void> demoteAdminUsers(@RequestParam List<Long> ids, @RequestParam Role prevRole, @RequestParam Role newRole) {
+        userManagementFacade.changeUserRoles(ids, prevRole, newRole);
         return ResponseEntity.noContent().build();
     }
 }

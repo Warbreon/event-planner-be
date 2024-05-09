@@ -32,16 +32,6 @@ public class UserService {
         return userRepository.findByRoleIn(roleList);
     }
 
-    @Transactional
-    public void demoteEventAdmins(List<Long> adminUserIds) {
-        userRepository.updateRolesById(adminUserIds, Role.EVENT_ADMIN, Role.USER);
-    }
-
-    @Transactional
-    public void promoteToEventAdmins(List<Long> userIds) {
-        userRepository.updateRolesById(userIds, Role.USER, Role.EVENT_ADMIN);
-    }
-
     public List<User> findAllUsers() {
         return userRepository.findAll();
     }
@@ -50,5 +40,10 @@ public class UserService {
         return event.getAttendees()
                 .stream()
                 .anyMatch(attendee -> attendee.getUser().getEmail().equals(userEmail));
+    }
+
+    @Transactional
+    public void changeUserRoles(List<Long> ids, Role prevRole, Role newRole) {
+        userRepository.updateRolesById(ids, prevRole, newRole);
     }
 }

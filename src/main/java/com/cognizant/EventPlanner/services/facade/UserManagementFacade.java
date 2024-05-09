@@ -34,9 +34,7 @@ public class UserManagementFacade {
                 .orElseGet(() -> userService.findAllUsers().stream().map(userMapper::userToUserDto).toList());
     }
 
-    public void demoteEventAdmins(List<Long> adminIds) {
-        userService.demoteEventAdmins(adminIds);
+    public void changeUserRoles(List<Long> ids, Role prevRole, Role newRole) {
+        userService.changeUserRoles(ids, prevRole, newRole);
     }
-
-    public void promoteToEventAdmins(List<Long> userIds) { userService.promoteToEventAdmins(userIds); }
 }
