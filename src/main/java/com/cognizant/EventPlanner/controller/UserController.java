@@ -29,10 +29,17 @@ public class UserController {
         return ResponseEntity.ok(admins);
     }
 
-    @PatchMapping("/changeRole")
+    @PatchMapping("/demoteAdmins/{ids}")
     @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN')")
-    public ResponseEntity<Void> demoteAdminUsers(@RequestParam List<Long> ids, @RequestParam Role prevRole, @RequestParam Role newRole) {
-        userManagementFacade.changeUserRoles(ids, prevRole, newRole);
+    public ResponseEntity<Void> demoteAdminUsers(@PathVariable List<Long> ids) {
+        userManagementFacade.demoteUser(ids);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/promoteAdmins/{ids}")
+    @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN')")
+    public ResponseEntity<Void> promoteUsersToEventAdmins(@PathVariable List<Long> ids) {
+        userManagementFacade.promoteUser(ids);
         return ResponseEntity.noContent().build();
     }
 

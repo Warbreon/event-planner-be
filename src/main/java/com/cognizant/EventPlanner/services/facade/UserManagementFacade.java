@@ -32,8 +32,12 @@ public class UserManagementFacade {
         return users.stream().map(userMapper::userToUserDto).collect(Collectors.toList());
     }
 
-    public void changeUserRoles(List<Long> ids, Role prevRole, Role newRole) {
-        userService.changeUserRoles(ids, prevRole, newRole);
+    public void demoteUser(List<Long> ids) {
+        userService.changeUserRoles(ids, Role.EVENT_ADMIN, Role.USER);
+    }
+
+    public void promoteUser(List<Long> ids) {
+        userService.changeUserRoles(ids, Role.USER, Role.EVENT_ADMIN);
     }
 
     public UserInfoResponseDto getUserInfo() {
