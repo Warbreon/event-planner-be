@@ -1,6 +1,7 @@
 package com.cognizant.EventPlanner.controller;
 
 import com.cognizant.EventPlanner.dto.response.UserAsAttendeeResponseDto;
+import com.cognizant.EventPlanner.dto.response.UserInfoResponseDto;
 import com.cognizant.EventPlanner.dto.response.UserResponseDto;
 import com.cognizant.EventPlanner.model.Role;
 import com.cognizant.EventPlanner.services.facade.UserManagementFacade;
@@ -33,5 +34,11 @@ public class UserController {
     public ResponseEntity<Void> demoteAdminUsers(@RequestParam List<Long> ids, @RequestParam Role prevRole, @RequestParam Role newRole) {
         userManagementFacade.changeUserRoles(ids, prevRole, newRole);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/current/info")
+    public ResponseEntity<UserInfoResponseDto> getUserProfile() {
+        UserInfoResponseDto response = userManagementFacade.getUserInfo();
+        return ResponseEntity.ok(response);
     }
 }
