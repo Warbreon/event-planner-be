@@ -5,6 +5,7 @@ import com.cognizant.EventPlanner.dto.response.UserResponseDto;
 import com.cognizant.EventPlanner.mapper.UserMapper;
 import com.cognizant.EventPlanner.model.Role;
 import com.cognizant.EventPlanner.services.UserService;
+import com.cognizant.EventPlanner.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -27,11 +28,9 @@ public class UserManagementFacade {
     }
 
     public List<UserResponseDto> getUsersByRoles(Optional<List<Role>> roles) {
-        return roles.map(roleList -> userService.findUsersByRoles(roleList)
-                .stream()
-                .map(userMapper::userToUserDto)
-                .collect(Collectors.toList()))
-                .orElseGet(() -> userService.findAllUsers().stream().map(userMapper::userToUserDto).toList());
+        List<User> users = roles.map(userService::findUsersByRoles).orElseGet(userService::findAllUsers);
+
+        return users.stream().map(userMapper::userToUserDto).collect(Collectors.toList());
     }
 
     public void changeUserRoles(List<Long> ids, Role prevRole, Role newRole) {
