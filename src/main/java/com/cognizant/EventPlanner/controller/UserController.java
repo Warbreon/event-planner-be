@@ -24,7 +24,7 @@ public class UserController {
     @GetMapping
     @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN', 'EVENT_ADMIN')")
     public ResponseEntity<List<UserResponseDto>> getUsers(@RequestParam(required = false) List<Role> roles) {
-        List<UserResponseDto> admins = userManagementFacade.getUsersByRoles(Optional.ofNullable(roles));
+        List<UserResponseDto> admins = userManagementFacade.getUsers(Optional.ofNullable(roles));
         return ResponseEntity.ok(admins);
     }
 

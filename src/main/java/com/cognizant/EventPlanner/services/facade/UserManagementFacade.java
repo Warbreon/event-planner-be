@@ -20,14 +20,7 @@ public class UserManagementFacade {
     private final UserService userService;
     private final UserMapper userMapper;
 
-    public List<UserAsAttendeeResponseDto> getAllUsers() {
-        return userService.findAllUsers()
-                .stream()
-                .map(userMapper::userToDto)
-                .collect(Collectors.toList());
-    }
-
-    public List<UserResponseDto> getUsersByRoles(Optional<List<Role>> roles) {
+    public List<UserResponseDto> getUsers(Optional<List<Role>> roles) {
         List<User> users = roles.map(userService::findUsersByRoles).orElseGet(userService::findAllUsers);
 
         return users.stream().map(userMapper::userToUserDto).collect(Collectors.toList());
