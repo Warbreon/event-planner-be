@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,11 +29,7 @@ public class UserService {
     }
 
     public List<User> findUsersByRoles(List<Role> roleList) {
-        List<User> listOfUsers = new ArrayList<>();
-        for (Role role : roleList) {
-            listOfUsers.addAll(userRepository.findByRole(role));
-        }
-        return listOfUsers;
+        return userRepository.findByRoleIn(roleList);
     }
 
     @Transactional

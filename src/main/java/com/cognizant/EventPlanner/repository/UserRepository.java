@@ -16,10 +16,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
 
-    List<User> findByRole(Role role);
+    List<User> findByRoleIn(List<Role> roles);
 
-    @Transactional
     @Modifying
-    @Query("UPDATE User u SET u.role = ?3 WHERE u.id IN ?1 AND u.role = ?2")
-    void updateRolesById(List<Long> id, Role previousRole, Role newRole);
+    @Query("UPDATE User u SET u.role = :newRole WHERE u.id IN :ids AND u.role = :previousRole")
+    void updateRolesById(List<Long> ids, Role previousRole, Role newRole);
 }

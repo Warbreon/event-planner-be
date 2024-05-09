@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,11 +26,12 @@ public class UserManagementFacade {
                 .collect(Collectors.toList());
     }
 
-    public List<UserResponseDto> getUsersByRoles(List<Role> adminRoles) {
-        return userService.findUsersByRoles(adminRoles)
+    public List<UserResponseDto> getUsersByRoles(Optional<List<Role>> roles) {
+        return roles.map(roleList -> userService.findUsersByRoles(roleList)
                 .stream()
                 .map(userMapper::userToUserDto)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()))
+                .orElseGet(() -> userService.findAllUsers().stream().map(userMapper::userToUserDto).toList());
     }
 
     public void demoteEventAdmins(List<Long> adminIds) {
