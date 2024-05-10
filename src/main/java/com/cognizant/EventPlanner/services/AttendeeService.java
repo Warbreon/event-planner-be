@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
+import java.util.EnumSet;
 import java.util.List;
 
 @Service
@@ -41,20 +42,29 @@ public class AttendeeService {
 
     @Transactional
     public Attendee confirmPendingRegistration(Long attendeeId) {
-        Attendee attendee = findAttendeeById(attendeeId);
-        if (attendee.getRegistrationStatus() == RegistrationStatus.PENDING) {
-            attendee.setRegistrationStatus(RegistrationStatus.ACCEPTED);
-        }
-        return saveAttendee(attendee);
+        return updateRegistrationStatus(
+                attendeeId,
+                EnumSet.of(RegistrationStatus.PENDING, RegistrationStatus.REJECTED),
+                RegistrationStatus.ACCEPTED
+        );
     }
 
     @Transactional
     public Attendee declinePendingRegistration(Long attendeeId) {
+        return updateRegistrationStatus(
+                attendeeId,
+                EnumSet.of(RegistrationStatus.PENDING, RegistrationStatus.ACCEPTED),
+                RegistrationStatus.REJECTED
+        );
+    }
+
+    private Attendee updateRegistrationStatus(Long attendeeId, EnumSet<RegistrationStatus> allowedStatuses, RegistrationStatus newStatus) {
         Attendee attendee = findAttendeeById(attendeeId);
-        if (attendee.getRegistrationStatus() == RegistrationStatus.PENDING) {
-            attendee.setRegistrationStatus(RegistrationStatus.REJECTED);
+        if (allowedStatuses.contains(attendee.getRegistrationStatus())) {
+            attendee.setRegistrationStatus(newStatus);
+            return saveAttendee(attendee);
         }
-        return saveAttendee(attendee);
+        return attendee;
     }
 
     public Attendee findAttendeeById(Long attendeeId) {
