@@ -14,8 +14,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -74,14 +76,23 @@ public class EventManagementFacade {
         return eventResponseDto;
     }
 
-    private Set<AttendeeResponseDto> registerAttendeesToEvent(Set<AttendeeRequestDto> requestSet, Event event) {
-        return requestSet.stream()
-                .map(request -> registrationService.registerAttendeeToEvent(
-                        request,
-                        userService.findUserById(request.getUserId()),
-                        event
-                ))
-                .collect(Collectors.toSet());
+//    private Set<AttendeeResponseDto> registerAttendeesToEvent(Set<AttendeeRequestDto> requestSet, Event event) {
+//        return requestSet.stream()
+//                .map(request -> registrationService.registerAttendeeToEvent(
+//                        request,
+//                        userService.findUserById(request.getUserId()),
+//                        event
+//                ))
+//                .collect(Collectors.toSet());
+//    }
+
+
+    public Set<AttendeeResponseDto> registerAttendeesToEvent(Set<AttendeeRequestDto> requests, Event event) {
+        Set<Long> userIds = requests.stream().map(AttendeeRequestDto::getUserId).collect(Collectors.toSet());
+        List<User> users = userService.findUsersByIds(userIds);
+        Map<Long, User> userMap = users.stream().collect(Collectors.toMap(User::getId, Function.identity()));
+
+        return registrationService.registerAttendeesToEvent(requests, userMap, event);
     }
 
     private EventResponseDto convertEventToDto(Event event) {

@@ -6,6 +6,7 @@ import com.cognizant.EventPlanner.services.facade.AttendeeManagementFacade;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,6 +22,7 @@ public class AttendeeController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyAuthority('EVENT_ADMIN', 'SYSTEM_ADMIN')")
     @PostMapping("/confirm/{attendeeId}")
     public ResponseEntity<AttendeeResponseDto> confirmRegistration(@PathVariable Long attendeeId) {
         AttendeeResponseDto response = attendeeManagementFacade.confirmAttendeeRegistration(attendeeId);

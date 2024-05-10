@@ -6,7 +6,7 @@ import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
 import com.cognizant.EventPlanner.mapper.AttendeeMapper;
 import com.cognizant.EventPlanner.model.*;
 import com.cognizant.EventPlanner.services.*;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -34,16 +34,9 @@ public class AttendeeManagementFacade {
         return registrationService.registerAttendeeToEvent(attendeeDto, user, event);
     }
 
-    @Transactional
     public AttendeeResponseDto confirmAttendeeRegistration(Long attendeeId) {
-        Attendee attendee = attendeeService.findAttendeeById(attendeeId);
-
-        if (attendee.getRegistrationStatus() == RegistrationStatus.PENDING) {
-            attendee.setRegistrationStatus(RegistrationStatus.ACCEPTED);
-            attendeeService.saveAttendee(attendee);
-        }
-
-        return attendeeMapper.attendeeToDto(attendee);
+        Attendee confirmedAttendee = attendeeService.confirmAttendeeRegistration(attendeeId);
+        return attendeeMapper.attendeeToDto(confirmedAttendee);
     }
 
 }

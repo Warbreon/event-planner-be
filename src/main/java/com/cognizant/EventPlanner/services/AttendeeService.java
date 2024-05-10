@@ -1,5 +1,6 @@
 package com.cognizant.EventPlanner.services;
 
+import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
 import com.cognizant.EventPlanner.exception.EntityNotFoundException;
 import com.cognizant.EventPlanner.model.Attendee;
 import com.cognizant.EventPlanner.model.Event;
@@ -8,8 +9,11 @@ import com.cognizant.EventPlanner.repository.AttendeeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -28,13 +32,25 @@ public class AttendeeService {
     }
 
     public RegistrationStatus getAttendeeRegistrationStatus(Event event, String userEmail) {
-        Optional<RegistrationStatus> status = event.getAttendees()
-                .stream()
-                .filter(attendee -> userEmail.equals(attendee.getUser().getEmail()))
-                .map(Attendee::getRegistrationStatus)
-                .findFirst();
+        return attendeeRepository.findAttendeeRegistrationStatus(event.getId(), userEmail)
+                .orElse(null);
+    }
 
-        return status.orElse(null);
+    @CacheEvict(value = {"paginatedEvents", "events"}, allEntries = true)
+    public List<Attendee> saveAllAttendees(Iterable<Attendee> attendees) {
+        return attendeeRepository.saveAll(attendees);
+    }
+
+    @Transactional
+    public Attendee confirmAttendeeRegistration(Long attendeeId) {
+        Attendee attendee = findAttendeeById(attendeeId);
+
+        if (attendee.getRegistrationStatus() == RegistrationStatus.PENDING) {
+            attendee.setRegistrationStatus(RegistrationStatus.ACCEPTED);
+            saveAttendee(attendee);
+        }
+
+        return attendee;
     }
 
 }

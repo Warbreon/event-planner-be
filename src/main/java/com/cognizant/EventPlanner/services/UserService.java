@@ -1,7 +1,7 @@
 package com.cognizant.EventPlanner.services;
 
 import com.cognizant.EventPlanner.exception.EntityNotFoundException;
-import com.cognizant.EventPlanner.model.Event;
+import com.cognizant.EventPlanner.model.Attendee;
 import com.cognizant.EventPlanner.model.Role;
 import com.cognizant.EventPlanner.model.User;
 import com.cognizant.EventPlanner.repository.UserRepository;
@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -52,6 +53,10 @@ public class UserService {
 
     public List<User> findAllUsers() {
         return userRepository.findAll();
+    }
+
+    public List<User> findUsersByIds(Set<Long> ids) {
+        return userRepository.findAllById(ids);
     }
 
 }
