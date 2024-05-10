@@ -57,4 +57,5 @@ public class RegistrationService {
             attendee.setPaymentStatus(PaymentStatus.PENDING);
         }
     }
+
 }

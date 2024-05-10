@@ -1,6 +1,5 @@
 package com.cognizant.EventPlanner.repository;
 
-import com.cognizant.EventPlanner.model.Attendee;
 import com.cognizant.EventPlanner.model.Role;
 import com.cognizant.EventPlanner.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;

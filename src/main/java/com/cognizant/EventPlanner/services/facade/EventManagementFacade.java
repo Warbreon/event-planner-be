@@ -76,17 +76,6 @@ public class EventManagementFacade {
         return eventResponseDto;
     }
 
-//    private Set<AttendeeResponseDto> registerAttendeesToEvent(Set<AttendeeRequestDto> requestSet, Event event) {
-//        return requestSet.stream()
-//                .map(request -> registrationService.registerAttendeeToEvent(
-//                        request,
-//                        userService.findUserById(request.getUserId()),
-//                        event
-//                ))
-//                .collect(Collectors.toSet());
-//    }
-
-
     public Set<AttendeeResponseDto> registerAttendeesToEvent(Set<AttendeeRequestDto> requests, Event event) {
         Set<Long> userIds = requests.stream().map(AttendeeRequestDto::getUserId).collect(Collectors.toSet());
         List<User> users = userService.findUsersByIds(userIds);
@@ -104,4 +93,5 @@ public class EventManagementFacade {
         ));
         return eventDto;
     }
+
 }
