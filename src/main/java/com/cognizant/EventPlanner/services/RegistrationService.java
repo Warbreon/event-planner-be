@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -22,8 +21,10 @@ public class RegistrationService {
     private final AttendeeMapper attendeeMapper;
     private final AttendeeService attendeeService;
     private final EventService eventService;
+    private final EventRegistrationRulesService eventRegistrationRulesService;
 
     public AttendeeResponseDto registerAttendeeToEvent(AttendeeRequestDto request, User user, Event event) {
+        eventRegistrationRulesService.validateEventForRegistration(event, user);
         Optional<Attendee> existingAttendee = attendeeService.findAttendeeByUserAndEvent(user.getId(), event.getId());
 
         if (existingAttendee.isPresent()) {
