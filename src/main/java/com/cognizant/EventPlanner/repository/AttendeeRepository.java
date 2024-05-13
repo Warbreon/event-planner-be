@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public interface AttendeeRepository extends JpaRepository<Attendee, Long> {
@@ -17,5 +18,10 @@ public interface AttendeeRepository extends JpaRepository<Attendee, Long> {
     Optional<RegistrationStatus> findAttendeeRegistrationStatus(@Param("eventId") Long eventId, @Param("email") String email);
 
     <S extends Attendee> List<S> saveAll(Iterable<S> attendees);
+
+    Optional<Attendee> findByUserIdAndEventId(Long userId, Long eventId);
+
+    @Query("SELECT a FROM Attendee a WHERE a.user.id IN :userIds AND a.event.id = :eventId")
+    List<Attendee> findAllByUserIdsAndEventId(@Param("userIds") Set<Long> userIds, @Param("eventId") Long eventId);
 
 }

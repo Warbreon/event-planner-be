@@ -2,6 +2,7 @@ package com.cognizant.EventPlanner.controller;
 
 import com.cognizant.EventPlanner.dto.request.BaseEventRegistrationRequestDto;
 import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
+import com.cognizant.EventPlanner.services.RegistrationService;
 import com.cognizant.EventPlanner.services.facade.AttendeeManagementFacade;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,12 @@ public class AttendeeController {
     public ResponseEntity<AttendeeResponseDto> confirmRegistration(@PathVariable Long attendeeId) {
         AttendeeResponseDto response = attendeeManagementFacade.confirmAttendeeRegistration(attendeeId);
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/unregister/{eventId}")
+    public ResponseEntity<Void> unregisterFromEvent(@PathVariable Long eventId) {
+        attendeeManagementFacade.unregisterFromEvent(eventId);
+        return ResponseEntity.ok().build();
     }
 
 }

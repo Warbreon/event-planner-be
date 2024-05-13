@@ -39,4 +39,11 @@ public class AttendeeManagementFacade {
         return attendeeMapper.attendeeToDto(confirmedAttendee);
     }
 
+    @Transactional
+    public void unregisterFromEvent(Long eventId) {
+        String userEmail = userDetailsService.getCurrentUserEmail();
+        User user = userService.findUserByEmail(userEmail);
+        registrationService.unregisterAttendeeFromEvent(user.getId(), eventId);
+    }
+
 }

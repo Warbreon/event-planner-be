@@ -1,6 +1,5 @@
 package com.cognizant.EventPlanner.services;
 
-import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
 import com.cognizant.EventPlanner.exception.EntityNotFoundException;
 import com.cognizant.EventPlanner.model.Attendee;
 import com.cognizant.EventPlanner.model.Event;
@@ -31,6 +30,14 @@ public class AttendeeService {
                 .orElseThrow(() -> new EntityNotFoundException(Attendee.class, id));
     }
 
+    public Optional<Attendee> findAttendeeByUserAndEvent(Long userId, Long eventId) {
+        return attendeeRepository.findByUserIdAndEventId(userId, eventId);
+    }
+
+    public List<Attendee> findAttendeesByUsersAndEvent(Set<Long> userIds, Long eventId) {
+        return attendeeRepository.findAllByUserIdsAndEventId(userIds, eventId);
+    }
+
     public RegistrationStatus getAttendeeRegistrationStatus(Event event, String userEmail) {
         return attendeeRepository.findAttendeeRegistrationStatus(event.getId(), userEmail)
                 .orElse(null);
@@ -39,6 +46,11 @@ public class AttendeeService {
     @CacheEvict(value = {"paginatedEvents", "events"}, allEntries = true)
     public List<Attendee> saveAllAttendees(Iterable<Attendee> attendees) {
         return attendeeRepository.saveAll(attendees);
+    }
+
+    @CacheEvict(value = {"paginatedEvents", "events"}, allEntries = true)
+    public void deleteAttendee(Attendee attendee) {
+        attendeeRepository.delete(attendee);
     }
 
     @Transactional

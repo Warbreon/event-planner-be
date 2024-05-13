@@ -10,7 +10,7 @@ import org.mapstruct.Mapping;
 public interface EventMapper {
 
     @Mapping(source = "address", target = "address")
-    @Mapping(source = "creator.id", target = "creatorId")
+    @Mapping(source = "creator.email", target = "creatorEmail")
     @Mapping(source = "attendees", target = "attendees")
     @Mapping(source = "tags", target = "tags")
     EventResponseDto eventToDto(Event event);
