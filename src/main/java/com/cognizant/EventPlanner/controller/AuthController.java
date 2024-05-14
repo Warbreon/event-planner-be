@@ -1,5 +1,7 @@
 package com.cognizant.EventPlanner.controller;
 
+import com.cognizant.EventPlanner.dto.request.PasswordResetRequestDto;
+import com.cognizant.EventPlanner.services.facade.AuthenticationManagementFacade;
 import com.cognizant.EventPlanner.dto.request.AuthenticationRequest;
 import com.cognizant.EventPlanner.dto.request.TokenRefreshRequest;
 import com.cognizant.EventPlanner.dto.response.AuthenticationResponse;
@@ -18,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthenticationService authenticationService;
+    private final AuthenticationManagementFacade authenticationManagementFacade;
+
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> createAuthenticationToken(@Valid @RequestBody AuthenticationRequest request) {
         AuthenticationResponse response = authenticationService.authenticateUser(request);
@@ -29,4 +33,11 @@ public class AuthController {
         AuthenticationResponse response = authenticationService.refreshAccessToken(request);
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> requestResetPassword(@Valid @RequestBody PasswordResetRequestDto request) {
+        authenticationManagementFacade.handlePasswordReset(request);
+        return ResponseEntity.ok("Password reset email sent.");
+    }
+
 }
