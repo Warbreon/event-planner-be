@@ -2,7 +2,7 @@ package com.cognizant.EventPlanner.controller;
 
 import com.cognizant.EventPlanner.dto.request.AttendeeRequestDto;
 import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
-import com.cognizant.EventPlanner.services.AttendeeService;
+import com.cognizant.EventPlanner.services.facade.AttendeeManagementFacade;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,10 +15,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/attendee")
 public class AttendeeController {
-    private final AttendeeService attendeeService;
+    private final AttendeeManagementFacade attendeeManagementFacade;
     @PostMapping("/register")
     public ResponseEntity<AttendeeResponseDto> registerToEvent(@Valid @RequestBody AttendeeRequestDto request) {
-        AttendeeResponseDto response = attendeeService.registerToEvent(request);
+        AttendeeResponseDto response = attendeeManagementFacade.registerToEvent(request);
         return ResponseEntity.ok(response);
     }
 }
