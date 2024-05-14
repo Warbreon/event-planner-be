@@ -5,10 +5,12 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Set;
 
 @Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
@@ -28,4 +30,6 @@ public class EventRequestDto extends EventDto {
 
     @NotNull(message = "Tag IDs list is required. If there are no tags, leave it empty")
     private Set<Long> tagIds;
+
+    private MultipartFile image;
 }

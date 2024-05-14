@@ -25,9 +25,9 @@ public abstract class EventDto {
     @Size(max = 1000, message = "Description cannot exceed 1000 characters")
     private String description;
 
-    @NotBlank(message = "Event must have an image")
-    @Size(max = 255, message = "Event image URL cannot exceed 255 characters")
-    private String imageUrl;
+//    @NotBlank(message = "Event must have an image")
+//    @Size(max = 255, message = "Event image URL cannot exceed 255 characters")
+//    private String imageUrl;
 
     @NotNull(message = "Event must be open or private")
     private Boolean isOpen;
