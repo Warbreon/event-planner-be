@@ -1,6 +1,6 @@
 package com.cognizant.EventPlanner.services;
 
-import com.cognizant.EventPlanner.config.properties.ResetTokenProperties;
+import com.cognizant.EventPlanner.config.properties.PasswordResetTokenProperties;
 import com.cognizant.EventPlanner.model.PasswordResetToken;
 import com.cognizant.EventPlanner.model.User;
 import com.cognizant.EventPlanner.repository.PasswordResetTokenRepository;
@@ -19,7 +19,7 @@ public class PasswordResetTokenService {
 
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final PasswordEncoder passwordEncoder;
-    private final ResetTokenProperties resetTokenProperties;
+    private final PasswordResetTokenProperties passwordResetTokenProperties;
 
     public String generateResetToken(User user) {
         try {
@@ -38,7 +38,7 @@ public class PasswordResetTokenService {
             PasswordResetToken token = new PasswordResetToken();
             token.setToken(hashedToken);
             token.setUser(user);
-            token.setExpirationDate(LocalDateTime.now().plusSeconds(resetTokenProperties.getExpiration()));
+            token.setExpirationDate(LocalDateTime.now().plusSeconds(passwordResetTokenProperties.getExpiration()));
             passwordResetTokenRepository.save(token);
         } catch (Exception ex) {
             log.error("Error saving token for user: {}", user.getId(), ex);

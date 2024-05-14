@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 @Getter
 @Component
 @ConfigurationProperties(prefix = "reset.token")
-public class ResetTokenProperties {
+public class PasswordResetTokenProperties {
 
     private long expiration;
 
