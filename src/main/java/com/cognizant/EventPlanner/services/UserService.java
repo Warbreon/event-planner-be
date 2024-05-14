@@ -5,13 +5,11 @@ import com.cognizant.EventPlanner.model.Event;
 import com.cognizant.EventPlanner.model.Role;
 import com.cognizant.EventPlanner.model.User;
 import com.cognizant.EventPlanner.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor

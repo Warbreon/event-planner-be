@@ -1,6 +1,5 @@
 package com.cognizant.EventPlanner.services.facade;
 
-import com.cognizant.EventPlanner.dto.response.UserAsAttendeeResponseDto;
 import com.cognizant.EventPlanner.dto.response.UserInfoResponseDto;
 import com.cognizant.EventPlanner.dto.response.UserResponseDto;
 import com.cognizant.EventPlanner.mapper.UserMapper;
@@ -9,7 +8,6 @@ import com.cognizant.EventPlanner.model.User;
 import com.cognizant.EventPlanner.services.AttendeeService;
 import com.cognizant.EventPlanner.services.UserDetailsServiceImpl;
 import com.cognizant.EventPlanner.services.UserService;
-import com.cognizant.EventPlanner.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
