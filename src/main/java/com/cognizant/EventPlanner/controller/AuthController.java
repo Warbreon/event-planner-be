@@ -1,12 +1,7 @@
 package com.cognizant.EventPlanner.controller;
 
-import com.cognizant.EventPlanner.dto.email.ResetPasswordEmailDetailsDto;
 import com.cognizant.EventPlanner.dto.request.PasswordResetRequestDto;
-import com.cognizant.EventPlanner.model.User;
-import com.cognizant.EventPlanner.services.PasswordResetTokenService;
-import com.cognizant.EventPlanner.services.EmailService;
-import com.cognizant.EventPlanner.services.UserService;
-import com.cognizant.EventPlanner.util.EmailDetailsBuilder;
+import com.cognizant.EventPlanner.services.facade.AuthenticationManagementFacade;
 import com.cognizant.EventPlanner.dto.request.AuthenticationRequest;
 import com.cognizant.EventPlanner.dto.request.TokenRefreshRequest;
 import com.cognizant.EventPlanner.dto.response.AuthenticationResponse;
@@ -25,9 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthenticationService authenticationService;
-    private final PasswordResetTokenService passwordResetTokenService;
-    private final EmailService emailService;
-    private final UserService userService;
+    private final AuthenticationManagementFacade authenticationManagementFacade;
 
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> createAuthenticationToken(@Valid @RequestBody AuthenticationRequest request) {
@@ -43,12 +36,7 @@ public class AuthController {
 
     @PostMapping("/reset-password")
     public ResponseEntity<?> requestResetPassword(@Valid @RequestBody PasswordResetRequestDto request) {
-        User user = userService.getUserByEmail(request.getEmail());
-        String resetToken = passwordResetTokenService.generateResetToken(user);
-        ResetPasswordEmailDetailsDto emailDetails = EmailDetailsBuilder.buildResetPasswordDetails(user, request,
-                resetToken);
-        emailService.sendEmail(emailDetails);
-
+        authenticationManagementFacade.handlePasswordReset(request);
         return ResponseEntity.ok("Password reset email sent.");
     }
 
