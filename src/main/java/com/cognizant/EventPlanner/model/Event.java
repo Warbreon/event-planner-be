@@ -30,6 +30,9 @@ public class Event {
     @Column(name = "image_url")
     private String imageUrl;
 
+    @Column(name = "card_url")
+    private String cardUrl;
+
     @Column(name = "is_open", nullable = false)
     private Boolean isOpen;
 
@@ -59,6 +62,10 @@ public class Event {
 
     @Column(name = "invite_url")
     private String inviteUrl;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "currency")
+    private Currency currency;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id")
