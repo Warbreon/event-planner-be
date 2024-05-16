@@ -1,21 +1,16 @@
 package com.cognizant.EventPlanner.controller;
 
-import com.cognizant.EventPlanner.dto.request.AttendeeRequestDto;
 import com.cognizant.EventPlanner.dto.request.EventRequestDto;
 import com.cognizant.EventPlanner.dto.response.EventResponseDto;
-import com.cognizant.EventPlanner.services.ImageUploadService;
 import com.cognizant.EventPlanner.services.facade.EventManagementFacade;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @RestController
@@ -24,7 +19,6 @@ import java.util.*;
 public class EventController {
 
     private final EventManagementFacade eventManagementFacade;
-    private final ImageUploadService imageUploadService;
 
     @GetMapping
     public ResponseEntity<?> getEvents(
@@ -54,53 +48,9 @@ public class EventController {
 
     @PreAuthorize("hasAnyAuthority('EVENT_ADMIN', 'SYSTEM_ADMIN')")
     @PostMapping("/create/new")
-    public ResponseEntity<EventResponseDto> createNewEvent(
-            @RequestParam("name") String name,
-            @RequestParam("description") String description,
-            @RequestParam("image") MultipartFile image,
-            @RequestParam("isOpen") boolean isOpen,
-            @RequestParam("eventStart") String eventStart,
-            @RequestParam("eventEnd") String eventEnd,
-            @RequestParam("registrationStart") String registrationStart,
-            @RequestParam("registrationEnd") String registrationEnd,
-            @RequestParam("price") Double price,
-            @RequestParam("creatorId") Long creatorId,
-            @RequestParam("addressId") Long addressId,
-            @RequestParam("attendees") String attendeesJson,
-            @RequestParam("tagIds") String tagIdsJson
-    ) throws IOException {
-
-        ObjectMapper mapper = new ObjectMapper();
-        Set<AttendeeRequestDto> attendees = new HashSet<>(Arrays.asList(mapper.readValue(attendeesJson, AttendeeRequestDto[].class)));
-        Set<Long> tagIds = new HashSet<>(Arrays.asList(mapper.readValue(tagIdsJson, Long[].class)));
-
-        EventRequestDto request = new EventRequestDto();
-        request.setName(name);
-        request.setDescription(description);
-        request.setImage(image);
-        request.setIsOpen(isOpen);
-        request.setEventStart(LocalDateTime.parse(eventStart));
-        request.setEventEnd(LocalDateTime.parse(eventEnd));
-        request.setRegistrationStart(LocalDateTime.parse(registrationStart));
-        request.setRegistrationEnd(LocalDateTime.parse(registrationEnd));
-        request.setPrice(price);
-        request.setCreatorId(creatorId);
-        request.setAddressId(addressId);
-        request.setAttendees(attendees);
-        request.setTagIds(tagIds);
-
+    public ResponseEntity<EventResponseDto> createNewEvent(@Valid @RequestBody EventRequestDto request) throws IOException {
         EventResponseDto response = eventManagementFacade.createNewEvent(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
-
-    @PostMapping("/upload-image")
-    public ResponseEntity<String> uploadImage(@RequestParam("image") MultipartFile image) {
-        try {
-            String imageUrl = imageUploadService.uploadImageToAzure(image);
-            return new ResponseEntity<>(imageUrl, HttpStatus.OK);
-        } catch (IOException e) {
-            return new ResponseEntity<>("Failed to upload image: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
     }
 
     @PreAuthorize("hasAnyAuthority('EVENT_ADMIN', 'SYSTEM_ADMIN')")

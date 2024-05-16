@@ -45,11 +45,13 @@ public class EventManagementFacade {
 
     @Transactional
     public EventResponseDto createNewEvent(EventRequestDto request) throws IOException {
-        String imageUrl = imageUploadService.uploadImageToAzure(request.getImage());
+        String imageUrl = imageUploadService.uploadImageToAzure(request.getImageBase64());
+        String cardImageUrl = imageUploadService.uploadImageToAzure(request.getCardImageBase64());
         Address address = addressService.findAddressById(request.getAddressId());
         User user = userService.findUserById(request.getCreatorId());
         Event event = eventService.prepareEventForCreation(request, address, user);
         event.setImageUrl(imageUrl);
+        event.setCardImageUrl(cardImageUrl);
         event = eventService.saveEvent(event);
         return buildEventResponse(event, request);
     }
