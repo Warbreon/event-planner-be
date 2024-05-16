@@ -11,9 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -50,7 +49,7 @@ public class EventController {
 
     @PreAuthorize("hasAnyAuthority('EVENT_ADMIN', 'SYSTEM_ADMIN')")
     @PostMapping("/create/new")
-    public ResponseEntity<EventResponseDto> createNewEvent(@Valid @RequestBody EventRequestDto request) {
+    public ResponseEntity<EventResponseDto> createNewEvent(@Valid @RequestBody EventRequestDto request) throws IOException {
         EventResponseDto response = eventManagementFacade.createNewEvent(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }

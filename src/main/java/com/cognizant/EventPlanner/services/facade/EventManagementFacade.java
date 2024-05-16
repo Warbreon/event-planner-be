@@ -17,6 +17,10 @@ import org.springframework.stereotype.Service;
 
 import java.beans.PropertyDescriptor;
 import java.util.*;
+import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,6 +35,7 @@ public class EventManagementFacade {
     private final UserService userService;
     private final RegistrationService registrationService;
     private final AttendeeService attendeeService;
+    private final ImageUploadService imageUploadService;
 
     public Object getEventsFacade(Optional<Set<Long>> tagIds, Optional<Integer> days, Optional<String> city, Optional<String> name, Optional<Integer> page, Optional<Integer> size) {
         return (page.isPresent() && size.isPresent())
@@ -44,11 +49,15 @@ public class EventManagementFacade {
     }
 
     @Transactional
-    public EventResponseDto createNewEvent(EventRequestDto request) {
+    public EventResponseDto createNewEvent(EventRequestDto request) throws IOException {
+        String imageUrl = imageUploadService.uploadImageToAzure(request.getImageBase64());
+        String cardImageUrl = imageUploadService.uploadImageToAzure(request.getCardImageBase64());
         Address address = addressService.findAddressById(request.getAddressId());
         String userEmail = userDetailsService.getCurrentUserEmail();
         User user = userService.findUserByEmail(userEmail);
         Event event = eventService.prepareEventForCreation(request, address, user);
+        event.setImageUrl(imageUrl);
+        event.setCardImageUrl(cardImageUrl);
         event = eventService.saveEvent(event);
         return buildEventResponse(event, request);
     }
