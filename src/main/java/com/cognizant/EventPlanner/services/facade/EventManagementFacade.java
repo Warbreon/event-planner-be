@@ -48,7 +48,8 @@ public class EventManagementFacade {
         String imageUrl = imageUploadService.uploadImageToAzure(request.getImageBase64());
         String cardImageUrl = imageUploadService.uploadImageToAzure(request.getCardImageBase64());
         Address address = addressService.findAddressById(request.getAddressId());
-        User user = userService.findUserById(request.getCreatorId());
+        String userEmail = userDetailsService.getCurrentUserEmail();
+        User user = userService.findUserByEmail(userEmail);
         Event event = eventService.prepareEventForCreation(request, address, user);
         event.setImageUrl(imageUrl);
         event.setCardImageUrl(cardImageUrl);
@@ -74,7 +75,8 @@ public class EventManagementFacade {
 
     private EventResponseDto buildEventResponse(Event event, EventRequestDto request) {
         EventResponseDto eventResponseDto = eventMapper.eventToDto(event);
-        eventResponseDto.setAttendees(registerAttendeesToEvent(request.getAttendees(), event));
+        Set<AttendeeRequestDto> attendeeRequestDtos = getAttendeeRequestDtos(event.getId(), request.getAttendeeIds());
+        eventResponseDto.setAttendees(registerAttendeesToEvent(attendeeRequestDtos, event));
         eventResponseDto.setTags(tagService.addTagsToEvent(request.getTagIds(), event));
         return eventResponseDto;
     }
@@ -91,4 +93,9 @@ public class EventManagementFacade {
         eventDto.setCurrentUserRegisteredToEvent(userService.isUserRegistered(event, userDetailsService.getCurrentUserEmail()));
         return eventDto;
     }
+
+    private Set<AttendeeRequestDto> getAttendeeRequestDtos(Long eventId, Set<Long> attendeeIds) {
+        return attendeeIds.stream().map(attendeeId -> new AttendeeRequestDto(attendeeId, eventId)).collect(Collectors.toSet());
+    }
+
 }

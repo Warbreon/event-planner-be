@@ -63,6 +63,10 @@ public class Event {
     @Column(name = "invite_url")
     private String inviteUrl;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "currency")
+    private Currency currency;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id")
     private User creator;
