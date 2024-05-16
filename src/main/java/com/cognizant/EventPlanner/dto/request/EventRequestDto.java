@@ -14,13 +14,8 @@ import java.util.Set;
 @EqualsAndHashCode(callSuper = true)
 public class EventRequestDto extends EventDto {
 
-    @NotNull(message = "Event must be created by existing user")
-    @Min(value = 0, message = "User ID has to be equal or greater than 0")
-    @Max(value = Long.MAX_VALUE, message = "User ID value can not exceed 9223372036854775807")
-    private Long creatorId;
-
     @NotNull(message = "Attendees list is required. If there are no attendees, leave it empty")
-    private Set<AttendeeRequestDto> attendees;
+    private Set<Long> attendeeIds;
 
     @Min(value = 0, message = "Address ID has to be equal or greater than 0")
     @Max(value = Long.MAX_VALUE, message = "Address ID value can not exceed 9223372036854775807")

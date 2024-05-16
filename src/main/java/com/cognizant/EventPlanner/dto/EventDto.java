@@ -1,4 +1,6 @@
 package com.cognizant.EventPlanner.dto;
+
+import com.cognizant.EventPlanner.model.Currency;
 import com.cognizant.EventPlanner.validation.dateRangeValidation.DateRange;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -30,6 +32,10 @@ public abstract class EventDto {
     @Size(max = 255, message = "Event image URL cannot exceed 255 characters")
     private String imageUrl;
 
+    @NotBlank(message = "Event must have a card")
+    @Size(max = 255, message = "Event card URL cannot exceed 255 characters")
+    private String cardUrl;
+
     @NotNull(message = "Event must be open or private")
     private Boolean isOpen;
 
@@ -58,6 +64,9 @@ public abstract class EventDto {
     @Min(value = 0, message = "Event tickets count can not be less than 0")
     @Max(value = 10000, message = "Event tickets count can not be greater than 10000")
     private Integer tickets;
+
+    @NotNull(message = "Currency must be specified")
+    private Currency currency;
 
     @Size(max = 255, message = "Invite to online meeting cannot exceed 255 characters")
     private String inviteUrl;

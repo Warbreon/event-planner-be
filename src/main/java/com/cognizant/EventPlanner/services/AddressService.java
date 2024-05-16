@@ -16,6 +16,10 @@ public class AddressService {
     private final AddressRepository addressRepository;
 
     public Address findAddressById(Long id) {
+        if (id == null) {
+            return null;
+        }
+
         return addressRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(Address.class, id));
     }
