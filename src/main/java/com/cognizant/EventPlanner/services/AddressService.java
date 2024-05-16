@@ -29,7 +29,11 @@ public class AddressService {
     }
 
     public void updateEventAddress(Event event, Long addressId) {
-        Address address = findAddressById(addressId);
-        event.setAddress(address);
+        if (addressId != 0) {
+            Address address = findAddressById(addressId);
+            event.setAddress(address);
+        } else {
+            event.setAddress(null);
+        }
     }
 }

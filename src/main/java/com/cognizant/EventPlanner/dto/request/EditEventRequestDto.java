@@ -1,5 +1,6 @@
 package com.cognizant.EventPlanner.dto.request;
 
+import com.cognizant.EventPlanner.model.Currency;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,6 +26,9 @@ public class EditEventRequestDto {
     @Size(max = 255, message = "Event image URL cannot exceed 255 characters")
     private String imageUrl;
 
+    @Size(max = 255, message = "Event card URL cannot exceed 255 characters")
+    private String cardUrl;
+
     private Boolean isOpen;
 
     @Future(message = "Event start date must be in the future")
@@ -44,6 +48,8 @@ public class EditEventRequestDto {
     @DecimalMin(value = "0.00", message = "Event price can not be less than 0.00")
     @DecimalMax(value = "10000.00", message = "Event price can not be greater than 10000.00")
     private BigDecimal price;
+
+    private Currency currency;
 
     @Min(value = 0, message = "Event tickets count can not be less than 0")
     @Max(value = 10000, message = "Event tickets count can not be greater than 10000")
