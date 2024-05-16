@@ -20,6 +20,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Modifying
     @Query("UPDATE User u SET u.role = :newRole WHERE u.id IN :ids AND u.role = :previousRole")
     void updateRolesById(List<Long> ids, Role previousRole, Role newRole);
+
     List<User> findByRole(Role role);
 
     List<User> findAllById(Iterable<Long> ids);

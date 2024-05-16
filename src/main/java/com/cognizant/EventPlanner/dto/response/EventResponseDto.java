@@ -16,7 +16,7 @@ public class EventResponseDto extends EventDto {
 
     private Long id;
     private LocalDateTime createdDate;
-    private String creatorEmail;
+    private Long creatorId;
     private AddressResponseDto address;
     private Set<AttendeeResponseDto> attendees;
     private RegistrationStatus currentUserRegistrationStatus;
