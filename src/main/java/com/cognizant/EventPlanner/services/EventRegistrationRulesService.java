@@ -5,13 +5,17 @@ import com.cognizant.EventPlanner.exception.registration.RegistrationClosedExcep
 import com.cognizant.EventPlanner.exception.registration.RegistrationNotOpenException;
 import com.cognizant.EventPlanner.model.Event;
 import com.cognizant.EventPlanner.model.User;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Service
+@RequiredArgsConstructor
 public class EventRegistrationRulesService {
+
+    private final AttendeeService attendeeService;
 
     public void validateEventForRegistration(Event event, User user) {
         if (Objects.equals(user.getEmail(), event.getCreator().getEmail())) {
@@ -19,8 +23,9 @@ public class EventRegistrationRulesService {
         }
 
         LocalDateTime now = LocalDateTime.now();
+        long registeredAttendees = attendeeService.countAttendeesByEvent(event.getId());
 
-        if (event.getTickets() == null || event.getTickets() < 1) {
+        if (event.getTickets() == null || event.getTickets() <= registeredAttendees ) {
             throw new EventSoldOutException();
         }
 

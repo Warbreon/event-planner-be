@@ -69,4 +69,8 @@ public class AttendeeService {
         return attendee;
     }
 
+    public long countAttendeesByEvent(Long eventId) {
+        return attendeeRepository.countByEventId(eventId);
+    }
+
 }
