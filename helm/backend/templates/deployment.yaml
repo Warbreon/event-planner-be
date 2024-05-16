@@ -67,7 +67,17 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: be-secrets
-                  key: SMTP_PASSWORD  
+                  key: SMTP_PASSWORD
+            - name: AZURE_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: be-secrets
+                  key: AZURE_ENDPOINT
+            - name: AZURE_SAS_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: be-secrets
+                  key: AZURE_SAS_TOKEN
       imagePullSecrets:
       - name: regcred
 
