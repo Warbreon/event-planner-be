@@ -15,6 +15,8 @@ import java.util.Set;
 public class EventResponseDto extends EventDto {
 
     private Long id;
+    private String imageUrl;
+    private String cardImageUrl;
     private LocalDateTime createdDate;
     private Long creatorId;
     private AddressResponseDto address;

@@ -31,7 +31,7 @@ public class Event {
     private String imageUrl;
 
     @Column(name = "card_url")
-    private String cardUrl;
+    private String cardImageUrl;
 
     @Column(name = "is_open", nullable = false)
     private Boolean isOpen;

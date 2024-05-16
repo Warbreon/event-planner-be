@@ -44,6 +44,7 @@ public class UserManagementFacade {
         int activeNotifications = attendeeService.countActiveNotifications(email);
 
         return new UserInfoResponseDto(
+            user.getId(),
             user.getFirstName(),
             user.getImageUrl(),
             activeNotifications
