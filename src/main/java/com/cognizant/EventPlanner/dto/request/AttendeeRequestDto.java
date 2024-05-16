@@ -8,8 +8,12 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 public class AttendeeRequestDto extends BaseEventRegistrationRequestDto {
+
+    public AttendeeRequestDto(Long userId, Long eventId) {
+        super(eventId);
+        this.userId = userId;
+    }
 
     @NotNull(message = "Only an existing user can be an attendee")
     @Min(value = 0, message = "User ID has to be equal or greater than 0")

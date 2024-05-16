@@ -37,11 +37,6 @@ public class AttendeeManagementFacade {
         return registrationService.registerAttendeeToEvent(attendeeDto, user, event);
     }
 
-    public AttendeeResponseDto confirmAttendeeRegistration(Long attendeeId) {
-        Attendee confirmedAttendee = attendeeService.confirmAttendeeRegistration(attendeeId);
-        return attendeeMapper.attendeeToDto(confirmedAttendee);
-    }
-
     public NotificationResponseDto getAttendeeNotifications() {
         String email = userDetailsService.getCurrentUserEmail();
         return attendeeService.getAttendeeNotifications(email);

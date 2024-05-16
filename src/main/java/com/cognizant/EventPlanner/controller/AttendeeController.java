@@ -25,13 +25,6 @@ public class AttendeeController {
         return ResponseEntity.ok(response);
     }
 
-    @PreAuthorize("hasAnyAuthority('EVENT_ADMIN', 'SYSTEM_ADMIN')")
-    @PostMapping("/confirm/{attendeeId}")
-    public ResponseEntity<AttendeeResponseDto> confirmRegistration(@PathVariable Long attendeeId) {
-        AttendeeResponseDto response = attendeeManagementFacade.confirmAttendeeRegistration(attendeeId);
-        return ResponseEntity.ok(response);
-    }
-
     @DeleteMapping("/unregister/{eventId}")
     public ResponseEntity<Void> unregisterFromEvent(@PathVariable Long eventId) {
         attendeeManagementFacade.unregisterFromEvent(eventId);

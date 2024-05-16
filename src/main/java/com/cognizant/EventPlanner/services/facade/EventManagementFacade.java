@@ -111,5 +111,4 @@ public class EventManagementFacade {
         return attendeeIds.stream().map(attendeeId -> new AttendeeRequestDto(attendeeId, eventId)).collect(Collectors.toSet());
     }
 
-
 }
