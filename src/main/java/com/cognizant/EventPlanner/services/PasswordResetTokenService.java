@@ -33,7 +33,7 @@ public class PasswordResetTokenService {
             if (existingToken.isPresent()) {
                 PasswordResetToken token = existingToken.get();
 
-                if (!isTokenExpired(token) && isRemainingValidityAcceptable(token)) {
+                if (!isTokenExpired(token) && isRemainingTokenExpiryAcceptable(token)) {
                     return token.getToken();
                 }
 
@@ -87,7 +87,7 @@ public class PasswordResetTokenService {
         return token.getExpirationDate().isBefore(LocalDateTime.now());
     }
 
-    private boolean isRemainingValidityAcceptable(PasswordResetToken token) {
+    private boolean isRemainingTokenExpiryAcceptable(PasswordResetToken token) {
         LocalDateTime thresholdTime = LocalDateTime.now().plusMinutes(VALID_REMAINING_TOKEN_EXPIRY_TIME);
         return token.getExpirationDate().isAfter(thresholdTime);
     }
