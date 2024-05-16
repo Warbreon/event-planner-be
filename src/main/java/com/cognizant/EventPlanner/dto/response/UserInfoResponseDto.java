@@ -11,6 +11,7 @@ import lombok.Setter;
 @AllArgsConstructor
 public class UserInfoResponseDto {
 
+    private Long userId;
     private String userFirstName;
     private String userImageUrl;
     private Integer notificationCount;
