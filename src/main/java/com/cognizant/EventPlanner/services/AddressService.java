@@ -15,7 +15,7 @@ public class AddressService {
     private final AddressRepository addressRepository;
 
     public Address findAddressById(Long id) {
-        if (id == null || id == 0) {
+        if (id == 0) {
             return null;
         }
 
