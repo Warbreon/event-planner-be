@@ -23,12 +23,6 @@ public class EditEventRequestDto {
     @Size(max = 1000, message = "Description cannot exceed 1000 characters")
     private String description;
 
-    @Size(max = 255, message = "Event image URL cannot exceed 255 characters")
-    private String imageUrl;
-
-    @Size(max = 255, message = "Event card URL cannot exceed 255 characters")
-    private String cardUrl;
-
     private Boolean isOpen;
 
     @Future(message = "Event start date must be in the future")
@@ -65,4 +59,8 @@ public class EditEventRequestDto {
     private Long addressId;
 
     private Set<Long> tagIds;
+
+    private String imageBase64;
+
+    private String cardImageBase64;
 }

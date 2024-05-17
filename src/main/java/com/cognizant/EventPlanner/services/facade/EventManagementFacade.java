@@ -113,6 +113,22 @@ public class EventManagementFacade {
             tagService.updateEventTags(eventToEdit, requestDto.getTagIds());
         }
 
+        if (requestDto.getImageBase64() != null) {
+           //DELETE CURRENT IMAGE FROM CLOUD
+
+            //SAVE NEW IMAGE TO CLOUD, GET NEW URL
+
+            //SAVE NEW URL
+        }
+
+        if (requestDto.getCardImageBase64() != null) {
+            //DELETE CURRENT IMAGE FROM CLOUD
+
+            //SAVE NEW IMAGE TO CLOUD, GET NEW URL
+
+            //SAVE NEW URL
+        }
+
         return eventToEdit;
     }
 
