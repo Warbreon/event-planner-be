@@ -40,6 +40,7 @@ public class AttendeeService {
         }
     }
 
+    @CacheEvict(value = {"paginatedEvents", "events"}, allEntries = true)
     @Transactional
     public Attendee confirmPendingRegistration(Long attendeeId) {
         return updateRegistrationStatus(
