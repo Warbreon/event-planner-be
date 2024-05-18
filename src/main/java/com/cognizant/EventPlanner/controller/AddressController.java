@@ -17,7 +17,7 @@ public class AddressController {
 
     private final AddressManagementFacade addressManagementFacade;
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<List<AddressResponseDto>> getAllAddresses() {
         List<AddressResponseDto> addresses = addressManagementFacade.getAllAddresses();
         return ResponseEntity.ok(addresses);
