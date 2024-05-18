@@ -1,8 +1,6 @@
 package com.cognizant.EventPlanner.services;
 
-import com.cognizant.EventPlanner.dto.response.AddressResponseDto;
 import com.cognizant.EventPlanner.exception.EntityNotFoundException;
-import com.cognizant.EventPlanner.mapper.AddressMapper;
 import com.cognizant.EventPlanner.model.Address;
 import com.cognizant.EventPlanner.repository.AddressRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +13,7 @@ import java.util.List;
 public class AddressService {
 
     private final AddressRepository addressRepository;
-    private final AddressMapper addressMapper;
+
 
     public Address findAddressById(Long id) {
         if (id == null || id == 0) {
@@ -30,12 +28,8 @@ public class AddressService {
         return addressRepository.findAllCities();
     }
 
-    private List<Address> findAllAddresses() {
+    public List<Address> findAllAddresses() {
         return addressRepository.findAll();
-    }
-
-    public List<AddressResponseDto> getAddressDtos() {
-        return findAllAddresses().stream().map(addressMapper::addressToDto).toList();
     }
 
 }
