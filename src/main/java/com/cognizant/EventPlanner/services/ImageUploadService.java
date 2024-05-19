@@ -16,6 +16,7 @@ import java.util.Base64;
 public class ImageUploadService {
 
     private final BlobServiceClient blobServiceClient;
+    private static final String CONTAINER_NAME = "image";
 
     public String uploadImageToAzure(String base64Image) throws IOException {
         if (base64Image == null || base64Image.isEmpty()) {
@@ -24,9 +25,8 @@ public class ImageUploadService {
 
         MultipartFile image = decodeBase64toMultipartFile(base64Image);
 
-        String containerName = "image";
         String imageName = image.getOriginalFilename();
-        BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(containerName);
+        BlobContainerClient containerClient = blobServiceClient.getBlobContainerClient(CONTAINER_NAME);
         containerClient.createIfNotExists();
 
         BlobClient blobClient = containerClient.getBlobClient(imageName);

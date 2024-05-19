@@ -73,6 +73,11 @@ public class EventManagementFacade {
                 .toList();
     }
 
+    public EventResponseDto cancelEvent(Long id) {
+        Event event = eventService.cancelEvent(id);
+        return convertEventToDto(event);
+    }
+
     private EventResponseDto buildEventResponse(Event event, EventRequestDto request) {
         EventResponseDto eventResponseDto = eventMapper.eventToDto(event);
         Set<AttendeeRequestDto> attendeeRequestDtos = getAttendeeRequestDtos(event.getId(), request.getAttendeeIds());

@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -44,8 +45,20 @@ public class EventService {
         return findEventsWithSpec(spec);
     }
 
+    @CacheEvict(value = {"paginatedEvents", "events"}, allEntries = true)
+    @Transactional
+    public Event cancelEvent(Long id) {
+        Event event = findEventById(id);
+        if (!event.getIsCancelled()) {
+            event.setIsCancelled(true);
+            saveEvent(event);
+        }
+        return event;
+    }
+
     public Event findEventById(Long id) {
         return eventRepository.findById(id)
+                .filter(event -> !event.getIsCancelled())
                 .orElseThrow(() -> new EntityNotFoundException(Event.class, id));
     }
 
@@ -79,6 +92,7 @@ public class EventService {
         event.setCreatedDate(LocalDateTime.now());
         event.setAddress(address);
         event.setCreator(user);
+        event.setIsCancelled(false);
         return event;
     }
 
@@ -87,7 +101,8 @@ public class EventService {
                 tagIds.filter(ids -> !ids.isEmpty()).map(EventSpecifications::hasTags),
                 days.map(EventSpecifications::withinDays),
                 city.map(EventSpecifications::byCity),
-                name.map(EventSpecifications::byName)
+                name.map(EventSpecifications::byName),
+                Optional.of(EventSpecifications.isNotCancelled())
             )
             .filter(Optional::isPresent)
             .map(Optional::get)

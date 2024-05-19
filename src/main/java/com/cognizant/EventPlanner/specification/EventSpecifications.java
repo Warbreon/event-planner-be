@@ -56,4 +56,8 @@ public class EventSpecifications {
             return cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%");
         };
     }
+
+    public static Specification<Event> isNotCancelled() {
+        return (root, query, cb) -> cb.isFalse(root.get("isCancelled"));
+    }
 }
