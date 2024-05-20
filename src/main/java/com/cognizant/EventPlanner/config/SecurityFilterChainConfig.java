@@ -31,7 +31,7 @@ public class SecurityFilterChainConfig {
                 .sessionManagement((session) ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests((authenticationRequest) ->
-                        authenticationRequest.requestMatchers("/api/auth/**")
+                        authenticationRequest.requestMatchers("/api/auth/**", "/ws/**")
                                 .permitAll().anyRequest().authenticated())
                 .exceptionHandling((exceptions) ->
                         exceptions.authenticationEntryPoint(jwtAuthenticationEntryPoint));
