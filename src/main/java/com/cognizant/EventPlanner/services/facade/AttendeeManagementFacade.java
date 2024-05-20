@@ -26,11 +26,7 @@ public class AttendeeManagementFacade {
         User user = userService.findUserById(request.getUserId());
         Event event = eventService.findEventById(request.getEventId());
         AttendeeResponseDto response =  registrationService.registerAttendeeToEvent(request, user, event);
-
-        if (!event.getIsOpen() && event.getCreator() != null) {
-            notificationController.notifyEventCreator(event.getCreator().getEmail());
-        }
-
+        notifyEventCreator(event);
         return response;
     }
 
@@ -41,19 +37,29 @@ public class AttendeeManagementFacade {
 
     public void markNotificationAsViewed(Long attendeeId) {
         attendeeService.markNotificationAsViewed(attendeeId);
-        Event event = eventService.findEventByAttendeeId(attendeeId);
-        if (event.getCreator() != null) {
-            notificationController.notifyEventCreator(event.getCreator().getEmail());
-        }
+        notifyEventCreatorByAttendee(attendeeId);
     }
 
     public AttendeeResponseDto confirmPendingRegistration(Long attendeeId) {
         Attendee attendee = attendeeService.confirmPendingRegistration(attendeeId);
+        notifyEventCreatorByAttendee(attendeeId);
         return attendeeMapper.attendeeToDto(attendee);
     }
 
     public AttendeeResponseDto declinePendingRegistration(Long attendeeId) {
         Attendee attendee = attendeeService.declinePendingRegistration(attendeeId);
+        notifyEventCreatorByAttendee(attendeeId);
         return attendeeMapper.attendeeToDto(attendee);
+    }
+
+    private void notifyEventCreatorByAttendee(Long attendeeId) {
+        Event event = eventService.findEventByAttendeeId(attendeeId);
+        notifyEventCreator(event);
+    }
+
+    private void notifyEventCreator(Event event) {
+        if (!event.getIsOpen() && event.getCreator() != null) {
+            notificationController.notifyEventCreator(event.getCreator().getEmail());
+        }
     }
 }
