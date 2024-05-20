@@ -58,7 +58,6 @@ public class EventService {
 
     public Event findEventById(Long id) {
         return eventRepository.findById(id)
-                .filter(event -> !event.getIsCancelled())
                 .orElseThrow(() -> new EntityNotFoundException(Event.class, id));
     }
 
