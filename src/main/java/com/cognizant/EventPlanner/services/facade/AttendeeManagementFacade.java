@@ -1,5 +1,6 @@
 package com.cognizant.EventPlanner.services.facade;
 
+import com.cognizant.EventPlanner.controller.NotificationController;
 import com.cognizant.EventPlanner.dto.request.AttendeeRequestDto;
 import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
 import com.cognizant.EventPlanner.dto.response.NotificationResponseDto;
@@ -19,11 +20,18 @@ public class AttendeeManagementFacade {
     private final UserDetailsServiceImpl userDetailsService;
     private final AttendeeService attendeeService;
     private final AttendeeMapper attendeeMapper;
+    private final NotificationController notificationController;
 
     public AttendeeResponseDto registerToEvent(AttendeeRequestDto request) {
         User user = userService.findUserById(request.getUserId());
         Event event = eventService.findEventById(request.getEventId());
-        return registrationService.registerAttendeeToEvent(request, user, event);
+        AttendeeResponseDto response =  registrationService.registerAttendeeToEvent(request, user, event);
+
+        if (!event.getIsOpen() && event.getCreator() != null) {
+            notificationController.notifyEventCreator(event.getCreator().getEmail());
+        }
+
+        return response;
     }
 
     public NotificationResponseDto getAttendeeNotifications() {
@@ -33,6 +41,10 @@ public class AttendeeManagementFacade {
 
     public void markNotificationAsViewed(Long attendeeId) {
         attendeeService.markNotificationAsViewed(attendeeId);
+        Event event = eventService.findEventByAttendeeId(attendeeId);
+        if (event.getCreator() != null) {
+            notificationController.notifyEventCreator(event.getCreator().getEmail());
+        }
     }
 
     public AttendeeResponseDto confirmPendingRegistration(Long attendeeId) {
