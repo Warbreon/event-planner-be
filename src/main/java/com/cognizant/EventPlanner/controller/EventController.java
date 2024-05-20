@@ -26,6 +26,7 @@ public class EventController {
             @RequestParam(required = false) Integer days,
             @RequestParam(required = false) String city,
             @RequestParam(required = false) String name,
+            @RequestParam(required = false) Long excludeEventId,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size
     ) {
@@ -34,6 +35,7 @@ public class EventController {
                 Optional.ofNullable(days),
                 Optional.ofNullable(city),
                 Optional.ofNullable(name),
+                Optional.ofNullable(excludeEventId),
                 Optional.ofNullable(page),
                 Optional.ofNullable(size)
         );
