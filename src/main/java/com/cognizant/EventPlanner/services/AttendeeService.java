@@ -40,6 +40,7 @@ public class AttendeeService {
         }
     }
 
+    @CacheEvict(value = {"paginatedEvents", "events"}, allEntries = true)
     @Transactional
     public Attendee confirmPendingRegistration(Long attendeeId) {
         return updateRegistrationStatus(
@@ -60,6 +61,7 @@ public class AttendeeService {
 
     private Attendee updateRegistrationStatus(Long attendeeId, EnumSet<RegistrationStatus> allowedStatuses, RegistrationStatus newStatus) {
         Attendee attendee = findAttendeeById(attendeeId);
+        attendee.setIsNewNotification(false);
         if (allowedStatuses.contains(attendee.getRegistrationStatus())) {
             attendee.setRegistrationStatus(newStatus);
             return saveAttendee(attendee);
