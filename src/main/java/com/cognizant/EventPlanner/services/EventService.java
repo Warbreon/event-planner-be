@@ -78,6 +78,10 @@ public class EventService {
         return eventRepository.findAllUserIsRegisteredTo(email);
     }
 
+    public Event findEventByAttendeeId(Long attendeeId) {
+        return eventRepository.findEventByAttendeeId(attendeeId);
+    }
+
     @CacheEvict(value = {"paginatedEvents", "events"}, allEntries = true)
     public Event saveEvent(Event event) {
         return eventRepository.save(event);
