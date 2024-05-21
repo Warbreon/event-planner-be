@@ -8,14 +8,11 @@ import com.cognizant.EventPlanner.dto.response.EventResponseDto;
 import com.cognizant.EventPlanner.mapper.EventMapper;
 import com.cognizant.EventPlanner.model.*;
 import com.cognizant.EventPlanner.services.*;
-import com.cognizant.EventPlanner.util.DateValidationUtils;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Service;
-import com.cognizant.EventPlanner.exception.IllegalArgumentException;
-
 
 import java.beans.PropertyDescriptor;
 import java.util.*;
@@ -38,7 +35,6 @@ public class EventManagementFacade {
     private final RegistrationService registrationService;
     private final AttendeeService attendeeService;
     private final ImageUploadService imageUploadService;
-    private final DateValidationUtils dateValidationUtils;
 
     public Object getEventsFacade(
             Optional<Set<Long>> tagIds,
@@ -129,7 +125,7 @@ public class EventManagementFacade {
             }
         }
 
-        handleEventDatesUpdate(requestDto, eventToEdit);
+        eventService.handleEventDatesUpdate(requestDto, eventToEdit);
 
 
         if (requestDto.getAddressId() != null) {
@@ -155,54 +151,6 @@ public class EventManagementFacade {
         }
 
         return eventToEdit;
-    }
-
-    private void handleEventDatesUpdate(EditEventRequestDto requestDto, Event eventToEdit) {
-        Optional.ofNullable(requestDto.getEventStart()).ifPresent(eventStart -> {
-            Optional.ofNullable(requestDto.getEventEnd()).ifPresent(eventEnd -> {
-                if (!dateValidationUtils.validateDateRange(eventStart, eventEnd)) {
-                    throw new IllegalArgumentException("Invalid event date range. Event start date must be before event end date");
-                }
-                eventToEdit.setEventEnd(eventEnd);
-            });
-
-            if (!dateValidationUtils.validateDateRange(eventStart, eventToEdit.getEventEnd())) {
-                throw new IllegalArgumentException("Invalid event date range. Event start date must be before event end date");
-            }
-
-            if (!dateValidationUtils.validateDateRange(eventToEdit.getRegistrationEnd(), eventStart)) {
-                throw new IllegalArgumentException("Event cannot start before registration has ended");
-            }
-            eventToEdit.setEventStart(eventStart);
-        });
-
-        Optional.ofNullable(requestDto.getEventEnd()).ifPresent(eventEnd -> {
-            if (!dateValidationUtils.validateDateRange(eventToEdit.getEventStart(), eventEnd)) {
-                throw new IllegalArgumentException("Invalid event date range. Event start date must be before event end date");
-            }
-            eventToEdit.setEventEnd(eventEnd);
-        });
-
-        Optional.ofNullable(requestDto.getRegistrationStart()).ifPresent(registrationStart -> {
-            Optional.ofNullable(requestDto.getRegistrationEnd()).ifPresent(registrationEnd -> {
-                if (!dateValidationUtils.validateDateRange(registrationStart, registrationEnd)) {
-                    throw new IllegalArgumentException("Invalid registration date range. Registration start date must be before registration end date");
-                }
-                eventToEdit.setRegistrationEnd(registrationEnd);
-            });
-
-            if (!dateValidationUtils.validateDateRange(registrationStart, eventToEdit.getRegistrationEnd())) {
-                throw new IllegalArgumentException("Invalid registration date range. Registration start date must be before registration end date");
-            }
-            eventToEdit.setRegistrationStart(registrationStart);
-        });
-
-        Optional.ofNullable(requestDto.getRegistrationEnd()).ifPresent(registrationEnd -> {
-            if (!dateValidationUtils.validateDateRange(eventToEdit.getRegistrationStart(), registrationEnd)) {
-                throw new IllegalArgumentException("Invalid registration date range. Registration start date must be before registration end date");
-            }
-            eventToEdit.setRegistrationEnd(registrationEnd);
-        });
     }
 
     private void updateEventAttendeesFacade(Event event, Set<Long> newUserIds) {
