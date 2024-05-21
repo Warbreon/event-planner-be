@@ -25,7 +25,7 @@ public abstract class EventDto {
     private String name;
 
     @NotBlank(message = "Event must have a description")
-    @Size(max = 1000, message = "Description cannot exceed 1000 characters")
+    @Size(max = 5000, message = "Description cannot exceed 5000 characters")
     private String description;
 
     @NotNull(message = "Event must be open or private")

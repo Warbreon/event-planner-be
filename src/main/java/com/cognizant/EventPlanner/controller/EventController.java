@@ -68,7 +68,7 @@ public class EventController {
     }
 
     @PutMapping("/edit/{id}")
-    public ResponseEntity<EventResponseDto> editEvent(@PathVariable("id") Long id, @Valid @RequestBody EditEventRequestDto request) {
+    public ResponseEntity<EventResponseDto> editEvent(@PathVariable("id") Long id, @Valid @RequestBody EditEventRequestDto request) throws IOException {
         EventResponseDto response  = eventManagementFacade.updateEvent(id, request);
         return ResponseEntity.ok(response);
     }

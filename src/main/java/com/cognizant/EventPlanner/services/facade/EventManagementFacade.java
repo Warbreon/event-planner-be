@@ -79,12 +79,12 @@ public class EventManagementFacade {
     }
 
     @Transactional
-    public EventResponseDto updateEvent(Long id, EditEventRequestDto requestDto) {
+    public EventResponseDto updateEvent(Long id, EditEventRequestDto requestDto) throws IOException {
         return convertEventToDto(eventService.updateEvent(setUpdatedEventValues(id, requestDto)));
     }
 
 
-    private Event setUpdatedEventValues(Long id, EditEventRequestDto requestDto) {
+    private Event setUpdatedEventValues(Long id, EditEventRequestDto requestDto) throws IOException {
         Event newEventValues = eventMapper.editEventRequestDtoToEvent(requestDto);
         Event eventToEdit = eventService.findEventById(id);
 
@@ -114,19 +114,13 @@ public class EventManagementFacade {
         }
 
         if (requestDto.getImageBase64() != null) {
-           //DELETE CURRENT IMAGE FROM CLOUD
-
-            //SAVE NEW IMAGE TO CLOUD, GET NEW URL
-
-            //SAVE NEW URL
+            String imageUrl = imageUploadService.uploadImageToAzure(requestDto.getImageBase64());
+            eventToEdit.setImageUrl(imageUrl);
         }
 
         if (requestDto.getCardImageBase64() != null) {
-            //DELETE CURRENT IMAGE FROM CLOUD
-
-            //SAVE NEW IMAGE TO CLOUD, GET NEW URL
-
-            //SAVE NEW URL
+            String cardImageUrl = imageUploadService.uploadImageToAzure(requestDto.getCardImageBase64());
+            eventToEdit.setCardImageUrl(cardImageUrl);
         }
 
         return eventToEdit;
