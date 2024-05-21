@@ -1,5 +1,6 @@
 package com.cognizant.EventPlanner.controller;
 
+import com.cognizant.EventPlanner.dto.response.AddressResponseDto;
 import com.cognizant.EventPlanner.services.facade.AddressManagementFacade;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +16,12 @@ import java.util.List;
 public class AddressController {
 
     private final AddressManagementFacade addressManagementFacade;
+
+    @GetMapping
+    public ResponseEntity<List<AddressResponseDto>> getAllAddresses() {
+        List<AddressResponseDto> addresses = addressManagementFacade.getAllAddresses();
+        return ResponseEntity.ok(addresses);
+    }
 
     @GetMapping("/cities")
     public ResponseEntity<List<String>> getAllCities() {
