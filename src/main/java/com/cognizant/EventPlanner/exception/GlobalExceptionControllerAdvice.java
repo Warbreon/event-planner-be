@@ -28,4 +28,10 @@ public class GlobalExceptionControllerAdvice {
         return ErrorResponseEntityUtil.buildErrorResponseEntity(HttpStatus.NOT_FOUND, ex.getMessage(), request);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex, HttpServletRequest request) {
+        log.error("Illegal argument", ex);
+        return ErrorResponseEntityUtil.buildErrorResponseEntity(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    }
+
 }

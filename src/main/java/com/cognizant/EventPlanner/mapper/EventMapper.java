@@ -23,5 +23,9 @@ public interface EventMapper {
     @Mapping(target = "address", ignore = true)
     @Mapping(target = "attendees", ignore = true)
     @Mapping(target = "tags", ignore = true)
+    @Mapping(target = "eventStart", ignore = true)
+    @Mapping(target = "eventEnd", ignore = true)
+    @Mapping(target = "registrationStart", ignore = true)
+    @Mapping(target = "registrationEnd", ignore = true)
     Event editEventRequestDtoToEvent(EditEventRequestDto dto);
 }

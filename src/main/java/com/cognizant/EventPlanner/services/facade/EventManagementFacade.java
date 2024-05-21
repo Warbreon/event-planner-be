@@ -8,11 +8,13 @@ import com.cognizant.EventPlanner.dto.response.EventResponseDto;
 import com.cognizant.EventPlanner.mapper.EventMapper;
 import com.cognizant.EventPlanner.model.*;
 import com.cognizant.EventPlanner.services.*;
-import jakarta.transaction.Transactional;
+import com.cognizant.EventPlanner.util.DateValidationUtils;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Service;
+import com.cognizant.EventPlanner.exception.IllegalArgumentException;
 
 
 import java.beans.PropertyDescriptor;
@@ -36,6 +38,7 @@ public class EventManagementFacade {
     private final RegistrationService registrationService;
     private final AttendeeService attendeeService;
     private final ImageUploadService imageUploadService;
+    private final DateValidationUtils dateValidationUtils;
 
     public Object getEventsFacade(
             Optional<Set<Long>> tagIds,
@@ -48,24 +51,24 @@ public class EventManagementFacade {
     ) {
         if (page.isPresent() && size.isPresent()) {
             return eventService.getPaginatedEvents(
-                tagIds,
-                days,
-                city,
-                name,
-                excludeEventId,
-                page.get(),
-                size.get()
+                    tagIds,
+                    days,
+                    city,
+                    name,
+                    excludeEventId,
+                    page.get(),
+                    size.get()
             ).map(this::convertEventToDto);
         } else {
             return eventService.getEventsWithoutPagination(
-                tagIds,
-                days,
-                city,
-                name,
-                excludeEventId
-            ).stream()
-            .map(this::convertEventToDto)
-            .toList();
+                            tagIds,
+                            days,
+                            city,
+                            name,
+                            excludeEventId
+                    ).stream()
+                    .map(this::convertEventToDto)
+                    .toList();
         }
     }
 
@@ -106,7 +109,7 @@ public class EventManagementFacade {
 
     @Transactional
     public EventResponseDto updateEvent(Long id, EditEventRequestDto requestDto) throws IOException {
-        return convertEventToDto(eventService.updateEvent(setUpdatedEventValues(id, requestDto)));
+        return convertEventToDto(eventService.saveEvent(setUpdatedEventValues(id, requestDto)));
     }
 
 
@@ -121,11 +124,13 @@ public class EventManagementFacade {
             String propertyName = propertyDescriptor.getName();
             if (eventWrapper.isWritableProperty(propertyName)
                     && newValuesWrapper.getPropertyValue(propertyName) != null
-                    && !Objects.equals(eventWrapper.getPropertyValue(propertyName), newValuesWrapper.getPropertyValue(propertyName)))
-            {
+                    && !Objects.equals(eventWrapper.getPropertyValue(propertyName), newValuesWrapper.getPropertyValue(propertyName))) {
                 eventWrapper.setPropertyValue(propertyName, newValuesWrapper.getPropertyValue(propertyName));
             }
         }
+
+        handleEventDatesUpdate(requestDto, eventToEdit);
+
 
         if (requestDto.getAddressId() != null) {
             addressService.updateEventAddress(eventToEdit, requestDto.getAddressId());
@@ -150,6 +155,54 @@ public class EventManagementFacade {
         }
 
         return eventToEdit;
+    }
+
+    private void handleEventDatesUpdate(EditEventRequestDto requestDto, Event eventToEdit) {
+        Optional.ofNullable(requestDto.getEventStart()).ifPresent(eventStart -> {
+            Optional.ofNullable(requestDto.getEventEnd()).ifPresent(eventEnd -> {
+                if (!dateValidationUtils.validateDateRange(eventStart, eventEnd)) {
+                    throw new IllegalArgumentException("Invalid event date range. Event start date must be before event end date");
+                }
+                eventToEdit.setEventEnd(eventEnd);
+            });
+
+            if (!dateValidationUtils.validateDateRange(eventStart, eventToEdit.getEventEnd())) {
+                throw new IllegalArgumentException("Invalid event date range. Event start date must be before event end date");
+            }
+
+            if (!dateValidationUtils.validateDateRange(eventToEdit.getRegistrationEnd(), eventStart)) {
+                throw new IllegalArgumentException("Event cannot start before registration has ended");
+            }
+            eventToEdit.setEventStart(eventStart);
+        });
+
+        Optional.ofNullable(requestDto.getEventEnd()).ifPresent(eventEnd -> {
+            if (!dateValidationUtils.validateDateRange(eventToEdit.getEventStart(), eventEnd)) {
+                throw new IllegalArgumentException("Invalid event date range. Event start date must be before event end date");
+            }
+            eventToEdit.setEventEnd(eventEnd);
+        });
+
+        Optional.ofNullable(requestDto.getRegistrationStart()).ifPresent(registrationStart -> {
+            Optional.ofNullable(requestDto.getRegistrationEnd()).ifPresent(registrationEnd -> {
+                if (!dateValidationUtils.validateDateRange(registrationStart, registrationEnd)) {
+                    throw new IllegalArgumentException("Invalid registration date range. Registration start date must be before registration end date");
+                }
+                eventToEdit.setRegistrationEnd(registrationEnd);
+            });
+
+            if (!dateValidationUtils.validateDateRange(registrationStart, eventToEdit.getRegistrationEnd())) {
+                throw new IllegalArgumentException("Invalid registration date range. Registration start date must be before registration end date");
+            }
+            eventToEdit.setRegistrationStart(registrationStart);
+        });
+
+        Optional.ofNullable(requestDto.getRegistrationEnd()).ifPresent(registrationEnd -> {
+            if (!dateValidationUtils.validateDateRange(eventToEdit.getRegistrationStart(), registrationEnd)) {
+                throw new IllegalArgumentException("Invalid registration date range. Registration start date must be before registration end date");
+            }
+            eventToEdit.setRegistrationEnd(registrationEnd);
+        });
     }
 
     private void updateEventAttendeesFacade(Event event, Set<Long> newUserIds) {

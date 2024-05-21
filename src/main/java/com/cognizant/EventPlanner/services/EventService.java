@@ -72,10 +72,6 @@ public class EventService {
         return eventRepository.findAllUserIsRegisteredTo(email);
     }
 
-    public Event updateEvent(Event event) {
-        return eventRepository.save(event);
-    }
-
     public Event findEventByAttendeeId(Long attendeeId) {
         return eventRepository.findEventByAttendeeId(attendeeId);
     }
