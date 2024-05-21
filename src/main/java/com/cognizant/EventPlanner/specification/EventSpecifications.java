@@ -56,4 +56,15 @@ public class EventSpecifications {
             return cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%");
         };
     }
+
+    public static Specification<Event> byExcludeEventId(Long excludeEventId) {
+        return (root, query, cb) -> {
+            if (excludeEventId == null) {
+                return cb.conjunction();
+            }
+            
+            return cb.notEqual(root.get("id"), excludeEventId);
+        };
+    }
+
 }
