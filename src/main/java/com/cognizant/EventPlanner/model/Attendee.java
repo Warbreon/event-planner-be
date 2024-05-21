@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "attendees")
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class Attendee {
 
     @Id

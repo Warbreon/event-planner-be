@@ -8,6 +8,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -44,5 +45,11 @@ public class AttendeeController {
     public ResponseEntity<AttendeeResponseDto> declinePendingRegistration(@PathVariable Long attendeeId) {
         AttendeeResponseDto response = attendeeManagementFacade.declinePendingRegistration(attendeeId);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{eventId}/updateAttendees")
+    public ResponseEntity<Void> updateEventAttendees(@PathVariable Long eventId, @Valid @RequestBody List<Long> userIds){
+        attendeeManagementFacade.updateEventAttendees(eventId,userIds);
+        return ResponseEntity.ok().build();
     }
 }

@@ -23,4 +23,6 @@ public interface AttendeeRepository extends JpaRepository<Attendee, Long> {
     @Query("SELECT COUNT(a) FROM Attendee a JOIN a.event e " +
             "WHERE e.creator.email = :email AND a.isNewNotification IS NOT NULL AND a.registrationStatus = 'PENDING'")
     int countAllNotifications(@Param("email") String email);
+
+    List<Attendee> findAttendeesByEventId(Long eventId);
 }

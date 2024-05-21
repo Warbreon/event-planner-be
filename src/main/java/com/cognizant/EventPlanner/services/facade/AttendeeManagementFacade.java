@@ -9,6 +9,8 @@ import com.cognizant.EventPlanner.model.*;
 import com.cognizant.EventPlanner.services.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -61,5 +63,40 @@ public class AttendeeManagementFacade {
         if (!event.getIsOpen() && event.getCreator() != null) {
             notificationController.notifyEventCreator(event.getCreator().getEmail());
         }
+    }
+
+    public void updateEventAttendees(Long eventId, List<Long> userIds) {
+        List<Long> userIdsToAdd = new ArrayList<>(userIds);
+        List<Attendee> updatedAttendees = new ArrayList<>();
+        List<Attendee> eventAttendees = attendeeService.findAllAttendeesByEventId(eventId);
+        sortOutAttendees(eventAttendees, userIdsToAdd, updatedAttendees);
+        createNewRecordsForAttendees(eventId, userIdsToAdd, updatedAttendees);
+        attendeeService.saveAllAttendees(updatedAttendees);
+    }
+
+    private void sortOutAttendees(List<Attendee> eventAttendees, List<Long> userIdsToAdd, List<Attendee> updatedAttendees) {
+        eventAttendees.forEach(attendee -> {
+            Long userId = attendee.getUser().getId();
+            if (userIdsToAdd.contains(userId)) {
+                attendee.setRegistrationStatus(RegistrationStatus.ACCEPTED);
+                updatedAttendees.add(attendee);
+                userIdsToAdd.remove(userId);
+            } else {
+                attendee.setRegistrationStatus(RegistrationStatus.REJECTED);
+                updatedAttendees.add(attendee);
+            }
+        });
+    }
+
+    private void createNewRecordsForAttendees(Long eventId, List<Long> userIdsToAdd, List<Attendee> updatedAttendees) {
+        Event event = eventService.findEventById(eventId);
+        userIdsToAdd.forEach(userId ->
+            {
+                User user = userService.findUserById(userId);
+                Attendee attendeeToRegister = attendeeMapper.requestDtoToAttendee(new AttendeeRequestDto(userId, eventId), event, user);
+                attendeeToRegister.setRegistrationStatus(RegistrationStatus.ACCEPTED);
+                updatedAttendees.add(attendeeToRegister);
+            }
+        );
     }
 }

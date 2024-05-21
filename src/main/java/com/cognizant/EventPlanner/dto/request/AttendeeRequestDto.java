@@ -9,6 +9,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class AttendeeRequestDto {
     @NotNull(message = "Only an existing user can be an attendee")
     @Min(value = 0, message = "User ID has to be equal or greater than 0")
