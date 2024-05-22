@@ -67,4 +67,11 @@ public class EventController {
         List<EventResponseDto> response = eventManagementFacade.getEventsUserIsRegisteredTo();
         return ResponseEntity.ok(response);
     }
+
+    @PreAuthorize("hasAnyAuthority('EVENT_ADMIN', 'SYSTEM_ADMIN')")
+    @PatchMapping("/cancel/{id}")
+    public ResponseEntity<EventResponseDto> cancelEvent(@PathVariable Long id) {
+        EventResponseDto response = eventManagementFacade.cancelEvent(id);
+        return ResponseEntity.ok(response);
+    }
 }
