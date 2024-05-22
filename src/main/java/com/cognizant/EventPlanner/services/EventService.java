@@ -32,16 +32,22 @@ public class EventService {
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
 
-    @Cacheable(value = "paginatedEvents", key = "{#tagIds.orElse('all'), #days.orElse('all'), #city.orElse('all'), #name.orElse('all'), #page, #size, @userDetailsServiceImpl.getCurrentUserEmail()}")
-    public Page<Event> getPaginatedEvents(Optional<Set<Long>> tagIds, Optional<Integer> days, Optional<String> city, Optional<String> name, Integer page, Integer size) {
+    @Cacheable(value = "paginatedEvents", key = "{#tagIds.orElse('all'), #days.orElse('all'), #city.orElse('all'), " +
+            "#name.orElse('all'), #excludeEventId.orElse('all'), #page, #size, @userDetailsServiceImpl" +
+            ".getCurrentUserEmail()}")
+    public Page<Event> getPaginatedEvents(Optional<Set<Long>> tagIds, Optional<Integer> days, Optional<String> city,
+                                          Optional<String> name, Optional<Long> excludeEventId, Integer page,
+                                          Integer size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "eventStart"));
-        Specification<Event> spec = buildSpecification(tagIds, days, city, name);
+        Specification<Event> spec = buildSpecification(tagIds, days, city, name, excludeEventId);
         return findEventsWithSpec(spec, pageable);
     }
 
-    @Cacheable(value = "events", key = "{#tagIds.orElse('all'), #days.orElse('all'), #city.orElse('all'), #name.orElse('all'), @userDetailsServiceImpl.getCurrentUserEmail()}")
-    public List<Event> getEventsWithoutPagination(Optional<Set<Long>> tagIds, Optional<Integer> days, Optional<String> city, Optional<String> name) {
-        Specification<Event> spec = buildSpecification(tagIds, days, city, name);
+    @Cacheable(value = "events", key = "{#tagIds.orElse('all'), #days.orElse('all'), #city.orElse('all'), #name" +
+            ".orElse('all'), #excludeEventId.orElse('all'), @userDetailsServiceImpl.getCurrentUserEmail()}")
+    public List<Event> getEventsWithoutPagination(Optional<Set<Long>> tagIds, Optional<Integer> days,
+                                                  Optional<String> city, Optional<String> name, Optional<Long> excludeEventId) {
+        Specification<Event> spec = buildSpecification(tagIds, days, city, name, excludeEventId);
         return findEventsWithSpec(spec);
     }
 
@@ -99,16 +105,19 @@ public class EventService {
         return event;
     }
 
-    private Specification<Event> buildSpecification(Optional<Set<Long>> tagIds, Optional<Integer> days, Optional<String> city, Optional<String> name) {
+    private Specification<Event> buildSpecification(Optional<Set<Long>> tagIds, Optional<Integer> days,
+                                                    Optional<String> city, Optional<String> name, Optional<Long> excludeEventId) {
         return Stream.of(
                 tagIds.filter(ids -> !ids.isEmpty()).map(EventSpecifications::hasTags),
                 days.map(EventSpecifications::withinDays),
                 city.map(EventSpecifications::byCity),
                 name.map(EventSpecifications::byName),
+                excludeEventId.map(EventSpecifications::byExcludeEventId),
                 Optional.of(EventSpecifications.isNotCancelled())
             )
             .filter(Optional::isPresent)
             .map(Optional::get)
             .reduce(Specification.where(null), Specification::and);
     }
+
 }

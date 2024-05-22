@@ -60,4 +60,14 @@ public class EventSpecifications {
     public static Specification<Event> isNotCancelled() {
         return (root, query, cb) -> cb.isFalse(root.get("isCancelled"));
     }
+
+    public static Specification<Event> byExcludeEventId(Long excludeEventId) {
+        return (root, query, cb) -> {
+            if (excludeEventId == null) {
+                return cb.conjunction();
+            }
+
+            return cb.notEqual(root.get("id"), excludeEventId);
+        };
+    }
 }
