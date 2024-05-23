@@ -47,9 +47,14 @@ public class AttendeeController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/{eventId}/updateAttendees")
+    @PatchMapping("/{eventId}/updateAttendees")
     public ResponseEntity<Void> updateEventAttendees(@PathVariable Long eventId, @Valid @RequestBody List<Long> userIds){
         attendeeManagementFacade.updateEventAttendees(eventId,userIds);
         return ResponseEntity.ok().build();
+    }
+    @PatchMapping("/{eventId}")
+    public ResponseEntity<List<AttendeeResponseDto>> getEventAttendees(@PathVariable Long eventId){
+        List<AttendeeResponseDto> response = attendeeManagementFacade.getEventAttendees(eventId);
+        return ResponseEntity.ok(response);
     }
 }

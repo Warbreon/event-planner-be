@@ -64,6 +64,10 @@ public class AttendeeManagementFacade {
             notificationController.notifyEventCreator(event.getCreator().getEmail());
         }
     }
+    public List<AttendeeResponseDto> getEventAttendees(Long eventId) {
+        List<Attendee> eventAttendees = attendeeService.findAllAttendeesByEventId(eventId);
+        return eventAttendees.stream().map(attendeeMapper::attendeeToDto).toList();
+    }
 
     public void updateEventAttendees(Long eventId, List<Long> userIds) {
         List<Long> userIdsToAdd = new ArrayList<>(userIds);
