@@ -74,4 +74,9 @@ public class EventController {
         EventResponseDto response  = eventManagementFacade.updateEvent(id, request);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/event/creator")
+    public ResponseEntity<Boolean> confirmEventCreator(@RequestParam("userId") Long userId, @RequestParam("eventId") Long eventId) {
+        return ResponseEntity.ok(eventManagementFacade.confirmThatEventCreatedByUserExist(eventId, userId));
+    }
 }

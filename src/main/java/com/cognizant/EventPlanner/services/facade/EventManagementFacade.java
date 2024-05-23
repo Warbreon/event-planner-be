@@ -73,6 +73,10 @@ public class EventManagementFacade {
         return convertEventToDto(event);
     }
 
+    public boolean confirmThatEventCreatedByUserExist(Long eventId, Long creatorId) {
+        return eventService.findThatEventByIdAndCreatorIdExists(eventId, creatorId);
+    }
+
     @Transactional
     public EventResponseDto createNewEvent(EventRequestDto request) throws IOException {
         String imageUrl = imageUploadService.uploadImageToAzure(request.getImageBase64());

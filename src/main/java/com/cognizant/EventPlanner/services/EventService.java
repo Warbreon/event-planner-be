@@ -72,6 +72,10 @@ public class EventService {
         return eventRepository.findAllByCreatorEmailOrderByEventStartDesc(email);
     }
 
+    public boolean findThatEventByIdAndCreatorIdExists(Long eventId, Long creatorId){
+        return eventRepository.findEventByIdAndCreatorId(eventId, creatorId).isPresent();
+    }
+
     public List<Event> findEventsUserIsRegisteredTo(String email) {
         return eventRepository.findAllUserIsRegisteredTo(email);
     }
