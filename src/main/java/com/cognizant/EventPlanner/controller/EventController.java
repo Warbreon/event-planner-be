@@ -79,4 +79,11 @@ public class EventController {
     public ResponseEntity<Boolean> confirmEventCreator(@RequestParam("userId") Long userId, @RequestParam("eventId") Long eventId) {
         return ResponseEntity.ok(eventManagementFacade.confirmThatEventCreatedByUserExist(eventId, userId));
     }
+
+    @PreAuthorize("hasAnyAuthority('EVENT_ADMIN', 'SYSTEM_ADMIN')")
+    @PatchMapping("/cancel/{id}")
+    public ResponseEntity<EventResponseDto> cancelEvent(@PathVariable Long id) {
+        EventResponseDto response = eventManagementFacade.cancelEvent(id);
+        return ResponseEntity.ok(response);
+    }
 }

@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -53,6 +54,17 @@ public class EventService {
                                                   Optional<String> city, Optional<String> name, Optional<Long> excludeEventId) {
         Specification<Event> spec = buildSpecification(tagIds, days, city, name, excludeEventId);
         return findEventsWithSpec(spec);
+    }
+
+    @CacheEvict(value = {"paginatedEvents", "events"}, allEntries = true)
+    @Transactional
+    public Event cancelEvent(Long id) {
+        Event event = findEventById(id);
+        if (!event.getIsCancelled()) {
+            event.setIsCancelled(true);
+            saveEvent(event);
+        }
+        return event;
     }
 
     public Event findEventById(Long id) {
@@ -98,21 +110,23 @@ public class EventService {
         event.setCreatedDate(LocalDateTime.now());
         event.setAddress(address);
         event.setCreator(user);
+        event.setIsCancelled(false);
         return event;
     }
 
     private Specification<Event> buildSpecification(Optional<Set<Long>> tagIds, Optional<Integer> days,
                                                     Optional<String> city, Optional<String> name, Optional<Long> excludeEventId) {
         return Stream.of(
-                        tagIds.filter(ids -> !ids.isEmpty()).map(EventSpecifications::hasTags),
-                        days.map(EventSpecifications::withinDays),
-                        city.map(EventSpecifications::byCity),
-                        name.map(EventSpecifications::byName),
-                        excludeEventId.map(EventSpecifications::byExcludeEventId)
-                )
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .reduce(Specification.where(null), Specification::and);
+                tagIds.filter(ids -> !ids.isEmpty()).map(EventSpecifications::hasTags),
+                days.map(EventSpecifications::withinDays),
+                city.map(EventSpecifications::byCity),
+                name.map(EventSpecifications::byName),
+                excludeEventId.map(EventSpecifications::byExcludeEventId),
+                Optional.of(EventSpecifications.isNotCancelled())
+            )
+            .filter(Optional::isPresent)
+            .map(Optional::get)
+            .reduce(Specification.where(null), Specification::and);
     }
 
     public void handleEventDatesUpdate(EditEventRequestDto requestDto, Event eventToEdit) {

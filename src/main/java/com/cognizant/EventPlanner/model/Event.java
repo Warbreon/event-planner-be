@@ -68,6 +68,9 @@ public class Event {
     @Column(name = "currency")
     private Currency currency;
 
+    @Column(name = "is_cancelled")
+    private Boolean isCancelled;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id")
     private User creator;

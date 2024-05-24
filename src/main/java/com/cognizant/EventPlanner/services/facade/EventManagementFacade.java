@@ -107,6 +107,11 @@ public class EventManagementFacade {
                 .toList();
     }
 
+    public EventResponseDto cancelEvent(Long id) {
+        Event event = eventService.cancelEvent(id);
+        return convertEventToDto(event);
+    }
+
     @Transactional
     public EventResponseDto updateEvent(Long id, EditEventRequestDto requestDto) throws IOException {
         return convertEventToDto(eventService.saveEvent(setUpdatedEventValues(id, requestDto)));
