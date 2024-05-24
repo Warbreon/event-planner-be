@@ -69,12 +69,14 @@ public class EventController {
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyAuthority('EVENT_ADMIN', 'SYSTEM_ADMIN')")
     @PutMapping("/edit/{id}")
     public ResponseEntity<EventResponseDto> editEvent(@PathVariable("id") Long id, @Valid @RequestBody EditEventRequestDto request) throws IOException {
         EventResponseDto response  = eventManagementFacade.updateEvent(id, request);
         return ResponseEntity.ok(response);
     }
 
+    @PreAuthorize("hasAnyAuthority('EVENT_ADMIN', 'SYSTEM_ADMIN')")
     @GetMapping("/event/creator")
     public ResponseEntity<Boolean> confirmEventCreator(@RequestParam("userId") Long userId, @RequestParam("eventId") Long eventId) {
         return ResponseEntity.ok(eventManagementFacade.confirmThatEventCreatedByUserExist(eventId, userId));
