@@ -1,9 +1,7 @@
 package com.cognizant.EventPlanner.services;
 
 import com.cognizant.EventPlanner.exception.EntityNotFoundException;
-import com.cognizant.EventPlanner.model.Attendee;
 import com.cognizant.EventPlanner.exception.passwordReset.PasswordReuseException;
-import com.cognizant.EventPlanner.model.Event;
 import com.cognizant.EventPlanner.model.Role;
 import com.cognizant.EventPlanner.model.User;
 import com.cognizant.EventPlanner.repository.UserRepository;
@@ -21,11 +19,6 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-
-    public User findUserById(Long id){
-        return userRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(User.class, id));
-    }
 
     public User findUserByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException(User.class, email));
