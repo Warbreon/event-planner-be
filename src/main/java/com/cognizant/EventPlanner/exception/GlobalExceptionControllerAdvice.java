@@ -28,4 +28,10 @@ public class GlobalExceptionControllerAdvice {
         return ErrorResponseEntityUtil.buildErrorResponseEntity(HttpStatus.NOT_FOUND, ex.getMessage(), request);
     }
 
+    @ExceptionHandler(InvalidDateRangeException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(InvalidDateRangeException ex, HttpServletRequest request) {
+        log.error("Illegal argument", ex);
+        return ErrorResponseEntityUtil.buildErrorResponseEntity(HttpStatus.BAD_REQUEST, ex.getMessage(), request);
+    }
+
 }
