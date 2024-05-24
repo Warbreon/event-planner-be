@@ -36,7 +36,10 @@ public class AttendeeManagementFacade {
         attendeeDto.setUserId(user.getId());
         attendeeDto.setEventId(event.getId());
 
-        return registrationService.registerAttendeeToEvent(attendeeDto, user, event);
+        AttendeeResponseDto responseDto = registrationService.registerAttendeeToEvent(attendeeDto, user, event);
+        notifyEventCreator(event);
+
+        return responseDto;
     }
 
     public NotificationResponseDto getAttendeeNotifications() {
