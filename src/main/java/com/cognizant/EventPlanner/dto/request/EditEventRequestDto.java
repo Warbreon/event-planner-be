@@ -20,7 +20,7 @@ public class EditEventRequestDto {
     @Size(max = 255, message = "Event name cannot exceed 255 characters")
     private String name;
 
-    @Size(max = 1000, message = "Description cannot exceed 1000 characters")
+    @Size(max = 5000, message = "Description cannot exceed 5000 characters")
     private String description;
 
     private Boolean isOpen;
