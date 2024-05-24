@@ -1,15 +1,16 @@
 package com.cognizant.EventPlanner.services;
 
 import com.cognizant.EventPlanner.exception.EntityNotFoundException;
+import com.cognizant.EventPlanner.exception.passwordReset.PasswordReuseException;
 import com.cognizant.EventPlanner.model.Event;
 import com.cognizant.EventPlanner.model.Role;
 import com.cognizant.EventPlanner.model.User;
 import com.cognizant.EventPlanner.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -17,6 +18,7 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public User findUserById(Long id){
         return userRepository.findById(id)
@@ -45,4 +47,15 @@ public class UserService {
     public void changeUserRoles(List<Long> ids, Role prevRole, Role newRole) {
         userRepository.updateRolesById(ids, prevRole, newRole);
     }
+
+    public void updatePassword(User user, String newPassword) {
+        if (passwordEncoder.matches(newPassword, user.getPasswordHash())) {
+            throw new PasswordReuseException();
+        }
+
+        String encodedPassword = passwordEncoder.encode(newPassword);
+        user.setPasswordHash(encodedPassword);
+        userRepository.save(user);
+    }
+
 }

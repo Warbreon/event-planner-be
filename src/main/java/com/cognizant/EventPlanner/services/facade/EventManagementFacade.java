@@ -32,10 +32,36 @@ public class EventManagementFacade {
     private final RegistrationService registrationService;
     private final ImageUploadService imageUploadService;
 
-    public Object getEventsFacade(Optional<Set<Long>> tagIds, Optional<Integer> days, Optional<String> city, Optional<String> name, Optional<Integer> page, Optional<Integer> size) {
-        return (page.isPresent() && size.isPresent())
-                ? eventService.getPaginatedEvents(tagIds, days, city, name, page.get(), size.get()).map(this::convertEventToDto)
-                : eventService.getEventsWithoutPagination(tagIds, days, city, name).stream().map(this::convertEventToDto).toList();
+    public Object getEventsFacade(
+            Optional<Set<Long>> tagIds,
+            Optional<Integer> days,
+            Optional<String> city,
+            Optional<String> name,
+            Optional<Long> excludeEventId,
+            Optional<Integer> page,
+            Optional<Integer> size
+    ) {
+        if (page.isPresent() && size.isPresent()) {
+            return eventService.getPaginatedEvents(
+                tagIds,
+                days,
+                city,
+                name,
+                excludeEventId,
+                page.get(),
+                size.get()
+            ).map(this::convertEventToDto);
+        } else {
+            return eventService.getEventsWithoutPagination(
+                tagIds,
+                days,
+                city,
+                name,
+                excludeEventId
+            ).stream()
+            .map(this::convertEventToDto)
+            .toList();
+        }
     }
 
     public EventResponseDto getEventById(Long id) {
@@ -71,6 +97,11 @@ public class EventManagementFacade {
                 .stream()
                 .map(this::convertEventToDto)
                 .toList();
+    }
+
+    public EventResponseDto cancelEvent(Long id) {
+        Event event = eventService.cancelEvent(id);
+        return convertEventToDto(event);
     }
 
     private EventResponseDto buildEventResponse(Event event, EventRequestDto request) {

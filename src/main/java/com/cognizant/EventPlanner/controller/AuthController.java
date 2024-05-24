@@ -1,5 +1,6 @@
 package com.cognizant.EventPlanner.controller;
 
+import com.cognizant.EventPlanner.dto.request.PasswordChangeRequestDto;
 import com.cognizant.EventPlanner.dto.request.PasswordResetRequestDto;
 import com.cognizant.EventPlanner.services.facade.AuthenticationManagementFacade;
 import com.cognizant.EventPlanner.dto.request.AuthenticationRequest;
@@ -38,6 +39,12 @@ public class AuthController {
     public ResponseEntity<?> requestResetPassword(@Valid @RequestBody PasswordResetRequestDto request) {
         authenticationManagementFacade.handlePasswordReset(request);
         return ResponseEntity.ok("Password reset email sent.");
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<?> changePassword(@Valid @RequestBody PasswordChangeRequestDto request) {
+        authenticationManagementFacade.handlePasswordChange(request);
+        return ResponseEntity.ok("Password has been updated successfully.");
     }
 
 }
