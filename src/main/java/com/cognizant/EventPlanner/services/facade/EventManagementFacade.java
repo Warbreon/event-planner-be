@@ -136,8 +136,8 @@ public class EventManagementFacade {
             addressService.updateEventAddress(eventToEdit, requestDto.getAddressId());
         }
 
-        if (requestDto.getUserIds() != null) {
-            updateEventAttendeesFacade(eventToEdit, requestDto.getUserIds());
+        if (requestDto.getAttendeeIds() != null) {
+            updateEventAttendeesFacade(eventToEdit, requestDto.getAttendeeIds());
         }
 
         if (requestDto.getTagIds() != null) {

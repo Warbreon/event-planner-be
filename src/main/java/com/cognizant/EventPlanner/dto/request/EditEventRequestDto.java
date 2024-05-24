@@ -25,16 +25,16 @@ public class EditEventRequestDto {
 
     private Boolean isOpen;
 
-    @Future(message = "Event start date must be in the future")
+
     private LocalDateTime eventStart;
 
-    @Future(message = "Event end date must be in the future")
+
     private LocalDateTime eventEnd;
 
-    @Future(message = "Event registration start date must be in the future")
+
     private LocalDateTime registrationStart;
 
-    @Future(message = "Event registration closure date must be in the future")
+
     private LocalDateTime registrationEnd;
 
     private String[] agenda;
@@ -52,7 +52,7 @@ public class EditEventRequestDto {
     @Size(max = 255, message = "Invite to online meeting cannot exceed 255 characters")
     private String inviteUrl;
 
-    private Set<Long> userIds;
+    private Set<Long> attendeeIds;
 
     @Min(value = 0, message = "Address ID has to be equal or greater than 0")
     @Max(value = Long.MAX_VALUE, message = "Address ID value can not exceed 9223372036854775807")
