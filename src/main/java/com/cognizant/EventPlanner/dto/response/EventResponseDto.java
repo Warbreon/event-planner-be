@@ -23,5 +23,6 @@ public class EventResponseDto extends EventDto {
     private Set<AttendeeResponseDto> attendees;
     private RegistrationStatus currentUserRegistrationStatus;
     private Set<TagResponseDto> tags;
+    private Boolean isCancelled;
 
 }

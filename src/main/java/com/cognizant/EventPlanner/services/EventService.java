@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,17 +32,34 @@ public class EventService {
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
 
-    @Cacheable(value = "paginatedEvents", key = "{#tagIds.orElse('all'), #days.orElse('all'), #city.orElse('all'), #name.orElse('all'), #page, #size, @userDetailsServiceImpl.getCurrentUserEmail()}")
-    public Page<Event> getPaginatedEvents(Optional<Set<Long>> tagIds, Optional<Integer> days, Optional<String> city, Optional<String> name, Integer page, Integer size) {
+    @Cacheable(value = "paginatedEvents", key = "{#tagIds.orElse('all'), #days.orElse('all'), #city.orElse('all'), " +
+            "#name.orElse('all'), #excludeEventId.orElse('all'), #page, #size, @userDetailsServiceImpl" +
+            ".getCurrentUserEmail()}")
+    public Page<Event> getPaginatedEvents(Optional<Set<Long>> tagIds, Optional<Integer> days, Optional<String> city,
+                                          Optional<String> name, Optional<Long> excludeEventId, Integer page,
+                                          Integer size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.ASC, "eventStart"));
-        Specification<Event> spec = buildSpecification(tagIds, days, city, name);
+        Specification<Event> spec = buildSpecification(tagIds, days, city, name, excludeEventId);
         return findEventsWithSpec(spec, pageable);
     }
 
-    @Cacheable(value = "events", key = "{#tagIds.orElse('all'), #days.orElse('all'), #city.orElse('all'), #name.orElse('all'), @userDetailsServiceImpl.getCurrentUserEmail()}")
-    public List<Event> getEventsWithoutPagination(Optional<Set<Long>> tagIds, Optional<Integer> days, Optional<String> city, Optional<String> name) {
-        Specification<Event> spec = buildSpecification(tagIds, days, city, name);
+    @Cacheable(value = "events", key = "{#tagIds.orElse('all'), #days.orElse('all'), #city.orElse('all'), #name" +
+            ".orElse('all'), #excludeEventId.orElse('all'), @userDetailsServiceImpl.getCurrentUserEmail()}")
+    public List<Event> getEventsWithoutPagination(Optional<Set<Long>> tagIds, Optional<Integer> days,
+                                                  Optional<String> city, Optional<String> name, Optional<Long> excludeEventId) {
+        Specification<Event> spec = buildSpecification(tagIds, days, city, name, excludeEventId);
         return findEventsWithSpec(spec);
+    }
+
+    @CacheEvict(value = {"paginatedEvents", "events"}, allEntries = true)
+    @Transactional
+    public Event cancelEvent(Long id) {
+        Event event = findEventById(id);
+        if (!event.getIsCancelled()) {
+            event.setIsCancelled(true);
+            saveEvent(event);
+        }
+        return event;
     }
 
     public Event findEventById(Long id) {
@@ -65,6 +83,10 @@ public class EventService {
         return eventRepository.findAllUserIsRegisteredTo(email);
     }
 
+    public Event findEventByAttendeeId(Long attendeeId) {
+        return eventRepository.findEventByAttendeeId(attendeeId);
+    }
+
     @CacheEvict(value = {"paginatedEvents", "events"}, allEntries = true)
     public Event saveEvent(Event event) {
         return eventRepository.save(event);
@@ -79,18 +101,23 @@ public class EventService {
         event.setCreatedDate(LocalDateTime.now());
         event.setAddress(address);
         event.setCreator(user);
+        event.setIsCancelled(false);
         return event;
     }
 
-    private Specification<Event> buildSpecification(Optional<Set<Long>> tagIds, Optional<Integer> days, Optional<String> city, Optional<String> name) {
+    private Specification<Event> buildSpecification(Optional<Set<Long>> tagIds, Optional<Integer> days,
+                                                    Optional<String> city, Optional<String> name, Optional<Long> excludeEventId) {
         return Stream.of(
                 tagIds.filter(ids -> !ids.isEmpty()).map(EventSpecifications::hasTags),
                 days.map(EventSpecifications::withinDays),
                 city.map(EventSpecifications::byCity),
-                name.map(EventSpecifications::byName)
+                name.map(EventSpecifications::byName),
+                excludeEventId.map(EventSpecifications::byExcludeEventId),
+                Optional.of(EventSpecifications.isNotCancelled())
             )
             .filter(Optional::isPresent)
             .map(Optional::get)
             .reduce(Specification.where(null), Specification::and);
     }
+
 }

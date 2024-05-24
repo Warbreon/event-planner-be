@@ -14,8 +14,9 @@ public class AddressService {
 
     private final AddressRepository addressRepository;
 
+
     public Address findAddressById(Long id) {
-        if (id == null) {
+        if (id == null || id == 0) {
             return null;
         }
 
@@ -26,4 +27,9 @@ public class AddressService {
     public List<String> findAllCities() {
         return addressRepository.findAllCities();
     }
+
+    public List<Address> findAllAddresses() {
+        return addressRepository.findAll();
+    }
+
 }
