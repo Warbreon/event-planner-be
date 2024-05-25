@@ -6,12 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.repository.query.Param;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -47,6 +44,7 @@ public interface AttendeeRepository extends JpaRepository<Attendee, Long> {
             "WHERE e.creator.email = :email AND a.isNewNotification IS NOT NULL AND a.registrationStatus = 'PENDING'")
     int countAllNotifications(@Param("email") String email);
 
-    long countByEventId(Long eventId);
+    @Query("SELECT COUNT(a) FROM Attendee a WHERE a.event.id = :eventId AND a.registrationStatus = 'ACCEPTED'")
+    long countAcceptedAttendeesByEventId(@Param("eventId") Long eventId);
 
 }

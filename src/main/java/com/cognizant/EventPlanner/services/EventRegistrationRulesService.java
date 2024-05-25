@@ -23,7 +23,7 @@ public class EventRegistrationRulesService {
         }
 
         LocalDateTime now = LocalDateTime.now();
-        long registeredAttendees = attendeeService.countAttendeesByEvent(event.getId());
+        long registeredAttendees = attendeeService.countAcceptedAttendeesByEvent(event.getId());
 
         if (event.getTickets() == null || event.getTickets() <= registeredAttendees ) {
             throw new EventSoldOutException();

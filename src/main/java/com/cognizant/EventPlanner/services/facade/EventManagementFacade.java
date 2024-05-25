@@ -10,21 +10,16 @@ import com.cognizant.EventPlanner.model.Address;
 import com.cognizant.EventPlanner.model.Attendee;
 import com.cognizant.EventPlanner.model.Event;
 import com.cognizant.EventPlanner.model.User;
-import com.cognizant.EventPlanner.model.*;
 import com.cognizant.EventPlanner.services.*;
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.beans.PropertyDescriptor;
-import java.util.*;
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -41,7 +36,6 @@ public class EventManagementFacade {
     private final RegistrationService registrationService;
     private final AttendeeService attendeeService;
     private final ImageUploadService imageUploadService;
-    private final AttendeeService attendeeService;
 
     public Object getEventsFacade(
             Optional<Set<Long>> tagIds,
@@ -170,9 +164,7 @@ public class EventManagementFacade {
     }
 
     private void updateEventAttendeesFacade(Event event, Set<Long> newUserIds) {
-        Set<User> newUsers = newUserIds.stream()
-                .map(userService::findUserById)
-                .collect(Collectors.toSet());
+        Set<User> newUsers = new LinkedHashSet<>(userService.findUsersByIds(newUserIds));
         attendeeService.updateEventAttendees(event, newUsers);
     }
 

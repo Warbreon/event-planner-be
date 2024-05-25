@@ -7,6 +7,7 @@ import com.cognizant.EventPlanner.mapper.NotificationMapper;
 import com.cognizant.EventPlanner.model.Attendee;
 import com.cognizant.EventPlanner.model.Event;
 import com.cognizant.EventPlanner.model.RegistrationStatus;
+import com.cognizant.EventPlanner.model.User;
 import com.cognizant.EventPlanner.repository.AttendeeRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -19,11 +20,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-
-import java.util.EnumSet;
 
 @Service
 @RequiredArgsConstructor
@@ -155,8 +152,8 @@ public class AttendeeService {
         attendeeRepository.delete(attendee);
     }
 
-    public long countAttendeesByEvent(Long eventId) {
-        return attendeeRepository.countByEventId(eventId);
+    public long countAcceptedAttendeesByEvent(Long eventId) {
+        return attendeeRepository.countAcceptedAttendeesByEventId(eventId);
     }
 
 }
