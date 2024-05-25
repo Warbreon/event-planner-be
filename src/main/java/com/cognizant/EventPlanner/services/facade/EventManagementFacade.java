@@ -6,20 +6,21 @@ import com.cognizant.EventPlanner.dto.request.EventRequestDto;
 import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
 import com.cognizant.EventPlanner.dto.response.EventResponseDto;
 import com.cognizant.EventPlanner.mapper.EventMapper;
-import com.cognizant.EventPlanner.model.*;
+import com.cognizant.EventPlanner.model.Address;
+import com.cognizant.EventPlanner.model.Attendee;
+import com.cognizant.EventPlanner.model.Event;
+import com.cognizant.EventPlanner.model.User;
 import com.cognizant.EventPlanner.services.*;
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.beans.PropertyDescriptor;
-import java.util.*;
 import java.io.IOException;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -163,9 +164,7 @@ public class EventManagementFacade {
     }
 
     private void updateEventAttendeesFacade(Event event, Set<Long> newUserIds) {
-        Set<User> newUsers = newUserIds.stream()
-                .map(userService::findUserById)
-                .collect(Collectors.toSet());
+        Set<User> newUsers = new LinkedHashSet<>(userService.findUsersByIds(newUserIds));
         attendeeService.updateEventAttendees(event, newUsers);
     }
 
@@ -177,16 +176,31 @@ public class EventManagementFacade {
         return eventResponseDto;
     }
 
-    private Set<AttendeeResponseDto> registerAttendeesToEvent(Set<AttendeeRequestDto> requestSet, Event event) {
-        return requestSet.stream()
-                .map(request -> registrationService.registerAttendeeToEvent(request, userService.findUserById(request.getUserId()), event))
+    public Set<AttendeeResponseDto> registerAttendeesToEvent(Set<AttendeeRequestDto> requests, Event event) {
+        Set<Long> userIds = requests.stream()
+                .map(AttendeeRequestDto::getUserId)
                 .collect(Collectors.toSet());
+
+        List<User> users = userService.findUsersByIds(userIds);
+        Map<Long, User> userMap = users.stream()
+                .collect(Collectors.toMap(User::getId, Function.identity()));
+
+        Set<Long> registeredUserIds = attendeeService.findAttendeesByUsersAndEvent(userIds, event.getId())
+                .stream()
+                .map(Attendee::getUser)
+                .map(User::getId)
+                .collect(Collectors.toSet());
+
+        return registrationService.registerAttendeesToEvent(requests, userMap, registeredUserIds, event);
     }
 
     private EventResponseDto convertEventToDto(Event event) {
         EventResponseDto eventDto = eventMapper.eventToDto(event);
         eventDto.setTags(tagService.mapEventTags(event.getTags()));
-        eventDto.setCurrentUserRegisteredToEvent(userService.isUserRegistered(event, userDetailsService.getCurrentUserEmail()));
+        eventDto.setCurrentUserRegistrationStatus(attendeeService.getAttendeeRegistrationStatus(
+                event,
+                userDetailsService.getCurrentUserEmail()
+        ));
         return eventDto;
     }
 

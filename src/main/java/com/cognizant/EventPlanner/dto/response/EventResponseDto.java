@@ -1,6 +1,7 @@
 package com.cognizant.EventPlanner.dto.response;
 
 import com.cognizant.EventPlanner.dto.EventDto;
+import com.cognizant.EventPlanner.model.RegistrationStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -20,7 +21,7 @@ public class EventResponseDto extends EventDto {
     private Long creatorId;
     private AddressResponseDto address;
     private Set<AttendeeResponseDto> attendees;
-    private boolean isCurrentUserRegisteredToEvent;
+    private RegistrationStatus currentUserRegistrationStatus;
     private Set<TagResponseDto> tags;
     private Boolean isCancelled;
 

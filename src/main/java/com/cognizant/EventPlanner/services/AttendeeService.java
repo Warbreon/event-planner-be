@@ -4,7 +4,10 @@ import com.cognizant.EventPlanner.dto.response.AttendeeNotificationResponseDto;
 import com.cognizant.EventPlanner.dto.response.NotificationResponseDto;
 import com.cognizant.EventPlanner.exception.EntityNotFoundException;
 import com.cognizant.EventPlanner.mapper.NotificationMapper;
-import com.cognizant.EventPlanner.model.*;
+import com.cognizant.EventPlanner.model.Attendee;
+import com.cognizant.EventPlanner.model.Event;
+import com.cognizant.EventPlanner.model.RegistrationStatus;
+import com.cognizant.EventPlanner.model.User;
 import com.cognizant.EventPlanner.repository.AttendeeRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +20,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import java.util.EnumSet;
-import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -123,6 +126,34 @@ public class AttendeeService {
                 .collect(Collectors.toSet());
 
         saveAttendees(newAttendees);
+    }
+
+
+    public Optional<Attendee> findAttendeeByUserAndEvent(Long userId, Long eventId) {
+        return attendeeRepository.findByUserIdAndEventId(userId, eventId);
+    }
+
+    public List<Attendee> findAttendeesByUsersAndEvent(Set<Long> userIds, Long eventId) {
+        return attendeeRepository.findAllByUserIdsAndEventId(userIds, eventId);
+    }
+
+    public RegistrationStatus getAttendeeRegistrationStatus(Event event, String userEmail) {
+        return attendeeRepository.findAttendeeRegistrationStatus(event.getId(), userEmail)
+                .orElse(null);
+    }
+
+    @CacheEvict(value = {"paginatedEvents", "events"}, allEntries = true)
+    public List<Attendee> saveAllAttendees(Iterable<Attendee> attendees) {
+        return attendeeRepository.saveAll(attendees);
+    }
+
+    @CacheEvict(value = {"paginatedEvents", "events"}, allEntries = true)
+    public void deleteAttendee(Attendee attendee) {
+        attendeeRepository.delete(attendee);
+    }
+
+    public long countAcceptedAttendeesByEvent(Long eventId) {
+        return attendeeRepository.countAcceptedAttendeesByEventId(eventId);
     }
 
 }
