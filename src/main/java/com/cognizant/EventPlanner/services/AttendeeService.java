@@ -13,6 +13,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -97,6 +103,34 @@ public class AttendeeService {
     public Attendee saveAttendee(Attendee attendee) {
         return attendeeRepository.save(attendee);
     }
+
+    @CacheEvict(value = {"paginatedEvents", "events"}, allEntries = true)
+    public void saveAttendees(Set<Attendee> attendees) {
+        attendeeRepository.saveAll(attendees);
+    }
+
+    public List<Attendee> findAllByEventId(Long eventId) {
+        return attendeeRepository.findAllByEventId(eventId);
+    }
+
+    public void removeAttendees(List<Long> attendeesIdsToRemove) {
+        attendeeRepository.removeAllByIdIn(attendeesIdsToRemove);
+    }
+
+    public void updateEventAttendees(Event event, Set<User> newUsers) {
+        List<Attendee> currentEventAttendees = findAllByEventId(event.getId());
+        List<Long> toRemove = currentEventAttendees.stream().filter(attendee -> !newUsers.contains(attendee.getUser())).map(Attendee::getId).toList();
+        removeAttendees(toRemove);
+
+        Set<Attendee> newAttendees = newUsers.stream()
+                .filter(user -> currentEventAttendees.stream().noneMatch(attendee -> attendee.getUser().equals(user)))
+                .map(user -> new Attendee(null, RegistrationStatus.ACCEPTED, null,
+                        LocalDateTime.now(), null, user, event))
+                .collect(Collectors.toSet());
+
+        saveAttendees(newAttendees);
+    }
+
 
     public Optional<Attendee> findAttendeeByUserAndEvent(Long userId, Long eventId) {
         return attendeeRepository.findByUserIdAndEventId(userId, eventId);

@@ -1,13 +1,16 @@
 package com.cognizant.EventPlanner.services;
 
+import com.cognizant.EventPlanner.dto.request.EditEventRequestDto;
 import com.cognizant.EventPlanner.dto.request.EventRequestDto;
 import com.cognizant.EventPlanner.exception.EntityNotFoundException;
+import com.cognizant.EventPlanner.exception.InvalidDateRangeException;
 import com.cognizant.EventPlanner.mapper.EventMapper;
 import com.cognizant.EventPlanner.model.Address;
 import com.cognizant.EventPlanner.model.Event;
 import com.cognizant.EventPlanner.model.User;
 import com.cognizant.EventPlanner.repository.EventRepository;
 import com.cognizant.EventPlanner.specification.EventSpecifications;
+import com.cognizant.EventPlanner.util.DateValidationUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -19,6 +22,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -31,6 +35,7 @@ public class EventService {
 
     private final EventRepository eventRepository;
     private final EventMapper eventMapper;
+    private final DateValidationUtils dateValidationUtils;
 
     @Cacheable(value = "paginatedEvents", key = "{#tagIds.orElse('all'), #days.orElse('all'), #city.orElse('all'), " +
             "#name.orElse('all'), #excludeEventId.orElse('all'), #page, #size, @userDetailsServiceImpl" +
@@ -79,6 +84,10 @@ public class EventService {
         return eventRepository.findAllByCreatorEmailOrderByEventStartDesc(email);
     }
 
+    public boolean findThatEventByIdAndCreatorIdExists(Long eventId, Long creatorId){
+        return eventRepository.findEventByIdAndCreatorId(eventId, creatorId).isPresent();
+    }
+
     public List<Event> findEventsUserIsRegisteredTo(String email) {
         return eventRepository.findAllUserIsRegisteredTo(email);
     }
@@ -93,7 +102,7 @@ public class EventService {
     }
 
     public boolean isPaid(Event event) {
-        return event.getPrice() != null && event.getPrice() > 0;
+        return event.getPrice() != null && event.getPrice().compareTo(BigDecimal.ZERO) > 0;
     }
 
     public Event prepareEventForCreation(EventRequestDto request, Address address, User user) {
@@ -118,6 +127,54 @@ public class EventService {
             .filter(Optional::isPresent)
             .map(Optional::get)
             .reduce(Specification.where(null), Specification::and);
+    }
+
+    public void handleEventDatesUpdate(EditEventRequestDto requestDto, Event eventToEdit) {
+        Optional.ofNullable(requestDto.getEventStart()).ifPresent(eventStart -> {
+            Optional.ofNullable(requestDto.getEventEnd()).ifPresent(eventEnd -> {
+                if (!dateValidationUtils.validateDateRange(eventStart, eventEnd)) {
+                    throw new InvalidDateRangeException("Invalid event date range. Event start date must be before event end date");
+                }
+                eventToEdit.setEventEnd(eventEnd);
+            });
+
+            if (!dateValidationUtils.validateDateRange(eventStart, eventToEdit.getEventEnd())) {
+                throw new InvalidDateRangeException("Invalid event date range. Event start date must be before event end date");
+            }
+
+            if (!dateValidationUtils.validateDateRange(eventToEdit.getRegistrationEnd(), eventStart)) {
+                throw new InvalidDateRangeException("Event cannot start before registration has ended");
+            }
+            eventToEdit.setEventStart(eventStart);
+        });
+
+        Optional.ofNullable(requestDto.getEventEnd()).ifPresent(eventEnd -> {
+            if (!dateValidationUtils.validateDateRange(eventToEdit.getEventStart(), eventEnd)) {
+                throw new InvalidDateRangeException("Invalid event date range. Event start date must be before event end date");
+            }
+            eventToEdit.setEventEnd(eventEnd);
+        });
+
+        Optional.ofNullable(requestDto.getRegistrationStart()).ifPresent(registrationStart -> {
+            Optional.ofNullable(requestDto.getRegistrationEnd()).ifPresent(registrationEnd -> {
+                if (!dateValidationUtils.validateDateRange(registrationStart, registrationEnd)) {
+                    throw new InvalidDateRangeException("Invalid registration date range. Registration start date must be before registration end date");
+                }
+                eventToEdit.setRegistrationEnd(registrationEnd);
+            });
+
+            if (!dateValidationUtils.validateDateRange(registrationStart, eventToEdit.getRegistrationEnd())) {
+                throw new InvalidDateRangeException("Invalid registration date range. Registration start date must be before registration end date");
+            }
+            eventToEdit.setRegistrationStart(registrationStart);
+        });
+
+        Optional.ofNullable(requestDto.getRegistrationEnd()).ifPresent(registrationEnd -> {
+            if (!dateValidationUtils.validateDateRange(eventToEdit.getRegistrationStart(), registrationEnd)) {
+                throw new InvalidDateRangeException("Invalid registration date range. Registration start date must be before registration end date");
+            }
+            eventToEdit.setRegistrationEnd(registrationEnd);
+        });
     }
 
 }

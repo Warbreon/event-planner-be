@@ -1,6 +1,7 @@
 package com.cognizant.EventPlanner.services.facade;
 
 import com.cognizant.EventPlanner.dto.request.AttendeeRequestDto;
+import com.cognizant.EventPlanner.dto.request.EditEventRequestDto;
 import com.cognizant.EventPlanner.dto.request.EventRequestDto;
 import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
 import com.cognizant.EventPlanner.dto.response.EventResponseDto;
@@ -9,11 +10,16 @@ import com.cognizant.EventPlanner.model.Address;
 import com.cognizant.EventPlanner.model.Attendee;
 import com.cognizant.EventPlanner.model.Event;
 import com.cognizant.EventPlanner.model.User;
+import com.cognizant.EventPlanner.model.*;
 import com.cognizant.EventPlanner.services.*;
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.stereotype.Service;
 
+import java.beans.PropertyDescriptor;
+import java.util.*;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +39,7 @@ public class EventManagementFacade {
     private final AddressService addressService;
     private final UserService userService;
     private final RegistrationService registrationService;
+    private final AttendeeService attendeeService;
     private final ImageUploadService imageUploadService;
     private final AttendeeService attendeeService;
 
@@ -47,30 +54,34 @@ public class EventManagementFacade {
     ) {
         if (page.isPresent() && size.isPresent()) {
             return eventService.getPaginatedEvents(
-                tagIds,
-                days,
-                city,
-                name,
-                excludeEventId,
-                page.get(),
-                size.get()
+                    tagIds,
+                    days,
+                    city,
+                    name,
+                    excludeEventId,
+                    page.get(),
+                    size.get()
             ).map(this::convertEventToDto);
         } else {
             return eventService.getEventsWithoutPagination(
-                tagIds,
-                days,
-                city,
-                name,
-                excludeEventId
-            ).stream()
-            .map(this::convertEventToDto)
-            .toList();
+                            tagIds,
+                            days,
+                            city,
+                            name,
+                            excludeEventId
+                    ).stream()
+                    .map(this::convertEventToDto)
+                    .toList();
         }
     }
 
     public EventResponseDto getEventById(Long id) {
         Event event = eventService.findEventById(id);
         return convertEventToDto(event);
+    }
+
+    public boolean confirmThatEventCreatedByUserExist(Long eventId, Long creatorId) {
+        return eventService.findThatEventByIdAndCreatorIdExists(eventId, creatorId);
     }
 
     @Transactional
@@ -106,6 +117,63 @@ public class EventManagementFacade {
     public EventResponseDto cancelEvent(Long id) {
         Event event = eventService.cancelEvent(id);
         return convertEventToDto(event);
+    }
+
+    @Transactional
+    public EventResponseDto updateEvent(Long id, EditEventRequestDto requestDto) throws IOException {
+        return convertEventToDto(eventService.saveEvent(setUpdatedEventValues(id, requestDto)));
+    }
+
+
+    private Event setUpdatedEventValues(Long id, EditEventRequestDto requestDto) throws IOException {
+        Event newEventValues = eventMapper.editEventRequestDtoToEvent(requestDto);
+        Event eventToEdit = eventService.findEventById(id);
+
+        BeanWrapper eventWrapper = new BeanWrapperImpl(eventToEdit);
+        BeanWrapper newValuesWrapper = new BeanWrapperImpl(newEventValues);
+
+        for (PropertyDescriptor propertyDescriptor : newValuesWrapper.getPropertyDescriptors()) {
+            String propertyName = propertyDescriptor.getName();
+            if (eventWrapper.isWritableProperty(propertyName)
+                    && newValuesWrapper.getPropertyValue(propertyName) != null
+                    && !Objects.equals(eventWrapper.getPropertyValue(propertyName), newValuesWrapper.getPropertyValue(propertyName))) {
+                eventWrapper.setPropertyValue(propertyName, newValuesWrapper.getPropertyValue(propertyName));
+            }
+        }
+
+        eventService.handleEventDatesUpdate(requestDto, eventToEdit);
+
+
+        if (requestDto.getAddressId() != null) {
+            addressService.updateEventAddress(eventToEdit, requestDto.getAddressId());
+        }
+
+        if (requestDto.getAttendeeIds() != null) {
+            updateEventAttendeesFacade(eventToEdit, requestDto.getAttendeeIds());
+        }
+
+        if (requestDto.getTagIds() != null) {
+            tagService.updateEventTags(eventToEdit, requestDto.getTagIds());
+        }
+
+        if (requestDto.getImageBase64() != null) {
+            String imageUrl = imageUploadService.uploadImageToAzure(requestDto.getImageBase64());
+            eventToEdit.setImageUrl(imageUrl);
+        }
+
+        if (requestDto.getCardImageBase64() != null) {
+            String cardImageUrl = imageUploadService.uploadImageToAzure(requestDto.getCardImageBase64());
+            eventToEdit.setCardImageUrl(cardImageUrl);
+        }
+
+        return eventToEdit;
+    }
+
+    private void updateEventAttendeesFacade(Event event, Set<Long> newUserIds) {
+        Set<User> newUsers = newUserIds.stream()
+                .map(userService::findUserById)
+                .collect(Collectors.toSet());
+        attendeeService.updateEventAttendees(event, newUsers);
     }
 
     private EventResponseDto buildEventResponse(Event event, EventRequestDto request) {
