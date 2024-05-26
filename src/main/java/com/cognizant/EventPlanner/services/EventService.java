@@ -130,51 +130,38 @@ public class EventService {
     }
 
     public void handleEventDatesUpdate(EditEventRequestDto requestDto, Event eventToEdit) {
-        Optional.ofNullable(requestDto.getEventStart()).ifPresent(eventStart -> {
-            Optional.ofNullable(requestDto.getEventEnd()).ifPresent(eventEnd -> {
-                if (!dateValidationUtils.validateDateRange(eventStart, eventEnd)) {
-                    throw new InvalidDateRangeException("Invalid event date range. Event start date must be before event end date");
-                }
-                eventToEdit.setEventEnd(eventEnd);
-            });
 
-            if (!dateValidationUtils.validateDateRange(eventStart, eventToEdit.getEventEnd())) {
+        if (requestDto.getEventStart() != null) {
+            eventToEdit.setEventStart(requestDto.getEventStart());
+        }
+        if (requestDto.getEventEnd() != null) {
+            eventToEdit.setEventEnd(requestDto.getEventEnd());
+        }
+
+        if (eventToEdit.getEventStart() != null && eventToEdit.getEventEnd() != null) {
+            if (!dateValidationUtils.validateDateRange(eventToEdit.getEventStart(), eventToEdit.getEventEnd())) {
                 throw new InvalidDateRangeException("Invalid event date range. Event start date must be before event end date");
             }
+        }
 
-            if (!dateValidationUtils.validateDateRange(eventToEdit.getRegistrationEnd(), eventStart)) {
+        if (requestDto.getRegistrationStart() != null) {
+            eventToEdit.setRegistrationStart(requestDto.getRegistrationStart());
+        }
+        if (requestDto.getRegistrationEnd() != null) {
+            eventToEdit.setRegistrationEnd(requestDto.getRegistrationEnd());
+        }
+
+        if (eventToEdit.getRegistrationStart() != null && eventToEdit.getRegistrationEnd() != null) {
+            if (!dateValidationUtils.validateDateRange(eventToEdit.getRegistrationStart(), eventToEdit.getRegistrationEnd())) {
+                throw new InvalidDateRangeException("Invalid registration date range. Registration start date must be before registration end date");
+            }
+        }
+
+        if (eventToEdit.getEventStart() != null && eventToEdit.getRegistrationEnd() != null) {
+            if (!dateValidationUtils.validateDateRange(eventToEdit.getRegistrationEnd(), eventToEdit.getEventStart())) {
                 throw new InvalidDateRangeException("Event cannot start before registration has ended");
             }
-            eventToEdit.setEventStart(eventStart);
-        });
-
-        Optional.ofNullable(requestDto.getEventEnd()).ifPresent(eventEnd -> {
-            if (!dateValidationUtils.validateDateRange(eventToEdit.getEventStart(), eventEnd)) {
-                throw new InvalidDateRangeException("Invalid event date range. Event start date must be before event end date");
-            }
-            eventToEdit.setEventEnd(eventEnd);
-        });
-
-        Optional.ofNullable(requestDto.getRegistrationStart()).ifPresent(registrationStart -> {
-            Optional.ofNullable(requestDto.getRegistrationEnd()).ifPresent(registrationEnd -> {
-                if (!dateValidationUtils.validateDateRange(registrationStart, registrationEnd)) {
-                    throw new InvalidDateRangeException("Invalid registration date range. Registration start date must be before registration end date");
-                }
-                eventToEdit.setRegistrationEnd(registrationEnd);
-            });
-
-            if (!dateValidationUtils.validateDateRange(registrationStart, eventToEdit.getRegistrationEnd())) {
-                throw new InvalidDateRangeException("Invalid registration date range. Registration start date must be before registration end date");
-            }
-            eventToEdit.setRegistrationStart(registrationStart);
-        });
-
-        Optional.ofNullable(requestDto.getRegistrationEnd()).ifPresent(registrationEnd -> {
-            if (!dateValidationUtils.validateDateRange(eventToEdit.getRegistrationStart(), registrationEnd)) {
-                throw new InvalidDateRangeException("Invalid registration date range. Registration start date must be before registration end date");
-            }
-            eventToEdit.setRegistrationEnd(registrationEnd);
-        });
+        }
     }
 
 }

@@ -137,9 +137,15 @@ public class EventManagementFacade {
 
         eventService.handleEventDatesUpdate(requestDto, eventToEdit);
 
+        if(requestDto.getInviteUrl() != null) {
+            eventToEdit.setInviteUrl(requestDto.getInviteUrl());
+            addressService.updateEventAddress(eventToEdit, 0L);
+        }
 
-        if (requestDto.getAddressId() != null) {
+
+        if (requestDto.getAddressId() != null && requestDto.getAddressId() != 0) {
             addressService.updateEventAddress(eventToEdit, requestDto.getAddressId());
+            eventToEdit.setInviteUrl(null);
         }
 
         if (requestDto.getAttendeeIds() != null) {
