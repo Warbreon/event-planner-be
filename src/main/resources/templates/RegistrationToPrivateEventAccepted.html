@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="">
+<head>
+    <meta charset="UTF-8">
+    <title>Registration accepted email</title>
+    <style>
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #dddddd;
+            color: #253138;
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        .container .event-image {
+            border-radius: 12px;
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            object-position: center center;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img th:src="${eventImageUrl}" class="event-image" th:alt="${eventName}">
+        <h2>You were accepted to "<span th:text="${eventName}">Event</span>"!</h2>
+        <p>Hello, <span th:text="${name}">User</span>!</p>
+        <p>You recently sent registration request to the event "<span th:text="${eventName}">Event</span>".</p>
+
+        <p>
+            We have some great news to deliver! You were accepted to "<span th:text="${eventName}">Event</span>" event.
+            We'll be waiting for you on <span th:text="${eventStartDate}">Date</span> at <span th:text="${eventStartTime}">Time</span>.
+        </p>
+
+        <p>
+            For more information visit: <span th:text="${eventUrl}">URL</span>
+        </p>
+
+        <p>
+            If you have any other questions regarding this event,
+            please do not hesitate to contact our event organizer
+            <span th:text="${eventCreatorFirstName}">Creator name</span>
+            <span th:text="${eventCreatorLastName}">Creator last name</span>
+            via email <span th:text="${eventCreatorEmail}">Creator email</span>
+        </p>
+
+        <p>
+            See you soon!
+        </p>
+
+        <p>Thanks,<br/> <br/>The EventPlanner Team</p>
+    </div>
+</body>
+</html>
