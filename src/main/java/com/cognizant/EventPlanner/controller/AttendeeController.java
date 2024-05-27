@@ -1,6 +1,6 @@
 package com.cognizant.EventPlanner.controller;
 
-import com.cognizant.EventPlanner.dto.request.AttendeeRequestDto;
+import com.cognizant.EventPlanner.dto.request.BaseEventRegistrationRequestDto;
 import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
 import com.cognizant.EventPlanner.dto.response.NotificationResponseDto;
 import com.cognizant.EventPlanner.services.facade.AttendeeManagementFacade;
@@ -19,10 +19,17 @@ public class AttendeeController {
     private final AttendeeManagementFacade attendeeManagementFacade;
 
     @PostMapping("/register")
-    public ResponseEntity<AttendeeResponseDto> registerToEvent(@Valid @RequestBody AttendeeRequestDto request) {
+    public ResponseEntity<AttendeeResponseDto> registerToEvent(@Valid @RequestBody BaseEventRegistrationRequestDto request) {
         AttendeeResponseDto response = attendeeManagementFacade.registerToEvent(request);
         return ResponseEntity.ok(response);
     }
+
+    @DeleteMapping("/unregister/{eventId}")
+    public ResponseEntity<Void> unregisterFromEvent(@PathVariable Long eventId) {
+        attendeeManagementFacade.unregisterFromEvent(eventId);
+        return ResponseEntity.ok().build();
+    }
+
 
     @GetMapping("/notifications")
     public ResponseEntity<NotificationResponseDto> getAttendeeNotifications() {

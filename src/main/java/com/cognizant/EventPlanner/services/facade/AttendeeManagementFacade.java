@@ -2,11 +2,13 @@ package com.cognizant.EventPlanner.services.facade;
 
 import com.cognizant.EventPlanner.controller.NotificationController;
 import com.cognizant.EventPlanner.dto.request.AttendeeRequestDto;
+import com.cognizant.EventPlanner.dto.request.BaseEventRegistrationRequestDto;
 import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
 import com.cognizant.EventPlanner.dto.response.NotificationResponseDto;
 import com.cognizant.EventPlanner.mapper.AttendeeMapper;
 import com.cognizant.EventPlanner.model.*;
 import com.cognizant.EventPlanner.services.*;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.ArrayList;
@@ -24,12 +26,20 @@ public class AttendeeManagementFacade {
     private final AttendeeMapper attendeeMapper;
     private final NotificationController notificationController;
 
-    public AttendeeResponseDto registerToEvent(AttendeeRequestDto request) {
-        User user = userService.findUserById(request.getUserId());
+    @Transactional
+    public AttendeeResponseDto registerToEvent(BaseEventRegistrationRequestDto request) {
+        String userEmail = userDetailsService.getCurrentUserEmail();
+        User user = userService.findUserByEmail(userEmail);
         Event event = eventService.findEventById(request.getEventId());
-        AttendeeResponseDto response =  registrationService.registerAttendeeToEvent(request, user, event);
+
+        AttendeeRequestDto attendeeDto = new AttendeeRequestDto();
+        attendeeDto.setUserId(user.getId());
+        attendeeDto.setEventId(event.getId());
+
+        AttendeeResponseDto responseDto = registrationService.registerAttendeeToEvent(attendeeDto, user, event);
         notifyEventCreator(event);
-        return response;
+
+        return responseDto;
     }
 
     public NotificationResponseDto getAttendeeNotifications() {
@@ -64,6 +74,14 @@ public class AttendeeManagementFacade {
             notificationController.notifyEventCreator(event.getCreator().getEmail());
         }
     }
+
+    @Transactional
+    public void unregisterFromEvent(Long eventId) {
+        String userEmail = userDetailsService.getCurrentUserEmail();
+        User user = userService.findUserByEmail(userEmail);
+        registrationService.unregisterAttendeeFromEvent(user.getId(), eventId);
+    }
+
     public List<AttendeeResponseDto> getEventAttendees(Long eventId) {
         List<Attendee> eventAttendees = attendeeService.findAllAttendeesByEventId(eventId);
         return eventAttendees.stream().map(attendeeMapper::attendeeToDto).toList();

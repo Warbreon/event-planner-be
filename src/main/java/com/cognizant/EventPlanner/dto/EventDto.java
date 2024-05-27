@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
@@ -24,7 +25,7 @@ public abstract class EventDto {
     private String name;
 
     @NotBlank(message = "Event must have a description")
-    @Size(max = 1000, message = "Description cannot exceed 1000 characters")
+    @Size(max = 5000, message = "Description cannot exceed 5000 characters")
     private String description;
 
     @NotNull(message = "Event must be open or private")
@@ -48,9 +49,9 @@ public abstract class EventDto {
 
     private String[] agenda;
 
-    @Min(value = 0, message = "Event price can not be less than 0")
-    @Max(value = 10000, message = "Event price can not be greater than 10000")
-    private Double price;
+    @DecimalMin(value = "0.00", message = "Event price can not be less than 0.00")
+    @DecimalMax(value = "10000.00", message = "Event price can not be greater than 10000.00")
+    private BigDecimal price;
 
     @Min(value = 0, message = "Event tickets count can not be less than 0")
     @Max(value = 10000, message = "Event tickets count can not be greater than 10000")

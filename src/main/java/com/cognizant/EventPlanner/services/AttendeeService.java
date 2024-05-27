@@ -4,15 +4,23 @@ import com.cognizant.EventPlanner.dto.response.AttendeeNotificationResponseDto;
 import com.cognizant.EventPlanner.dto.response.NotificationResponseDto;
 import com.cognizant.EventPlanner.exception.EntityNotFoundException;
 import com.cognizant.EventPlanner.mapper.NotificationMapper;
-import com.cognizant.EventPlanner.model.*;
+import com.cognizant.EventPlanner.model.Attendee;
+import com.cognizant.EventPlanner.model.Event;
+import com.cognizant.EventPlanner.model.RegistrationStatus;
+import com.cognizant.EventPlanner.model.User;
 import com.cognizant.EventPlanner.repository.AttendeeRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
-import java.util.EnumSet;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import java.util.EnumSet;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -99,4 +107,60 @@ public class AttendeeService {
     public Attendee saveAttendee(Attendee attendee) {
         return attendeeRepository.save(attendee);
     }
+
+    @CacheEvict(value = {"paginatedEvents", "events"}, allEntries = true)
+    public void saveAttendees(Set<Attendee> attendees) {
+        attendeeRepository.saveAll(attendees);
+    }
+
+    public List<Attendee> findAllByEventId(Long eventId) {
+        return attendeeRepository.findAllByEventId(eventId);
+    }
+
+    public void removeAttendees(List<Long> attendeesIdsToRemove) {
+        attendeeRepository.removeAllByIdIn(attendeesIdsToRemove);
+    }
+
+    public void updateEventAttendees(Event event, Set<User> newUsers) {
+        List<Attendee> currentEventAttendees = findAllByEventId(event.getId());
+        List<Long> toRemove = currentEventAttendees.stream().filter(attendee -> !newUsers.contains(attendee.getUser())).map(Attendee::getId).toList();
+        removeAttendees(toRemove);
+
+        Set<Attendee> newAttendees = newUsers.stream()
+                .filter(user -> currentEventAttendees.stream().noneMatch(attendee -> attendee.getUser().equals(user)))
+                .map(user -> new Attendee(null, RegistrationStatus.ACCEPTED, null,
+                        LocalDateTime.now(), null, user, event))
+                .collect(Collectors.toSet());
+
+        saveAttendees(newAttendees);
+    }
+
+
+    public Optional<Attendee> findAttendeeByUserAndEvent(Long userId, Long eventId) {
+        return attendeeRepository.findByUserIdAndEventId(userId, eventId);
+    }
+
+    public List<Attendee> findAttendeesByUsersAndEvent(Set<Long> userIds, Long eventId) {
+        return attendeeRepository.findAllByUserIdsAndEventId(userIds, eventId);
+    }
+
+    public RegistrationStatus getAttendeeRegistrationStatus(Event event, String userEmail) {
+        return attendeeRepository.findAttendeeRegistrationStatus(event.getId(), userEmail)
+                .orElse(null);
+    }
+
+    @CacheEvict(value = {"paginatedEvents", "events"}, allEntries = true)
+    public List<Attendee> saveAllAttendees(Iterable<Attendee> attendees) {
+        return attendeeRepository.saveAll(attendees);
+    }
+
+    @CacheEvict(value = {"paginatedEvents", "events"}, allEntries = true)
+    public void deleteAttendee(Attendee attendee) {
+        attendeeRepository.delete(attendee);
+    }
+
+    public long countAcceptedAttendeesByEvent(Long eventId) {
+        return attendeeRepository.countAcceptedAttendeesByEventId(eventId);
+    }
+
 }

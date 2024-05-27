@@ -46,6 +46,7 @@ public class UserManagementFacade {
         return new UserInfoResponseDto(
             user.getId(),
             user.getFirstName(),
+            user.getLastName(),
             user.getImageUrl(),
             activeNotifications
         );
