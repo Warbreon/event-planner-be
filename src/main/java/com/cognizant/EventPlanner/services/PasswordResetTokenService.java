@@ -80,7 +80,8 @@ public class PasswordResetTokenService {
 
     private String createNewToken() {
         String resetToken = UUID.randomUUID().toString();
-        return passwordEncoder.encode(resetToken);
+        String encodedToken = passwordEncoder.encode(resetToken);
+        return makeUrlSafe(encodedToken);
     }
 
     private boolean isTokenExpired(PasswordResetToken token) {
@@ -90,6 +91,10 @@ public class PasswordResetTokenService {
     private boolean isRemainingTokenExpiryAcceptable(PasswordResetToken token) {
         LocalDateTime thresholdTime = LocalDateTime.now().plusMinutes(VALID_REMAINING_TOKEN_EXPIRY_TIME);
         return token.getExpirationDate().isAfter(thresholdTime);
+    }
+
+    private String makeUrlSafe(String token) {
+        return token.replace("/", "-").replace("+", "_").replace("=", "");
     }
 
 }
