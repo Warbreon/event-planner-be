@@ -5,7 +5,6 @@ import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
 import com.cognizant.EventPlanner.exception.EntityNotFoundException;
 import com.cognizant.EventPlanner.mapper.AttendeeMapper;
 import com.cognizant.EventPlanner.model.*;
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -66,15 +65,14 @@ public class RegistrationService {
     }
 
     private void setAttendeeStatuses(Attendee attendee, Event event) {
-        if (event.getIsOpen()) {
+        if (event.getIsOpen() && !eventService.isPaid(event)) {
             attendee.setRegistrationStatus(RegistrationStatus.ACCEPTED);
+        } else if (eventService.isPaid(event)) {
+            attendee.setRegistrationStatus(RegistrationStatus.PENDING);
+            attendee.setPaymentStatus(PaymentStatus.PENDING);
         } else {
             attendee.setIsNewNotification(true);
             attendee.setRegistrationStatus(RegistrationStatus.PENDING);
-        }
-
-        if (eventService.isPaid(event)) {
-            attendee.setPaymentStatus(PaymentStatus.PENDING);
         }
     }
 

@@ -4,10 +4,7 @@ import com.cognizant.EventPlanner.dto.response.AttendeeNotificationResponseDto;
 import com.cognizant.EventPlanner.dto.response.NotificationResponseDto;
 import com.cognizant.EventPlanner.exception.EntityNotFoundException;
 import com.cognizant.EventPlanner.mapper.NotificationMapper;
-import com.cognizant.EventPlanner.model.Attendee;
-import com.cognizant.EventPlanner.model.Event;
-import com.cognizant.EventPlanner.model.RegistrationStatus;
-import com.cognizant.EventPlanner.model.User;
+import com.cognizant.EventPlanner.model.*;
 import com.cognizant.EventPlanner.repository.AttendeeRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -139,6 +136,11 @@ public class AttendeeService {
 
     public RegistrationStatus getAttendeeRegistrationStatus(Event event, String userEmail) {
         return attendeeRepository.findAttendeeRegistrationStatus(event.getId(), userEmail)
+                .orElse(null);
+    }
+
+    public PaymentStatus getAttendeePaymentStatus(Event event, String userEmail) {
+        return attendeeRepository.findAttendeePaymentStatus(event.getId(), userEmail)
                 .orElse(null);
     }
 
