@@ -82,9 +82,6 @@ public class AttendeeService {
     public List<Attendee> findAllAttendeesByEventId(Long eventId){
         return attendeeRepository.findAttendeesByEventId(eventId);
     }
-    public void saveAllAttendees(List<Attendee> Attendees){
-        attendeeRepository.saveAll(Attendees);
-    }
 
     public Attendee findAttendeeById(Long attendeeId) {
         return attendeeRepository.findById(attendeeId)
