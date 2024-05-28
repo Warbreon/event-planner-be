@@ -9,10 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -25,14 +22,16 @@ public class RegistrationService {
     private final EventRegistrationRulesService eventRegistrationRulesService;
 
     public AttendeeResponseDto registerAttendeeToEvent(AttendeeRequestDto request, User user, Event event) {
-        eventRegistrationRulesService.validateEventForRegistration(event, user);
+        boolean isUserCreator = isUserCreator(user, event);
+
+        eventRegistrationRulesService.validateEventForRegistration(event, isUserCreator);
         Optional<Attendee> existingAttendee = attendeeService.findAttendeeByUserAndEvent(user.getId(), event.getId());
 
         if (existingAttendee.isPresent()) {
             return attendeeMapper.attendeeToDto(existingAttendee.get());
         }
 
-        Attendee attendeeToRegister = createAttendee(request, user, event);
+        Attendee attendeeToRegister = createAttendee(request, user, event, isUserCreator);
         Attendee attendee = attendeeService.saveAttendee(attendeeToRegister);
 
         return attendeeMapper.attendeeToDto(attendee);
@@ -41,7 +40,7 @@ public class RegistrationService {
     public Set<AttendeeResponseDto> registerAttendeesToEvent(Set<AttendeeRequestDto> requests, Map<Long, User> userMap, Set<Long> registeredUserIds, Event event) {
         List<Attendee> attendeesToSave = requests.stream()
                 .filter(request -> !registeredUserIds.contains(request.getUserId()))
-                .map(request -> createAttendee(request, userMap.get(request.getUserId()), event))
+                .map(request -> createAttendee(request, userMap.get(request.getUserId()), event, isUserCreator(userMap.get(request.getUserId()), event)))
                 .collect(Collectors.toList());
 
         List<Attendee> savedAttendees = attendeeService.saveAllAttendees(attendeesToSave);
@@ -59,14 +58,14 @@ public class RegistrationService {
         attendeeService.deleteAttendee(attendee);
     }
 
-    private Attendee createAttendee(AttendeeRequestDto request, User user, Event event) {
+    private Attendee createAttendee(AttendeeRequestDto request, User user, Event event, boolean isUserCreator) {
         Attendee attendee = attendeeMapper.requestDtoToAttendee(request, event, user);
-        setAttendeeStatuses(attendee, event);
+        setAttendeeStatuses(attendee, event, isUserCreator);
         return attendee;
     }
 
-    private void setAttendeeStatuses(Attendee attendee, Event event) {
-        if (event.getIsOpen()) {
+    private void setAttendeeStatuses(Attendee attendee, Event event, boolean isUserCreator) {
+        if (isUserCreator || event.getIsOpen()) {
             attendee.setRegistrationStatus(RegistrationStatus.ACCEPTED);
         } else {
             attendee.setIsNewNotification(true);
@@ -76,6 +75,10 @@ public class RegistrationService {
         if (eventService.isPaid(event)) {
             attendee.setPaymentStatus(PaymentStatus.PENDING);
         }
+    }
+
+    private boolean isUserCreator(User user, Event event) {
+        return Objects.equals(user.getEmail(), event.getCreator().getEmail());
     }
 
 }
