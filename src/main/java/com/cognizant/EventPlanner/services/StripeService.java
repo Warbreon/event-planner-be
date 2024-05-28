@@ -1,7 +1,6 @@
 package com.cognizant.EventPlanner.services;
 
 import com.cognizant.EventPlanner.dto.stripe.ChargeRequestDto;
-import com.cognizant.EventPlanner.dto.stripe.RefundRequestDto;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
 import com.stripe.model.Refund;
@@ -21,9 +20,9 @@ public class StripeService {
         return Charge.create(chargeParams);
     }
 
-    public Refund refundCharge(RefundRequestDto refundRequestDto) throws StripeException {
+    public Refund refundCharge(String chargeId) throws StripeException {
         Map<String, Object> refundParams = new HashMap<>();
-        refundParams.put("charge", refundRequestDto.getChargeId());
+        refundParams.put("charge", chargeId);
         return Refund.create(refundParams);
     }
 }

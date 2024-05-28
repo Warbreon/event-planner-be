@@ -11,7 +11,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class RefundRequestDto {
 
-    private String chargeId;
     private Long attendeeId;
 
 }

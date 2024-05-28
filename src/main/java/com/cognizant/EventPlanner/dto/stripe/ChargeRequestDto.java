@@ -15,6 +15,6 @@ public class ChargeRequestDto {
 
     private String token;
     private BigDecimal amount;
-    private Long attendeeId;
+    private Long eventId;
 
 }

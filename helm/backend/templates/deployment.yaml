@@ -78,6 +78,16 @@ spec:
                 secretKeyRef:
                   name: be-secrets
                   key: AZURE_SAS_TOKEN
+            - name: STRIPE_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: be-secrets
+                  key: STRIPE_SECRET_KEY
+            - name: STRIPE_TEST_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: be-secrets
+                  key: STRIPE_TEST_KEY
       imagePullSecrets:
       - name: regcred
 

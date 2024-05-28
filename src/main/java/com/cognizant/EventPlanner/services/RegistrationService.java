@@ -58,7 +58,7 @@ public class RegistrationService {
         attendeeService.deleteAttendee(attendee);
     }
 
-    private Attendee createAttendee(AttendeeRequestDto request, User user, Event event) {
+    public Attendee createAttendee(AttendeeRequestDto request, User user, Event event) {
         Attendee attendee = attendeeMapper.requestDtoToAttendee(request, event, user);
         setAttendeeStatuses(attendee, event);
         return attendee;
@@ -67,13 +67,17 @@ public class RegistrationService {
     private void setAttendeeStatuses(Attendee attendee, Event event) {
         if (event.getIsOpen() && !eventService.isPaid(event)) {
             attendee.setRegistrationStatus(RegistrationStatus.ACCEPTED);
-        } else if (eventService.isPaid(event)) {
-            attendee.setRegistrationStatus(RegistrationStatus.PENDING);
-            attendee.setPaymentStatus(PaymentStatus.PENDING);
-        } else {
+        } else if (!event.getIsOpen()) {
             attendee.setIsNewNotification(true);
             attendee.setRegistrationStatus(RegistrationStatus.PENDING);
         }
     }
 
+    public void updateAttendeeStatuses(Attendee attendee, Event event, RegistrationStatus registrationStatus, PaymentStatus paymentStatus) {
+        attendee.setRegistrationStatus(registrationStatus);
+        attendee.setPaymentStatus(paymentStatus);
+        if (!event.getIsOpen()) {
+            attendee.setIsNewNotification(true);
+        }
+    }
 }
