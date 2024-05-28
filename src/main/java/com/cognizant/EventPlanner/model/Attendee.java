@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -39,4 +40,7 @@ public class Attendee {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id")
     private Event event;
+
+    @OneToMany(mappedBy = "attendee", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Transaction> transactions;
 }

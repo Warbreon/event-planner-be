@@ -119,7 +119,7 @@ public class AttendeeService {
         Set<Attendee> newAttendees = newUsers.stream()
                 .filter(user -> currentEventAttendees.stream().noneMatch(attendee -> attendee.getUser().equals(user)))
                 .map(user -> new Attendee(null, RegistrationStatus.ACCEPTED, null,
-                        LocalDateTime.now(), null, user, event))
+                        LocalDateTime.now(), null, user, event, null))
                 .collect(Collectors.toSet());
 
         saveAttendees(newAttendees);
