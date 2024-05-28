@@ -8,7 +8,6 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
-@ToString
 public class AttendeeRequestDto extends BaseEventRegistrationRequestDto {
 
     public AttendeeRequestDto(Long userId, Long eventId) {
