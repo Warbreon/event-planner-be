@@ -7,8 +7,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum EmailType {
 
-    PASSWORD_RESET("PasswordReset.html");
-
+    PASSWORD_RESET("PasswordReset.html"),
+    REGISTRATION_ACCEPTED("RegistrationToPrivateEventAccepted.html"),
+    REGISTRATION_REJECTED("RegistrationToPrivateEventRejection.html");
     private final String templateName;
 
 }
