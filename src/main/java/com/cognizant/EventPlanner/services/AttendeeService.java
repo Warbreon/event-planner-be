@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -48,20 +49,34 @@ public class AttendeeService {
     @CacheEvict(value = {"paginatedEvents", "events"}, allEntries = true)
     @Transactional
     public Attendee confirmPendingRegistration(Long attendeeId) {
-        return updateRegistrationStatus(
+        Attendee attendee = updateRegistrationStatus(
                 attendeeId,
                 EnumSet.of(RegistrationStatus.PENDING, RegistrationStatus.REJECTED),
                 RegistrationStatus.ACCEPTED
         );
+        attendee = updatePaymentStatus(
+                attendee.getEvent(),
+                attendeeId,
+                EnumSet.of(PaymentStatus.PRE_REFUND),
+                PaymentStatus.PAID
+        );
+        return attendee;
     }
 
     @Transactional
     public Attendee declinePendingRegistration(Long attendeeId) {
-        return updateRegistrationStatus(
+        Attendee attendee = updateRegistrationStatus(
                 attendeeId,
                 EnumSet.of(RegistrationStatus.PENDING, RegistrationStatus.ACCEPTED),
                 RegistrationStatus.REJECTED
         );
+        attendee = updatePaymentStatus(
+                attendee.getEvent(),
+                attendeeId,
+                EnumSet.of(PaymentStatus.PAID),
+                PaymentStatus.PRE_REFUND
+        );
+        return attendee;
     }
 
     private Attendee updateRegistrationStatus(Long attendeeId, EnumSet<RegistrationStatus> allowedStatuses, RegistrationStatus newStatus) {
@@ -72,6 +87,17 @@ public class AttendeeService {
         if (allowedStatuses.contains(attendee.getRegistrationStatus())) {
             attendee.setRegistrationStatus(newStatus);
             return saveAttendee(attendee);
+        }
+        return attendee;
+    }
+
+    private Attendee updatePaymentStatus(Event event, Long attendeeId, EnumSet<PaymentStatus> allowedStatuses, PaymentStatus newStatus) {
+        Attendee attendee = findAttendeeById(attendeeId);
+        if (event.getPrice().compareTo(BigDecimal.ZERO) != 0) {
+            if (allowedStatuses.contains(attendee.getPaymentStatus())) {
+                attendee.setPaymentStatus(newStatus);
+                return saveAttendee(attendee);
+            }
         }
         return attendee;
     }

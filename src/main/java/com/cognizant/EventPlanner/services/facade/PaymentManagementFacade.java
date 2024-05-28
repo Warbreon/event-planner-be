@@ -67,21 +67,21 @@ public class PaymentManagementFacade {
     @Transactional
     public PaymentResponseDto refundPayment(RefundRequestDto refundRequestDto) {
         try {
+            Attendee attendee = attendeeService.findAttendeeById(refundRequestDto.getAttendeeId());
+            if (!attendee.getPaymentStatus().equals(PaymentStatus.PRE_REFUND)) {
+                return new PaymentResponseDto(false, "Attendee not paid", null, HttpStatus.BAD_REQUEST.value());
+            }
             Transaction transaction = transactionService.findTransactionByAttendeeId(refundRequestDto.getAttendeeId());
             Refund refund = stripeService.refundCharge(transaction.getChargeId());
-            Attendee attendee = attendeeService.findAttendeeById(refundRequestDto.getAttendeeId());
+
             attendee.setPaymentStatus(PaymentStatus.REFUNDED);
             attendeeService.saveAttendee(attendee);
+
             transaction.setPaymentStatus(PaymentStatus.REFUNDED);
             transactionService.saveTransaction(transaction);
+
             return new PaymentResponseDto(true, "Refund successful", refund.getId(), HttpStatus.OK.value());
         } catch (StripeException ex) {
-            Transaction transaction = transactionService.findTransactionByAttendeeId(refundRequestDto.getAttendeeId());
-            transaction.setPaymentStatus(PaymentStatus.NOT_REFUNDED);
-            transactionService.saveTransaction(transaction);
-            Attendee attendee = attendeeService.findAttendeeById(refundRequestDto.getAttendeeId());
-            attendee.setPaymentStatus(PaymentStatus.NOT_REFUNDED);
-            attendeeService.saveAttendee(attendee);
             return new PaymentResponseDto(false, ex.getMessage(), null, HttpStatus.BAD_REQUEST.value());
         }
     }
