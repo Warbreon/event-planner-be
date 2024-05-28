@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -56,7 +57,7 @@ public class AttendeeController {
     }
     @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN', 'EVENT_ADMIN')")
     @PatchMapping("/{eventId}/updateAttendees")
-    public ResponseEntity<Void> updateEventAttendees(@PathVariable Long eventId, @Valid @RequestBody List<Long> userIds){
+    public ResponseEntity<Void> updateEventAttendees(@PathVariable Long eventId, @Valid @RequestBody Set<Long> userIds){
         attendeeManagementFacade.updateEventAttendees(eventId,userIds);
         return ResponseEntity.ok().build();
     }

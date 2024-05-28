@@ -11,8 +11,8 @@ import com.cognizant.EventPlanner.services.*;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -87,38 +87,8 @@ public class AttendeeManagementFacade {
         return eventAttendees.stream().map(attendeeMapper::attendeeToDto).toList();
     }
 
-    public void updateEventAttendees(Long eventId, List<Long> userIds) {
-        List<Long> userIdsToAdd = new ArrayList<>(userIds);
-        List<Attendee> updatedAttendees = new ArrayList<>();
-        List<Attendee> eventAttendees = attendeeService.findAllAttendeesByEventId(eventId);
-        sortOutAttendees(eventAttendees, userIdsToAdd, updatedAttendees);
-        createNewRecordsForAttendees(eventId, userIdsToAdd, updatedAttendees);
-        attendeeService.saveAllAttendees(updatedAttendees);
-    }
-
-    private void sortOutAttendees(List<Attendee> eventAttendees, List<Long> userIdsToAdd, List<Attendee> updatedAttendees) {
-        eventAttendees.forEach(attendee -> {
-            Long userId = attendee.getUser().getId();
-            if (userIdsToAdd.contains(userId)) {
-                attendee.setRegistrationStatus(RegistrationStatus.ACCEPTED);
-                updatedAttendees.add(attendee);
-                userIdsToAdd.remove(userId);
-            } else {
-                attendee.setRegistrationStatus(RegistrationStatus.REJECTED);
-                updatedAttendees.add(attendee);
-            }
-        });
-    }
-
-    private void createNewRecordsForAttendees(Long eventId, List<Long> userIdsToAdd, List<Attendee> updatedAttendees) {
+    public void updateEventAttendees(Long eventId, Set<Long> userIds) {
         Event event = eventService.findEventById(eventId);
-        userIdsToAdd.forEach(userId ->
-            {
-                User user = userService.findUserById(userId);
-                Attendee attendeeToRegister = attendeeMapper.requestDtoToAttendee(new AttendeeRequestDto(userId, eventId), event, user);
-                attendeeToRegister.setRegistrationStatus(RegistrationStatus.ACCEPTED);
-                updatedAttendees.add(attendeeToRegister);
-            }
-        );
+        registrationService.registerAttendeesToEvent(userIds,event);
     }
 }
