@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.Optional;
 
 @Service
@@ -35,29 +36,17 @@ public class PaymentManagementFacade {
         try {
             Charge charge = stripeService.createCharge(chargeRequestDto);
 
-            String userEmail = userDetailsService.getCurrentUserEmail();
-            User user = userService.findUserByEmail(userEmail);
+            User user = getCurrentUser();
             Event event = eventService.findEventById(chargeRequestDto.getEventId());
-
             Optional<Attendee> existingAttendee = attendeeService.findAttendeeByUserAndEvent(user.getId(), event.getId());
 
-            if (existingAttendee.isPresent() && existingAttendee.get().getPaymentStatus().equals(PaymentStatus.PAID)) {
-                return new PaymentResponseDto(false, "Attendee already registered", null, HttpStatus.BAD_REQUEST.value());
-            } else if (existingAttendee.isPresent() && existingAttendee.get().getRegistrationStatus().equals(RegistrationStatus.REJECTED)) {
-                return new PaymentResponseDto(false, "Attendee rejected", null, HttpStatus.BAD_REQUEST.value());
+            Optional<PaymentResponseDto> validationResponse = validateExistingAttendee(existingAttendee);
+            if (validationResponse.isPresent()) return validationResponse.get();
+
+            registerAttendee(user, event, chargeRequestDto.getAmount(), charge.getId());
+            if (!event.getIsOpen()) {
+                notificationController.notifyEventCreator(event.getCreator().getEmail());
             }
-
-            AttendeeRequestDto attendeeRequest = new AttendeeRequestDto();
-            attendeeRequest.setUserId(user.getId());
-            attendeeRequest.setEventId(event.getId());
-
-            Attendee attendeeToRegister = registrationService.createAttendee(attendeeRequest, user, event);
-            registrationService.updateAttendeeStatuses(attendeeToRegister, event, event.getIsOpen() ? RegistrationStatus.ACCEPTED : RegistrationStatus.PENDING, PaymentStatus.PAID);
-            Attendee attendee = attendeeService.saveAttendee(attendeeToRegister);
-
-            transactionService.createTransaction(chargeRequestDto.getAmount(), charge.getId(), attendee, event);
-
-            if (!event.getIsOpen()) notificationController.notifyEventCreator(event.getCreator().getEmail());
             return new PaymentResponseDto(true, "Payment successful", charge.getId(), HttpStatus.OK.value());
         } catch (StripeException ex) {
             return new PaymentResponseDto(false, ex.getMessage(), null, HttpStatus.BAD_REQUEST.value());
@@ -71,14 +60,11 @@ public class PaymentManagementFacade {
             if (!attendee.getPaymentStatus().equals(PaymentStatus.PRE_REFUND)) {
                 return new PaymentResponseDto(false, "Attendee not paid", null, HttpStatus.BAD_REQUEST.value());
             }
+
             Transaction transaction = transactionService.findTransactionByAttendeeId(refundRequestDto.getAttendeeId());
             Refund refund = stripeService.refundCharge(transaction.getChargeId());
 
-            attendee.setPaymentStatus(PaymentStatus.REFUNDED);
-            attendeeService.saveAttendee(attendee);
-
-            transaction.setPaymentStatus(PaymentStatus.REFUNDED);
-            transactionService.saveTransaction(transaction);
+            updateAttendeeAndTransactionStatus(attendee, transaction);
 
             return new PaymentResponseDto(true, "Refund successful", refund.getId(), HttpStatus.OK.value());
         } catch (StripeException ex) {
@@ -86,4 +72,39 @@ public class PaymentManagementFacade {
         }
     }
 
+    private User getCurrentUser() {
+        String userEmail = userDetailsService.getCurrentUserEmail();
+        return userService.findUserByEmail(userEmail);
+    }
+
+    private Optional<PaymentResponseDto> validateExistingAttendee(Optional<Attendee> existingAttendee) {
+        if (existingAttendee.isPresent()) {
+            if (existingAttendee.get().getPaymentStatus().equals(PaymentStatus.PAID)) {
+                return Optional.of(new PaymentResponseDto(false, "Attendee already registered", null, HttpStatus.BAD_REQUEST.value()));
+            } else if (existingAttendee.get().getRegistrationStatus().equals(RegistrationStatus.REJECTED)) {
+                return Optional.of(new PaymentResponseDto(false, "Attendee rejected", null, HttpStatus.BAD_REQUEST.value()));
+            }
+        }
+        return Optional.empty();
+    }
+
+    private void registerAttendee(User user, Event event, BigDecimal amount, String chargeId) {
+        AttendeeRequestDto attendeeRequest = new AttendeeRequestDto();
+        attendeeRequest.setUserId(user.getId());
+        attendeeRequest.setEventId(event.getId());
+
+        Attendee attendeeToRegister = registrationService.createAttendee(attendeeRequest, user, event);
+        registrationService.updateAttendeeStatuses(attendeeToRegister, event, event.getIsOpen() ? RegistrationStatus.ACCEPTED : RegistrationStatus.PENDING, PaymentStatus.PAID);
+        Attendee attendee = attendeeService.saveAttendee(attendeeToRegister);
+
+        transactionService.createTransaction(amount, chargeId, attendee, event);
+    }
+
+    private void updateAttendeeAndTransactionStatus(Attendee attendee, Transaction transaction) {
+        attendee.setPaymentStatus(PaymentStatus.REFUNDED);
+        attendeeService.saveAttendee(attendee);
+
+        transaction.setPaymentStatus(PaymentStatus.REFUNDED);
+        transactionService.saveTransaction(transaction);
+    }
 }
