@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -89,12 +90,13 @@ public class PaymentManagementFacade {
     }
 
     private void registerAttendee(User user, Event event, BigDecimal amount, String chargeId) {
+        boolean isUserCreator = isUserCreator(user, event);
         AttendeeRequestDto attendeeRequest = new AttendeeRequestDto();
         attendeeRequest.setUserId(user.getId());
         attendeeRequest.setEventId(event.getId());
 
-        Attendee attendeeToRegister = registrationService.createAttendee(attendeeRequest, user, event);
-        registrationService.updateAttendeeStatuses(attendeeToRegister, event, event.getIsOpen() ? RegistrationStatus.ACCEPTED : RegistrationStatus.PENDING, PaymentStatus.PAID);
+        Attendee attendeeToRegister = registrationService.createAttendee(attendeeRequest, user, event, isUserCreator);
+        registrationService.updateAttendeeStatuses(isUserCreator, attendeeToRegister, event, event.getIsOpen() ? RegistrationStatus.ACCEPTED : RegistrationStatus.PENDING, PaymentStatus.PAID);
         Attendee attendee = attendeeService.saveAttendee(attendeeToRegister);
 
         transactionService.createTransaction(amount, chargeId, attendee, event);
@@ -106,5 +108,9 @@ public class PaymentManagementFacade {
 
         transaction.setPaymentStatus(PaymentStatus.REFUNDED);
         transactionService.saveTransaction(transaction);
+    }
+
+    private boolean isUserCreator(User user, Event event) {
+        return Objects.equals(user.getEmail(), event.getCreator().getEmail());
     }
 }
