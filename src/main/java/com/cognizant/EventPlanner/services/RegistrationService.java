@@ -44,11 +44,6 @@ public class RegistrationService {
         sortOutAttendees(eventAttendees, userIdsToAdd, updatedAttendees);
         createNewRecordsForAttendees(event.getId(), userIdsToAdd, updatedAttendees,event);
 
-/*        List<Attendee> attendeesToSave = requests.stream()
-                .filter(request -> !registeredUserIds.contains(request.getUserId()))
-                .map(request -> createAttendee(request, userMap.get(request.getUserId()), event, isUserCreator(userMap.get(request.getUserId()), event)))
-                .collect(Collectors.toList());*/
-
         List<Attendee> savedAttendees = attendeeService.saveAllAttendees(updatedAttendees);
 
         return savedAttendees.stream()
