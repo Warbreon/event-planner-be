@@ -41,8 +41,8 @@ public class RegistrationService {
         List<Long> userIdsToAdd = new ArrayList<>(userIds);
         List<Attendee> updatedAttendees = new ArrayList<>();
         List<Attendee> eventAttendees = attendeeService.findAllAttendeesByEventId(event.getId());
-        sortOutAttendees(eventAttendees, userIdsToAdd, updatedAttendees);
-        createNewRecordsForAttendees(event.getId(), userIdsToAdd, updatedAttendees,event);
+        sortOutAttendees(eventAttendees, userIdsToAdd, updatedAttendees, event);
+        createNewRecordsForAttendees(event.getId(), userIdsToAdd, updatedAttendees, event);
 
         List<Attendee> savedAttendees = attendeeService.saveAllAttendees(updatedAttendees);
 
@@ -82,10 +82,10 @@ public class RegistrationService {
         return Objects.equals(user.getEmail(), event.getCreator().getEmail());
     }
 
-    private void sortOutAttendees(List<Attendee> eventAttendees, List<Long> userIdsToAdd, List<Attendee> updatedAttendees) {
+    private void sortOutAttendees(List<Attendee> eventAttendees, List<Long> userIdsToAdd, List<Attendee> updatedAttendees, Event event) {
         eventAttendees.forEach(attendee -> {
             Long userId = attendee.getUser().getId();
-            if (userIdsToAdd.contains(userId)) {
+            if (userIdsToAdd.contains(userId) || isUserCreator(attendee.getUser(), event)) {
                 attendee.setRegistrationStatus(RegistrationStatus.ACCEPTED);
                 updatedAttendees.add(attendee);
                 userIdsToAdd.remove(userId);
