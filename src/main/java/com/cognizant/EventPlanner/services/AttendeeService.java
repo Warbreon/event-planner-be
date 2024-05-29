@@ -6,6 +6,7 @@ import com.cognizant.EventPlanner.exception.EntityNotFoundException;
 import com.cognizant.EventPlanner.mapper.NotificationMapper;
 import com.cognizant.EventPlanner.model.*;
 import com.cognizant.EventPlanner.repository.AttendeeRepository;
+import com.cognizant.EventPlanner.repository.TransactionRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -26,6 +27,7 @@ public class AttendeeService {
 
     private final AttendeeRepository attendeeRepository;
     private final NotificationMapper notificationMapper;
+    private final TransactionRepository transactionRepository;
 
     public NotificationResponseDto getAttendeeNotifications(String email) {
         int activeNotifications = countActiveNotifications(email);
@@ -134,6 +136,7 @@ public class AttendeeService {
     }
 
     public void removeAttendees(List<Long> attendeesIdsToRemove) {
+        transactionRepository.removeAllByIdIn(attendeesIdsToRemove);
         attendeeRepository.removeAllByIdIn(attendeesIdsToRemove);
     }
 
