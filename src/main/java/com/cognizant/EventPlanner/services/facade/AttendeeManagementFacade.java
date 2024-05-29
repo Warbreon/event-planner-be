@@ -1,6 +1,8 @@
 package com.cognizant.EventPlanner.services.facade;
 
 import com.cognizant.EventPlanner.controller.NotificationController;
+import com.cognizant.EventPlanner.dto.email.private_event_registration.AcceptRegistrationEmailDto;
+import com.cognizant.EventPlanner.dto.email.private_event_registration.RejectRegistrationEmailDto;
 import com.cognizant.EventPlanner.dto.request.AttendeeRequestDto;
 import com.cognizant.EventPlanner.dto.request.BaseEventRegistrationRequestDto;
 import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
@@ -8,6 +10,7 @@ import com.cognizant.EventPlanner.dto.response.NotificationResponseDto;
 import com.cognizant.EventPlanner.mapper.AttendeeMapper;
 import com.cognizant.EventPlanner.model.*;
 import com.cognizant.EventPlanner.services.*;
+import com.cognizant.EventPlanner.util.EmailDetailsBuilder;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,7 @@ public class AttendeeManagementFacade {
     private final AttendeeService attendeeService;
     private final AttendeeMapper attendeeMapper;
     private final NotificationController notificationController;
+    private final EmailService emailService;
 
     @Transactional
     public AttendeeResponseDto registerToEvent(BaseEventRegistrationRequestDto request) {
@@ -55,12 +59,36 @@ public class AttendeeManagementFacade {
     public AttendeeResponseDto confirmPendingRegistration(Long attendeeId) {
         Attendee attendee = attendeeService.confirmPendingRegistration(attendeeId);
         notifyEventCreatorByAttendee(attendeeId);
+
+        Event event = attendee.getEvent();
+        User attendeeUser = attendee.getUser();
+        User eventCreator = event.getCreator();
+
+        AcceptRegistrationEmailDto emailDetails = EmailDetailsBuilder.acceptRegistrationEmailBuilder(
+                attendeeUser,
+                event,
+                eventCreator
+        );
+        emailService.sendEmail(emailDetails);
+
         return attendeeMapper.attendeeToDto(attendee);
     }
 
     public AttendeeResponseDto declinePendingRegistration(Long attendeeId) {
         Attendee attendee = attendeeService.declinePendingRegistration(attendeeId);
         notifyEventCreatorByAttendee(attendeeId);
+
+        Event event = attendee.getEvent();
+        User attendeeUser = attendee.getUser();
+        User eventCreator = event.getCreator();
+
+        RejectRegistrationEmailDto emailDetails = EmailDetailsBuilder.rejectRegistrationEmailBuilder(
+                attendeeUser,
+                event,
+                eventCreator
+        );
+        emailService.sendEmail(emailDetails);
+
         return attendeeMapper.attendeeToDto(attendee);
     }
 

@@ -17,8 +17,8 @@ public class EventRegistrationRulesService {
 
     private final AttendeeService attendeeService;
 
-    public void validateEventForRegistration(Event event, User user) {
-        if (Objects.equals(user.getEmail(), event.getCreator().getEmail())) {
+    public void validateEventForRegistration(Event event, boolean isUserCreator) {
+        if (isUserCreator) {
             return;
         }
 
