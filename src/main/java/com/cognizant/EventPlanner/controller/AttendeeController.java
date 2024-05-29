@@ -7,7 +7,10 @@ import com.cognizant.EventPlanner.services.facade.AttendeeManagementFacade;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -50,6 +53,17 @@ public class AttendeeController {
     @PatchMapping("/register/{attendeeId}/decline")
     public ResponseEntity<AttendeeResponseDto> declinePendingRegistration(@PathVariable Long attendeeId) {
         AttendeeResponseDto response = attendeeManagementFacade.declinePendingRegistration(attendeeId);
+        return ResponseEntity.ok(response);
+    }
+    @PreAuthorize("hasAnyAuthority('SYSTEM_ADMIN', 'EVENT_ADMIN')")
+    @PatchMapping("/{eventId}/updateAttendees")
+    public ResponseEntity<Void> updateEventAttendees(@PathVariable Long eventId, @Valid @RequestBody Set<Long> userIds){
+        attendeeManagementFacade.updateEventAttendees(eventId,userIds);
+        return ResponseEntity.ok().build();
+    }
+    @GetMapping("/{eventId}")
+    public ResponseEntity<List<AttendeeResponseDto>> getEventAttendees(@PathVariable Long eventId){
+        List<AttendeeResponseDto> response = attendeeManagementFacade.getEventAttendees(eventId);
         return ResponseEntity.ok(response);
     }
 }

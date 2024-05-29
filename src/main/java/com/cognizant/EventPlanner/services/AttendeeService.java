@@ -79,6 +79,10 @@ public class AttendeeService {
         return attendee;
     }
 
+    public List<Attendee> findAllAttendeesByEventId(Long eventId){
+        return attendeeRepository.findAttendeesByEventId(eventId);
+    }
+
     public Attendee findAttendeeById(Long attendeeId) {
         return attendeeRepository.findById(attendeeId)
                 .orElseThrow(() -> new EntityNotFoundException(Attendee.class, attendeeId));

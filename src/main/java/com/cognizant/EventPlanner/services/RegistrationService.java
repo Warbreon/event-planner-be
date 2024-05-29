@@ -5,7 +5,6 @@ import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
 import com.cognizant.EventPlanner.exception.EntityNotFoundException;
 import com.cognizant.EventPlanner.mapper.AttendeeMapper;
 import com.cognizant.EventPlanner.model.*;
-import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +18,7 @@ public class RegistrationService {
     private final AttendeeMapper attendeeMapper;
     private final AttendeeService attendeeService;
     private final EventService eventService;
+    private final UserService userService;
     private final EventRegistrationRulesService eventRegistrationRulesService;
 
     public AttendeeResponseDto registerAttendeeToEvent(AttendeeRequestDto request, User user, Event event) {
@@ -37,13 +37,14 @@ public class RegistrationService {
         return attendeeMapper.attendeeToDto(attendee);
     }
 
-    public Set<AttendeeResponseDto> registerAttendeesToEvent(Set<AttendeeRequestDto> requests, Map<Long, User> userMap, Set<Long> registeredUserIds, Event event) {
-        List<Attendee> attendeesToSave = requests.stream()
-                .filter(request -> !registeredUserIds.contains(request.getUserId()))
-                .map(request -> createAttendee(request, userMap.get(request.getUserId()), event, isUserCreator(userMap.get(request.getUserId()), event)))
-                .collect(Collectors.toList());
+    public Set<AttendeeResponseDto> registerAttendeesToEvent(Set<Long> userIds, Event event) {
+        List<Long> userIdsToAdd = new ArrayList<>(userIds);
+        List<Attendee> updatedAttendees = new ArrayList<>();
+        List<Attendee> eventAttendees = attendeeService.findAllAttendeesByEventId(event.getId());
+        sortOutAttendees(eventAttendees, userIdsToAdd, updatedAttendees, event);
+        createNewRecordsForAttendees(event.getId(), userIdsToAdd, updatedAttendees, event);
 
-        List<Attendee> savedAttendees = attendeeService.saveAllAttendees(attendeesToSave);
+        List<Attendee> savedAttendees = attendeeService.saveAllAttendees(updatedAttendees);
 
         return savedAttendees.stream()
                 .map(attendeeMapper::attendeeToDto)
@@ -79,6 +80,34 @@ public class RegistrationService {
 
     private boolean isUserCreator(User user, Event event) {
         return Objects.equals(user.getEmail(), event.getCreator().getEmail());
+    }
+
+    private void sortOutAttendees(List<Attendee> eventAttendees, List<Long> userIdsToAdd, List<Attendee> updatedAttendees, Event event) {
+        eventAttendees.forEach(attendee -> {
+            Long userId = attendee.getUser().getId();
+            if (userIdsToAdd.contains(userId) || isUserCreator(attendee.getUser(), event)) {
+                attendee.setRegistrationStatus(RegistrationStatus.ACCEPTED);
+                updatedAttendees.add(attendee);
+                userIdsToAdd.remove(userId);
+            } else {
+                attendee.setRegistrationStatus(RegistrationStatus.REJECTED);
+                updatedAttendees.add(attendee);
+            }
+        });
+    }
+
+    private void createNewRecordsForAttendees(Long eventId, List<Long> userIdsToAdd, List<Attendee> updatedAttendees, Event event) {
+        userIdsToAdd.forEach(userId ->
+                {
+                    User user = userService.findUserById(userId);
+                    Attendee attendeeToRegister = attendeeMapper.requestDtoToAttendee(new AttendeeRequestDto(userId, eventId), event, user);
+                    attendeeToRegister.setRegistrationStatus(RegistrationStatus.ACCEPTED);
+                    if (eventService.isPaid(event)) {
+                        attendeeToRegister.setPaymentStatus(PaymentStatus.PENDING);
+                    }
+                    updatedAttendees.add(attendeeToRegister);
+                }
+        );
     }
 
 }

@@ -14,6 +14,8 @@ import com.cognizant.EventPlanner.util.EmailDetailsBuilder;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -108,4 +110,13 @@ public class AttendeeManagementFacade {
         registrationService.unregisterAttendeeFromEvent(user.getId(), eventId);
     }
 
+    public List<AttendeeResponseDto> getEventAttendees(Long eventId) {
+        List<Attendee> eventAttendees = attendeeService.findAllAttendeesByEventId(eventId);
+        return eventAttendees.stream().map(attendeeMapper::attendeeToDto).toList();
+    }
+
+    public void updateEventAttendees(Long eventId, Set<Long> userIds) {
+        Event event = eventService.findEventById(eventId);
+        registrationService.registerAttendeesToEvent(userIds,event);
+    }
 }
