@@ -23,6 +23,9 @@ public class UserService {
     public User findUserByEmail(String email) {
         return userRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException(User.class, email));
     }
+    public User findUserById(Long id) {
+        return userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException(User.class, id));
+    }
 
     public List<User> findUsersByRoles(List<Role> roleList) {
         return userRepository.findByRoleIn(roleList);

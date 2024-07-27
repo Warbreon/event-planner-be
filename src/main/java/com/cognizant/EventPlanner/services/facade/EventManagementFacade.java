@@ -7,7 +7,6 @@ import com.cognizant.EventPlanner.dto.response.AttendeeResponseDto;
 import com.cognizant.EventPlanner.dto.response.EventResponseDto;
 import com.cognizant.EventPlanner.mapper.EventMapper;
 import com.cognizant.EventPlanner.model.Address;
-import com.cognizant.EventPlanner.model.Attendee;
 import com.cognizant.EventPlanner.model.Event;
 import com.cognizant.EventPlanner.model.User;
 import com.cognizant.EventPlanner.services.*;
@@ -20,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -187,17 +185,7 @@ public class EventManagementFacade {
                 .map(AttendeeRequestDto::getUserId)
                 .collect(Collectors.toSet());
 
-        List<User> users = userService.findUsersByIds(userIds);
-        Map<Long, User> userMap = users.stream()
-                .collect(Collectors.toMap(User::getId, Function.identity()));
-
-        Set<Long> registeredUserIds = attendeeService.findAttendeesByUsersAndEvent(userIds, event.getId())
-                .stream()
-                .map(Attendee::getUser)
-                .map(User::getId)
-                .collect(Collectors.toSet());
-
-        return registrationService.registerAttendeesToEvent(requests, userMap, registeredUserIds, event);
+        return registrationService.registerAttendeesToEvent(userIds, event);
     }
 
     private EventResponseDto convertEventToDto(Event event) {
