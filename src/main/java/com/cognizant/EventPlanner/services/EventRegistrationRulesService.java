@@ -4,12 +4,10 @@ import com.cognizant.EventPlanner.exception.registration.EventSoldOutException;
 import com.cognizant.EventPlanner.exception.registration.RegistrationClosedException;
 import com.cognizant.EventPlanner.exception.registration.RegistrationNotOpenException;
 import com.cognizant.EventPlanner.model.Event;
-import com.cognizant.EventPlanner.model.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor

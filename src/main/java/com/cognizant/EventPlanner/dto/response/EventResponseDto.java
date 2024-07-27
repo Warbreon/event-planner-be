@@ -1,6 +1,7 @@
 package com.cognizant.EventPlanner.dto.response;
 
 import com.cognizant.EventPlanner.dto.EventDto;
+import com.cognizant.EventPlanner.model.PaymentStatus;
 import com.cognizant.EventPlanner.model.RegistrationStatus;
 import lombok.*;
 
@@ -22,6 +23,7 @@ public class EventResponseDto extends EventDto {
     private AddressResponseDto address;
     private Set<AttendeeResponseDto> attendees;
     private RegistrationStatus currentUserRegistrationStatus;
+    private PaymentStatus currentUserPaymentStatus;
     private Set<TagResponseDto> tags;
     private Boolean isCancelled;
 

@@ -1,6 +1,7 @@
 package com.cognizant.EventPlanner.repository;
 
 import com.cognizant.EventPlanner.model.Attendee;
+import com.cognizant.EventPlanner.model.PaymentStatus;
 import com.cognizant.EventPlanner.model.RegistrationStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,6 +23,11 @@ public interface AttendeeRepository extends JpaRepository<Attendee, Long> {
 
     @Query("SELECT a.registrationStatus FROM Attendee a JOIN a.user u WHERE a.event.id = :eventId AND u.email = :email")
     Optional<RegistrationStatus> findAttendeeRegistrationStatus(@Param("eventId") Long eventId, @Param("email") String email);
+
+    @Query("SELECT a.paymentStatus FROM Attendee a JOIN a.user u WHERE a.event.id = :eventId AND u.email = :email")
+    Optional<PaymentStatus> findAttendeePaymentStatus(@Param("eventId") Long eventId, @Param("email") String email);
+
+    <S extends Attendee> List<S> saveAll(Iterable<S> attendees);
 
     Optional<Attendee> findByUserIdAndEventId(Long userId, Long eventId);
 

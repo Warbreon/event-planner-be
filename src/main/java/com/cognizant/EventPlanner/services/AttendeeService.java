@@ -4,16 +4,15 @@ import com.cognizant.EventPlanner.dto.response.AttendeeNotificationResponseDto;
 import com.cognizant.EventPlanner.dto.response.NotificationResponseDto;
 import com.cognizant.EventPlanner.exception.EntityNotFoundException;
 import com.cognizant.EventPlanner.mapper.NotificationMapper;
-import com.cognizant.EventPlanner.model.Attendee;
-import com.cognizant.EventPlanner.model.Event;
-import com.cognizant.EventPlanner.model.RegistrationStatus;
-import com.cognizant.EventPlanner.model.User;
+import com.cognizant.EventPlanner.model.*;
 import com.cognizant.EventPlanner.repository.AttendeeRepository;
+import com.cognizant.EventPlanner.repository.TransactionRepository;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -28,6 +27,7 @@ public class AttendeeService {
 
     private final AttendeeRepository attendeeRepository;
     private final NotificationMapper notificationMapper;
+    private final TransactionRepository transactionRepository;
 
     public NotificationResponseDto getAttendeeNotifications(String email) {
         int activeNotifications = countActiveNotifications(email);
@@ -51,20 +51,34 @@ public class AttendeeService {
     @CacheEvict(value = {"paginatedEvents", "events"}, allEntries = true)
     @Transactional
     public Attendee confirmPendingRegistration(Long attendeeId) {
-        return updateRegistrationStatus(
+        Attendee attendee = updateRegistrationStatus(
                 attendeeId,
                 EnumSet.of(RegistrationStatus.PENDING, RegistrationStatus.REJECTED),
                 RegistrationStatus.ACCEPTED
         );
+        attendee = updatePaymentStatus(
+                attendee.getEvent(),
+                attendeeId,
+                EnumSet.of(PaymentStatus.PRE_REFUND),
+                PaymentStatus.PAID
+        );
+        return attendee;
     }
 
     @Transactional
     public Attendee declinePendingRegistration(Long attendeeId) {
-        return updateRegistrationStatus(
+        Attendee attendee = updateRegistrationStatus(
                 attendeeId,
                 EnumSet.of(RegistrationStatus.PENDING, RegistrationStatus.ACCEPTED),
                 RegistrationStatus.REJECTED
         );
+        attendee = updatePaymentStatus(
+                attendee.getEvent(),
+                attendeeId,
+                EnumSet.of(PaymentStatus.PAID),
+                PaymentStatus.PRE_REFUND
+        );
+        return attendee;
     }
 
     private Attendee updateRegistrationStatus(Long attendeeId, EnumSet<RegistrationStatus> allowedStatuses, RegistrationStatus newStatus) {
@@ -79,6 +93,17 @@ public class AttendeeService {
         return attendee;
     }
 
+    private Attendee updatePaymentStatus(Event event, Long attendeeId, EnumSet<PaymentStatus> allowedStatuses, PaymentStatus newStatus) {
+        Attendee attendee = findAttendeeById(attendeeId);
+        if (event.getPrice().compareTo(BigDecimal.ZERO) != 0) {
+            if (allowedStatuses.contains(attendee.getPaymentStatus())) {
+                attendee.setPaymentStatus(newStatus);
+                return saveAttendee(attendee);
+            }
+        }
+        return attendee;
+    }
+  
     public List<Attendee> findAllAttendeesByEventId(Long eventId){
         return attendeeRepository.findAttendeesByEventId(eventId);
     }
@@ -115,6 +140,7 @@ public class AttendeeService {
     }
 
     public void removeAttendees(List<Long> attendeesIdsToRemove) {
+        transactionRepository.removeAllByIdIn(attendeesIdsToRemove);
         attendeeRepository.removeAllByIdIn(attendeesIdsToRemove);
     }
 
@@ -126,7 +152,7 @@ public class AttendeeService {
         Set<Attendee> newAttendees = newUsers.stream()
                 .filter(user -> currentEventAttendees.stream().noneMatch(attendee -> attendee.getUser().equals(user)))
                 .map(user -> new Attendee(null, RegistrationStatus.ACCEPTED, null,
-                        LocalDateTime.now(), null, user, event))
+                        LocalDateTime.now(), null, user, event, null))
                 .collect(Collectors.toSet());
 
         saveAttendees(newAttendees);
@@ -143,6 +169,11 @@ public class AttendeeService {
 
     public RegistrationStatus getAttendeeRegistrationStatus(Event event, String userEmail) {
         return attendeeRepository.findAttendeeRegistrationStatus(event.getId(), userEmail)
+                .orElse(null);
+    }
+
+    public PaymentStatus getAttendeePaymentStatus(Event event, String userEmail) {
+        return attendeeRepository.findAttendeePaymentStatus(event.getId(), userEmail)
                 .orElse(null);
     }
 

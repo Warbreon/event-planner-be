@@ -195,6 +195,10 @@ public class EventManagementFacade {
                 event,
                 userDetailsService.getCurrentUserEmail()
         ));
+        eventDto.setCurrentUserPaymentStatus(attendeeService.getAttendeePaymentStatus(
+                event,
+                userDetailsService.getCurrentUserEmail()
+        ));
         return eventDto;
     }
 
