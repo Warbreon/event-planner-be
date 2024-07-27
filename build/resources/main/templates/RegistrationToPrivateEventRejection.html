@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Registration rejected email</title>
+    <style>
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #dddddd;
+            color: #253138;
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Update Regarding Your Registration for "<span th:text="${eventName}">Event</span>"</h2>
+        <p>Hello, <span th:text="${name}">User</span>!</p>
+        <p>Thank you for your interest in the event "<span th:text="${eventName}">Event</span>". We appreciate the time and effort you put into your registration request.</p>
+
+        <p>
+            After careful consideration, we regret to inform you that we are unable to accept your registration for the
+            "<span th:text="${eventName}">Event</span>" event at this time.
+            We received a large number of applications, and unfortunately,
+            we had to make some tough decisions due to limited availability.
+        </p>
+
+        <p>
+            We encourage you to stay connected with us for future events.
+            For more information and updates, please visit: <span th:text="${eventPlannerUrl}">URL</span>.
+        </p>
+
+        <p>
+            If you have any questions or would like more information about other upcoming events,
+            please do not hesitate to contact our event organizer
+            <span th:text="${eventCreatorFirstName}">Creator name</span>
+            <span th:text="${eventCreatorLastName}">Creator last name</span>
+            via email <span th:text="${eventCreatorEmail}">Creator email</span>.
+        </p>
+
+        <p>
+            Thank you for your understanding, and we hope to see you at a future events!
+        </p>
+
+        <p>Best regards,<br/><br/>The EventPlanner Team</p>
+    </div>
+</body>
+</html>
